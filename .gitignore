@@ -1,0 +1,40 @@
+# Build results
+bin/
+obj/
+out/
+
+# Visual Studio files
+.vs/
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+
+# Rider / JetBrains
+.idea/
+
+# Logs
+*.log
+logs/
+
+# Secrets & configs (local only)
+appsettings.Development.json
+appsettings.Local.json
+
+# NuGet packages
+*.nupkg
+*.snupkg
+packages/
+.nuget/
+
+# Publish output
+publish/
+
+# Coverage
+*.coverage
+*.coveragexml
+coverage/
+
+# OS-specific files
+.DS_Store
+Thumbs.db
