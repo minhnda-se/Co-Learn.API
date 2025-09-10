@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace CoLearn.Infrastructure.UnitOfWork
+namespace CoLearn.Infrastructure
 {
     public class UnitOfWork : IUnitOfWork
     {
