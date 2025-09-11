@@ -1,174 +1,96 @@
-﻿using CoLearn.Infrastructure.Context;
+﻿using CoLearn.Domain.Interfaces.Repositories;
+using CoLearn.Infrastructure.Context;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace CoLearn.Infrastructure.Repositories
 {
-
     public class GenericRepository<T> where T : class
     {
-        protected AppDbContext _context;
-
-        public GenericRepository()
-        {
-            _context ??= new AppDbContext();
-        }
+        protected readonly AppDbContext _context;
 
         public GenericRepository(AppDbContext context)
         {
             _context = context;
         }
 
-        public List<T> GetAll()
+        #region Query
+
+        public IQueryable<T> GetAllQuery()
         {
-            return _context.Set<T>().ToList();
+            return _context.Set<T>().AsQueryable();
         }
+
         public async Task<List<T>> GetAllAsync()
         {
             return await _context.Set<T>().ToListAsync();
         }
-        public void Create(T entity)
-        {
-            _context.Add(entity);
-            _context.SaveChanges();
-        }
 
-        public async Task<int> CreateAsync(T entity)
-        {
-            _context.Add(entity);
-            return await _context.SaveChangesAsync();
-        }
-        public void Update(T entity)
-        {
-            //// Turning off Tracking for UpdateAsync in Entity Framework
-            _context.ChangeTracker.Clear();
-            var tracker = _context.Attach(entity);
-            tracker.State = EntityState.Modified;
-            _context.SaveChanges();
-        }
-
-        public async Task<int> UpdateAsync(T entity)
-        {
-            //// Turning off Tracking for UpdateAsync in Entity Framework
-            _context.ChangeTracker.Clear();
-            var tracker = _context.Attach(entity);
-            tracker.State = EntityState.Modified;
-            return await _context.SaveChangesAsync();
-
-            /*
-            try
-            {
-                // Get primary key dynamically
-                var keyValues = _context.Model.FindEntityType(typeof(T))
-                                ?.FindPrimaryKey()
-                                ?.Properties
-                                ?.Select(p => p.PropertyInfo.GetValue(entity))
-                                .ToArray();
-
-                if (keyValues == null || keyValues.Length == 0)
-                    throw new InvalidOperationException("No primary key defined for entity.");
-
-                // Fetch existing entity without tracking
-                var existingEntity = await _context.Set<T>().FindAsync(keyValues);
-
-                if (existingEntity == null) return 0;
-
-                _context.Entry(existingEntity).State = EntityState.Detached; // ✅ Prevent tracking conflicts
-                _context.Entry(entity).State = EntityState.Modified; // ✅ Mark for update
-
-                return await _context.SaveChangesAsync();
-            }
-            catch (Exception ex)
-            {
-                return 0;
-            }           
-             */
-        }
-
-        public bool Remove(T entity)
-        {
-            _context.Remove(entity);
-            _context.SaveChanges();
-            return true;
-        }
-
-        public async Task<bool> RemoveAsync(T entity)
-        {
-            _context.Remove(entity);
-            await _context.SaveChangesAsync();
-            return true;
-        }
-
-        public T GetById(int id)
+        public T GetById(object id)
         {
             return _context.Set<T>().Find(id);
         }
 
-        public async Task<T> GetByIdAsync(int id)
+        public async Task<T> GetByIdAsync(object id)
         {
             return await _context.Set<T>().FindAsync(id);
         }
 
-        public T GetById(string code)
+        #endregion
+
+        #region Add
+
+        public void Add(T entity)
         {
-            return _context.Set<T>().Find(code);
+            _context.Set<T>().Add(entity);
+            // ❌ Không commit, để UnitOfWork quyết định
         }
 
-        public async Task<T> GetByIdAsync(string code)
+        public async Task AddAndSaveAsync(T entity)
         {
-            return await _context.Set<T>().FindAsync(code);
+            _context.Set<T>().Add(entity);
+            await _context.SaveChangesAsync(); // commit ngay
         }
 
-        /*
-        https://guidgenerator.com/
-        daacb4fb-ff73-46ef-98f1-4af9aab2a30a
-         */
-        public T GetById(Guid code)
+        #endregion
+
+        #region Update
+
+        public void Update(T entity)
         {
-            return _context.Set<T>().Find(code);
+            _context.ChangeTracker.Clear();
+            _context.Set<T>().Attach(entity);
+            _context.Entry(entity).State = EntityState.Modified;
+            // ❌ Không commit, để UnitOfWork quyết định
         }
 
-        public async Task<T> GetByIdAsync(Guid code)
+        public async Task UpdateAndSaveAsync(T entity)
         {
-            return await _context.Set<T>().FindAsync(code);
+            _context.ChangeTracker.Clear();
+            _context.Set<T>().Attach(entity);
+            _context.Entry(entity).State = EntityState.Modified;
+            await _context.SaveChangesAsync(); // commit ngay
         }
 
-        #region Separating asigned entity and save operators        
+        #endregion
 
-        public void PrepareCreate(T entity)
+        #region Remove
+
+        public void Remove(T entity)
         {
-            _context.Add(entity);
+            _context.Set<T>().Remove(entity);
+            // ❌ Không commit
         }
 
-        public void PrepareUpdate(T entity)
+        public async Task RemoveAndSaveAsync(T entity)
         {
-            var tracker = _context.Attach(entity);
-            tracker.State = EntityState.Modified;
-
+            _context.Set<T>().Remove(entity);
+            await _context.SaveChangesAsync(); // commit ngay
         }
 
-        public void PrepareRemove(T entity)
-        {
-            _context.Remove(entity);
-        }
-
-        public int Save()
-        {
-            return _context.SaveChanges();
-        }
-
-        public async Task<int> SaveAsync()
-        {
-            return await _context.SaveChangesAsync();
-        }
-
-        #endregion Separating asign entity and save operators
+        #endregion
     }
-
-
-
 }
