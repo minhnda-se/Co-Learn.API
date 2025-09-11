@@ -4,7 +4,13 @@ using CoLearn.Services;
 var builder = WebApplication.CreateBuilder(args);
 
 // 1. Add services to the container
-builder.Services.AddControllers();
+builder.Services.AddControllers()
+    .AddJsonOptions(opt =>
+    {
+        opt.JsonSerializerOptions.ReferenceHandler = System.Text.Json.Serialization.ReferenceHandler.IgnoreCycles;
+        opt.JsonSerializerOptions.WriteIndented = true;
+    });
+
 
 // 2. Add Swagger
 builder.Services.AddEndpointsApiExplorer();
