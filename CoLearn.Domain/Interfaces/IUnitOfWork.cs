@@ -1,12 +1,19 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using CoLearn.Domain.Interfaces.Repositories;
+using CoLearn.Infrastructure.Models;
+using System;
 using System.Threading.Tasks;
 
 namespace CoLearn.Domain.Interfaces
 {
-    public class IUnitOfWork
+    public interface IUnitOfWork : IDisposable
     {
+        // Generic Repositories
+        IGenericRepository<UserProfile> UserProfileGenericRepository { get; }
+
+        //  Repositories 
+        IUserProfileRepository UserProfileRepository { get; }
+
+        // Commit tất cả thay đổi
+        Task<int> CommitAsync();
     }
 }
