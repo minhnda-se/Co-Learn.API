@@ -5,14 +5,14 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace CoLearn.Domain.Interfaces.Repositories
+namespace CoLearn.Domain.Interfaces.Services
 {
-    public interface IParentRepository
+    public interface IParentService
     {
         Task<Parent> GetParentByIdAsync(int parentId);
         Task<List<Parent>> GetAllParentsAsync();
-        //Task<int> CreateParentAsync(Parent parent);
-        //Task<int> UpdateParentAsync(Parent parent);
-        //Task<int> DeleteParentAsync(int parentId);
+        Task<int> CreateParentAsync(Parent parent);
+        Task<int> UpdateParentAsync(Parent parent);
+        Task<int> DeleteParentAsync(int parentId);
     }
 }

@@ -1,5 +1,5 @@
 ﻿using CoLearn.Domain.Interfaces.Repositories;
-using CoLearn.Infrastructure.Models;
+using CoLearn.Domain.Models;
 using System;
 using System.Threading.Tasks;
 

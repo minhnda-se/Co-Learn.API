@@ -1,6 +1,6 @@
 ﻿using CoLearn.Domain.Interfaces.Repositories;
 using CoLearn.Infrastructure.Context;
-using CoLearn.Infrastructure.Models;
+using CoLearn.Domain.Models;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;

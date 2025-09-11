@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using CoLearn.Infrastructure.Models;
+using CoLearn.Domain.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 

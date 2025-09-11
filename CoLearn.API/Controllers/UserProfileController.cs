@@ -1,10 +1,12 @@
 ﻿using CoLearn.Domain.Interfaces.Services;
+
+using CoLearn.Domain.Models;
 using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
 
 namespace CoLearn.API
 {
-    [Route("api/[controller]")]
+    [Route("api/profile")]
     [ApiController]
     public class UserProfileController : ControllerBase
     {
@@ -14,18 +16,18 @@ namespace CoLearn.API
         {
             _userProfileService = userProfileService;
         }
-
-        // GET: api/UserProfile
-        [HttpGet]
-        public async Task<IActionResult> GetAll()
+        #region Account Profile
+        // GET: api/account
+        [HttpGet("account")]
+        public async Task<IActionResult> GetAllAccountProfiles()
         {
             var users = await _userProfileService.GetAllProfilesAsync();
             return Ok(users);
         }
 
-        // GET: api/UserProfile/5
-        [HttpGet("{id}")]
-        public async Task<IActionResult> GetById(int id)
+        // GET: api/profile/account/{id}
+        [HttpGet("account/{id}")]
+        public async Task<IActionResult> GetAccountProfileById(int id)
         {
             var user = await _userProfileService.GetUserProfileAsync(id);
             if (user == null)
@@ -33,5 +35,10 @@ namespace CoLearn.API
 
             return Ok(user);
         }
+        #endregion
+
+        #region Student Profile
+        // GET: api/profile/account/student
+        #endregion
     }
 }
