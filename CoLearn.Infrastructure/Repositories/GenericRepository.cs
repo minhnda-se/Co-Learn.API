@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace CoLearn.Infrastructure.Repositories
 {
-    public class GenericRepository<T> where T : class
+    public class GenericRepository<T> : IGenericRepository<T> where T : class
     {
         protected readonly AppDbContext _context;
 
@@ -49,10 +49,10 @@ namespace CoLearn.Infrastructure.Repositories
             // ❌ Không commit, để UnitOfWork quyết định
         }
 
-        public async Task AddAndSaveAsync(T entity)
+        public async Task<int> AddAndSaveAsync(T entity)
         {
             _context.Set<T>().Add(entity);
-            await _context.SaveChangesAsync(); // commit ngay
+            return await _context.SaveChangesAsync(); // commit ngay
         }
 
         #endregion
@@ -67,12 +67,12 @@ namespace CoLearn.Infrastructure.Repositories
             // ❌ Không commit, để UnitOfWork quyết định
         }
 
-        public async Task UpdateAndSaveAsync(T entity)
+        public async Task<int> UpdateAndSaveAsync(T entity)
         {
             _context.ChangeTracker.Clear();
             _context.Set<T>().Attach(entity);
             _context.Entry(entity).State = EntityState.Modified;
-            await _context.SaveChangesAsync(); // commit ngay
+            return await _context.SaveChangesAsync(); // commit ngay
         }
 
         #endregion
@@ -85,10 +85,10 @@ namespace CoLearn.Infrastructure.Repositories
             // ❌ Không commit
         }
 
-        public async Task RemoveAndSaveAsync(T entity)
+        public async Task<int> RemoveAndSaveAsync(T entity)
         {
             _context.Set<T>().Remove(entity);
-            await _context.SaveChangesAsync(); // commit ngay
+            return await _context.SaveChangesAsync(); // commit ngay
         }
 
         #endregion

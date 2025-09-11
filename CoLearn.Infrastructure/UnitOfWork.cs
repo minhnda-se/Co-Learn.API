@@ -14,11 +14,15 @@ namespace CoLearn.Infrastructure
         public UnitOfWork(AppDbContext context)
         {
             _context = context;
+            //Khởi tạo các genericrepository
+            UserProfileGenericRepository = new GenericRepository<UserProfile>(_context);
 
             // Khởi tạo repository
-            UserProfileCustom = new UserProfileRepository(_context);
+            UserProfileRepository = new UserProfileRepository(_context);
         }
-        public IUserProfileRepository UserProfileCustom { get; private set; }
+        public IUserProfileRepository UserProfileRepository { get; private set; }
+        public IGenericRepository<UserProfile> UserProfileGenericRepository { get; private set; }
+
 
         // Commit tất cả thay đổi
         public async Task<int> CommitAsync()
