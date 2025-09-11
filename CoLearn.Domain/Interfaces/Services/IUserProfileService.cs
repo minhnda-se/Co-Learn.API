@@ -1,4 +1,4 @@
-﻿using CoLearn.Infrastructure.Models;
+﻿using CoLearn.Domain.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;

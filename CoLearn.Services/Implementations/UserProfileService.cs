@@ -1,7 +1,7 @@
 ﻿using CoLearn.Domain.Interfaces;
 using CoLearn.Domain.Interfaces.Repositories;
 using CoLearn.Domain.Interfaces.Services;
-using CoLearn.Infrastructure.Models;
+using CoLearn.Domain.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;

@@ -1,7 +1,7 @@
 ﻿using CoLearn.Domain.Interfaces;
 using CoLearn.Domain.Interfaces.Repositories;
 using CoLearn.Infrastructure.Context;
-using CoLearn.Infrastructure.Models;
+using CoLearn.Domain.Models;
 using CoLearn.Infrastructure.Repositories;
 using System.Threading.Tasks;
 
