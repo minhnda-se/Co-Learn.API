@@ -1,4 +1,6 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using CoLearn.Domain.Interfaces.Services;
+using CoLearn.Services.Implementations;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace CoLearn.Services
 {
@@ -8,6 +10,7 @@ namespace CoLearn.Services
         {
             // Đăng ký Application Services ở đây
             // services.AddScoped<IUserService, UserService>();
+            services.AddScoped<IUserProfileService, UserProfileService>();
 
             return services;
         }
