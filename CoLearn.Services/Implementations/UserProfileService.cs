@@ -20,13 +20,18 @@ namespace CoLearn.Services.Implementations
 
         public async Task<int> CreateUserProfielAsync(UserProfile userProfile)
         {
-            return await _unitOfWork.UserProfileGenericRepository.AddAndSaveAsync(userProfile);
+            var profile = await _unitOfWork.UserProfileRepository.GetUserProfileAsync(userProfile.UserId);
+            if (profile != null)
+            {
+                return 0;
+            }
+            return await _unitOfWork.UserProfileRepository.AddAndSaveAsync(userProfile);
         }
 
         public async Task<int> DeleteUserProfileAsync(int userId)
         {
-            var profile = _unitOfWork.UserProfileGenericRepository.GetById(userId);
-            return await _unitOfWork.UserProfileGenericRepository.RemoveAndSaveAsync(profile);
+            var profile = _unitOfWork.UserProfileRepository.GetById(userId);
+            return await _unitOfWork.UserProfileRepository.RemoveAndSaveAsync(profile);
         }
 
         public async Task<List<UserProfile>> GetAllProfilesAsync()
@@ -41,7 +46,7 @@ namespace CoLearn.Services.Implementations
 
         public Task<int> UpdateUserProfileAsync(UserProfile userProfile)
         {
-            return _unitOfWork.UserProfileGenericRepository.UpdateAndSaveAsync(userProfile);
+            return _unitOfWork.UserProfileRepository.UpdateAndSaveAsync(userProfile);
         }
     }
 }

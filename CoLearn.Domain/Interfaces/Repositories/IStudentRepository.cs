@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace CoLearn.Domain.Interfaces.Repositories
 {
-    public interface IStudentRepository
+    public interface IStudentRepository : IGenericRepository<Student>
     {
         Task<Student> GetStudentByIdAsync(int studentId);
         Task<List<Student>> GetAllStudentsAsync();

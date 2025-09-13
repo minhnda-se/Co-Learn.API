@@ -9,8 +9,11 @@ namespace CoLearn.Services
         public static IServiceCollection AddServices(this IServiceCollection services)
         {
             // Đăng ký Application Services ở đây
-            // services.AddScoped<IUserService, UserService>();
+             //services.AddScoped<IUserService, UserService>();
             services.AddScoped<IUserProfileService, UserProfileService>();
+            services.AddScoped<IStudentService, StudentService>();
+            services.AddScoped<ITeacherService, TeacherService>();
+            services.AddScoped<IParentService, ParentService>();
 
             return services;
         }

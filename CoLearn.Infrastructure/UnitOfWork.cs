@@ -12,8 +12,11 @@ namespace CoLearn.Infrastructure
         private readonly AppDbContext _context;
 
         // backing fields cho lazy init
+       
         private IUserProfileRepository _userProfileRepository;
-        private IGenericRepository<UserProfile> _userProfileGenericRepository;
+        private ITeacherRepository _teacherRepository;
+        private IStudentRepository _studentRepository;
+        private IParentRepository _parentRepository;
 
         public UnitOfWork(AppDbContext context)
         {
@@ -23,11 +26,15 @@ namespace CoLearn.Infrastructure
         // Custom repository
         public IUserProfileRepository UserProfileRepository
             => _userProfileRepository ??= new UserProfileRepository(_context);
+        public ITeacherRepository TeacherRepository 
+            => _teacherRepository ??= new TeacherRepository(_context);
 
-        // Generic repository
-        public IGenericRepository<UserProfile> UserProfileGenericRepository
-            => _userProfileGenericRepository ??= new GenericRepository<UserProfile>(_context);
+        public IStudentRepository StudentRepository 
+            => _studentRepository ??= new StudentRepository(_context);
 
+        public IParentRepository ParentRepository 
+            => _parentRepository ??= new ParentRepository(_context);
+       
         // Commit tất cả thay đổi
         public async Task<int> CommitAsync()
         {
