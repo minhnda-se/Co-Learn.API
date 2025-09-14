@@ -1,18 +1,11 @@
-﻿using CoLearn.Domain.Models;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using CoLearn.Domain.DTOs;
+using CoLearn.Domain.Models;
 
-namespace CoLearn.Domain.Interfaces.Services
+public interface IUserProfileService
 {
-    public interface IUserProfileService
-    {
-        Task<UserProfile> GetUserProfileAsync(int userId);
-        Task<List<UserProfile>> GetAllProfilesAsync();
-        Task<int> CreateUserProfielAsync(UserProfile userProfile);
-        Task<int> UpdateUserProfileAsync(UserProfile userProfile);
-        Task<int> DeleteUserProfileAsync(int userId);
-    }
+    Task<UserProfile> GetUserProfileAsync(int userId);
+    Task<List<UserProfile>> GetAllProfilesAsync();
+    Task<int> CreateUserProfileAsync(UserProfileDto userProfileDto);
+    Task<int> UpdateUserProfileAsync(UserProfileDto userProfileDto);
+    Task<int> DeleteUserProfileAsync(int userId);
 }

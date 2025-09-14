@@ -1,5 +1,6 @@
 ﻿using CoLearn.Domain.Interfaces.Services;
 using CoLearn.Services.Implementations;
+using CoLearn.Services.Mappings;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace CoLearn.Services
@@ -9,7 +10,10 @@ namespace CoLearn.Services
         public static IServiceCollection AddServices(this IServiceCollection services)
         {
             // Đăng ký Application Services ở đây
-             //services.AddScoped<IUserService, UserService>();
+            // AutoMapper
+            services.AddAutoMapper(typeof(UserMapping).Assembly);
+            // Đăng ký Service
+            //services.AddScoped<IUserService, UserService>();
             services.AddScoped<IUserProfileService, UserProfileService>();
             services.AddScoped<IStudentService, StudentService>();
             services.AddScoped<ITeacherService, TeacherService>();

@@ -23,11 +23,18 @@ namespace CoLearn.Infrastructure.Repositories
                 .ToListAsync();
         }
 
+        public async Task<Student> GetByUserIdAsync(int userId)
+        {
+            return await _context.Students
+                .Include(s => s.User).ThenInclude(s => s.UserProfile)
+                .FirstOrDefaultAsync(s => s.UserId == userId);
+        }
+
         public async Task<Student> GetStudentByIdAsync(int studentId)
         {
             return await _context.Students
                 .Include(s => s.User).ThenInclude(s => s.UserProfile)
-                .FirstOrDefaultAsync(s => s.UserId == studentId);
+                .FirstOrDefaultAsync(s => s.StudentId == studentId);
         }
     }
 }

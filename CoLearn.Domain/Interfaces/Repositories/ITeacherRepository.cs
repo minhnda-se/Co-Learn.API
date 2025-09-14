@@ -10,6 +10,7 @@ namespace CoLearn.Domain.Interfaces.Repositories
     public interface ITeacherRepository : IGenericRepository<Teacher>
     {
         Task<Teacher> GetTeacherByIdAsync(int teacherId);
+        Task<Teacher> GetByUserIdAsync(int teacherId);
         Task<List<Teacher>> GetAllTeachersAsync();
         //Task<int> CreateTeacherAsync(Teacher teacher);
         //Task<int> UpdateTeacherAsync(Teacher teacher);

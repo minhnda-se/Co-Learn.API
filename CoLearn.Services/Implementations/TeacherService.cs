@@ -1,45 +1,74 @@
-﻿using CoLearn.Domain.Interfaces;
+﻿using AutoMapper;
+using CoLearn.Domain.DTOs.Requests;
+using CoLearn.Domain.DTOs.Responses;
 using CoLearn.Domain.Interfaces.Services;
+using CoLearn.Domain.Interfaces;
 using CoLearn.Domain.Models;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace CoLearn.Services.Implementations
+public class TeacherService : ITeacherService
 {
-    public class TeacherService : ITeacherService
+    private readonly IUnitOfWork _unitOfWork;
+    private readonly IMapper _mapper;
+
+    public TeacherService(IUnitOfWork unitOfWork, IMapper mapper)
     {
-        private readonly IUnitOfWork _unitOfWork;
-        public TeacherService(IUnitOfWork unitOfWork)
+        _unitOfWork = unitOfWork;
+        _mapper = mapper;
+    }
+
+    public async Task<int> CreateTeacherAsync(TeacherDtoRequest dto)
+    {
+        var existing = await _unitOfWork.TeacherRepository.GetByUserIdAsync(dto.UserId);
+
+        if (existing != null && !existing.IsDeleted)
+            return 0; // User đã có teacher profile
+
+        if (existing != null && existing.IsDeleted)
         {
-            _unitOfWork = unitOfWork;
-        }
-        public async Task<int> CreateTeacherAsync(Teacher teacher)
-        {
-            return await _unitOfWork.TeacherRepository.AddAndSaveAsync(teacher);
+            _mapper.Map(dto, existing);
+            existing.IsDeleted = false;
+            existing.CreatedAt = DateTime.UtcNow;
+
+            return await _unitOfWork.TeacherRepository.UpdateAndSaveAsync(existing);
         }
 
-        public async Task<int> DeleteTeacherAsync(int teacherId)
-        {
-            var profile = _unitOfWork.TeacherRepository.GetById(teacherId);
-            return await _unitOfWork.TeacherRepository.RemoveAndSaveAsync(profile);
-        }
+        var entity = _mapper.Map<Teacher>(dto);
+        entity.CreatedAt = DateTime.UtcNow;
 
-        public async Task<List<Teacher>> GetAllTeachersAsync()
-        {
-            return await _unitOfWork.TeacherRepository.GetAllTeachersAsync();
-        }
+        return await _unitOfWork.TeacherRepository.AddAndSaveAsync(entity);
+    }
 
-        public async Task<Teacher> GetTeacherByIdAsync(int teacherId)
-        {
-            return await _unitOfWork.TeacherRepository.GetTeacherByIdAsync(teacherId);
-        }
+    public async Task<int> UpdateTeacherAsync(TeacherDtoRequest dto)
+    {
+        var existing = await _unitOfWork.TeacherRepository.GetByUserIdAsync(dto.UserId);
+        if (existing == null || existing.IsDeleted) return 0;
 
-        public async Task<int> UpdateTeacherAsync(Teacher teacher)
-        {
-            return await _unitOfWork.TeacherRepository.UpdateAndSaveAsync(teacher);
-        }
+        _mapper.Map(dto, existing);
+        existing.CreatedAt = DateTime.UtcNow;
+
+        return await _unitOfWork.TeacherRepository.UpdateAndSaveAsync(existing);
+    }
+
+    public async Task<int> DeleteTeacherAsync(int teacherId)
+    {
+        var profile = await _unitOfWork.TeacherRepository.GetByUserIdAsync(teacherId);
+        if (profile == null) return 0;
+
+        profile.IsDeleted = true;
+        profile.DeletedAt = DateTime.UtcNow;
+
+        return await _unitOfWork.TeacherRepository.UpdateAndSaveAsync(profile);
+    }
+
+    public async Task<List<TeacherDtoResponse>> GetAllTeachersAsync()
+    {
+        var teachers = await _unitOfWork.TeacherRepository.GetAllTeachersAsync();
+        return _mapper.Map<List<TeacherDtoResponse>>(teachers);
+    }
+
+    public async Task<TeacherDtoResponse?> GetTeacherByIdAsync(int teacherId)
+    {
+        var teacher = await _unitOfWork.TeacherRepository.GetTeacherByIdAsync(teacherId);
+        return teacher == null ? null : _mapper.Map<TeacherDtoResponse>(teacher);
     }
 }

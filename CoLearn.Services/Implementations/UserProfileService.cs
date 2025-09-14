@@ -1,52 +1,78 @@
-﻿using CoLearn.Domain.Interfaces;
-using CoLearn.Domain.Interfaces.Repositories;
+﻿using AutoMapper;
+using CoLearn.Domain.DTOs;
+using CoLearn.Domain.Interfaces;
 using CoLearn.Domain.Interfaces.Services;
 using CoLearn.Domain.Models;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace CoLearn.Services.Implementations
+public class UserProfileService : IUserProfileService
 {
-    public class UserProfileService : IUserProfileService
+    private readonly IUnitOfWork _unitOfWork;
+    private readonly IMapper _mapper;
+
+    public UserProfileService(IUnitOfWork unitOfWork, IMapper mapper)
     {
-        private readonly IUnitOfWork _unitOfWork;
-        public UserProfileService(IUnitOfWork unitOfWork)
+        _unitOfWork = unitOfWork;
+        _mapper = mapper;
+    }
+
+    public async Task<UserProfile?> GetUserProfileAsync(int userId)
+    {
+        var profile = await _unitOfWork.UserProfileRepository.GetUserProfileAsync(userId);
+        if (profile == null) return null;
+
+        return profile;
+    }
+
+    public async Task<List<UserProfile>> GetAllProfilesAsync()
+    {
+        return await _unitOfWork.UserProfileRepository.GetAllProfilesAsync();
+       
+    }
+
+    public async Task<int> CreateUserProfileAsync(UserProfileDto dto)
+    {
+        var existing = await _unitOfWork.UserProfileRepository.GetUserProfileAsync(dto.UserId);
+
+        // Nếu có user có available profile thì không cho tạo
+        if (existing != null && existing.IsDeleted == false) return 0;
+
+        // Nếu user có profile nhưng đã bị xóa thì cập nhật lại entity gốc
+        if (existing != null && existing.IsDeleted == true)
         {
-            _unitOfWork = unitOfWork;
+            _mapper.Map(dto, existing);    // map dữ liệu từ DTO sang entity gốc
+            existing.IsDeleted = false;
+            existing.UpdatedAt = DateTime.UtcNow;
+
+            return await _unitOfWork.UserProfileRepository.UpdateAndSaveAsync(existing);
         }
 
-        public async Task<int> CreateUserProfielAsync(UserProfile userProfile)
-        {
-            var profile = await _unitOfWork.UserProfileRepository.GetUserProfileAsync(userProfile.UserId);
-            if (profile != null)
-            {
-                return 0;
-            }
-            return await _unitOfWork.UserProfileRepository.AddAndSaveAsync(userProfile);
-        }
+        // Nếu chưa có profile nào → tạo mới
+        var entity = _mapper.Map<UserProfile>(dto);
+        entity.UpdatedAt = DateTime.UtcNow;
 
-        public async Task<int> DeleteUserProfileAsync(int userId)
-        {
-            var profile = _unitOfWork.UserProfileRepository.GetById(userId);
-            return await _unitOfWork.UserProfileRepository.RemoveAndSaveAsync(profile);
-        }
+        return await _unitOfWork.UserProfileRepository.AddAndSaveAsync(entity);
+    }
 
-        public async Task<List<UserProfile>> GetAllProfilesAsync()
-        {
-           return await _unitOfWork.UserProfileRepository.GetAllProfilesAsync();
-        }
 
-        public async Task<UserProfile> GetUserProfileAsync(int userId)
-        {
-            return await _unitOfWork.UserProfileRepository.GetUserProfileAsync(userId);
-        }
+    public async Task<int> UpdateUserProfileAsync(UserProfileDto dto)
+    {
+        var profile = await _unitOfWork.UserProfileRepository.GetUserProfileAsync(dto.UserId);
+        if (profile == null || profile.IsDeleted == true) return 0;
 
-        public Task<int> UpdateUserProfileAsync(UserProfile userProfile)
-        {
-            return _unitOfWork.UserProfileRepository.UpdateAndSaveAsync(userProfile);
-        }
+        _mapper.Map(dto, profile); // map dữ liệu từ DTO sang entity gốc
+        profile.UpdatedAt = DateTime.UtcNow;
+
+        return await _unitOfWork.UserProfileRepository.UpdateAndSaveAsync(profile);
+    }
+
+    public async Task<int> DeleteUserProfileAsync(int userId)
+    {
+        var profile = await _unitOfWork.UserProfileRepository.GetUserProfileAsync(userId);
+        if (profile == null) return 0;
+
+        profile.IsDeleted = true;
+        profile.DeletedAt = DateTime.UtcNow;
+
+        return await _unitOfWork.UserProfileRepository.UpdateAndSaveAsync(profile);
     }
 }
