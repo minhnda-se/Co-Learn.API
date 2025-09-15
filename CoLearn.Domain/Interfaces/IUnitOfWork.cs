@@ -7,11 +7,23 @@ namespace CoLearn.Domain.Interfaces
 {
     public interface IUnitOfWork : IDisposable
     {
+
         //  Repositories 
+        IUserProfileRepository UserProfileRepository { get; }
+        IUserRepository UserRepository { get; }
         IUserProfileRepository UserProfileRepository { get; }
         ITeacherRepository TeacherRepository { get; }
         IStudentRepository StudentRepository { get; }
         IParentRepository ParentRepository { get; }
+        
+
+        // Generic Repositories
+        IGenericRepository<UserProfile> UserProfileGenericRepository { get; }
+        IGenericRepository<User> UserGenericRepository { get; }
+
+        //  Repositories 
+      
+
 
         // Commit tất cả thay đổi
         Task<int> CommitAsync();

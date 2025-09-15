@@ -596,7 +596,7 @@ public partial class AppDbContext : DbContext
             entity.Property(e => e.IsActive).HasDefaultValue(true);
             entity.Property(e => e.Phone).HasMaxLength(20);
             entity.Property(e => e.PrimaryRoleId).HasColumnName("PrimaryRoleID");
-
+            entity.Property(e => e.PasswordHash).HasMaxLength(512).IsRequired();
             entity.HasOne(d => d.PrimaryRole).WithMany(p => p.Users)
                 .HasForeignKey(d => d.PrimaryRoleId)
                 .HasConstraintName("FK_Users_PrimaryRole");

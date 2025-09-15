@@ -11,11 +11,11 @@ public partial class User
 
     public string Email { get; set; } = null!;
 
-    public byte[]? PasswordHash { get; set; }
+    public string PasswordHash { get; set; } =null!;
 
     public string? Phone { get; set; }
 
-    public DateOnly? DateOfBirth { get; set; }
+    public DateTime? DateOfBirth { get; set; }
 
     public string? Gender { get; set; }
 
