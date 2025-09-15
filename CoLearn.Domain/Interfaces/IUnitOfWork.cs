@@ -11,14 +11,12 @@ namespace CoLearn.Domain.Interfaces
         //  Repositories 
         IUserProfileRepository UserProfileRepository { get; }
         IUserRepository UserRepository { get; }
-        IUserProfileRepository UserProfileRepository { get; }
         ITeacherRepository TeacherRepository { get; }
         IStudentRepository StudentRepository { get; }
         IParentRepository ParentRepository { get; }
         
 
         // Generic Repositories
-        IGenericRepository<UserProfile> UserProfileGenericRepository { get; }
         IGenericRepository<User> UserGenericRepository { get; }
 
         //  Repositories 
