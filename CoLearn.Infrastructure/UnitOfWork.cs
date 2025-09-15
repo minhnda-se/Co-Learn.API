@@ -15,6 +15,8 @@ namespace CoLearn.Infrastructure
         private IUserProfileRepository _userProfileRepository;
         private IGenericRepository<UserProfile> _userProfileGenericRepository;
 
+        private IUserRepository _userRepository;
+        private IGenericRepository<User> _userGenericRepository;
         public UnitOfWork(AppDbContext context)
         {
             _context = context;
@@ -24,9 +26,14 @@ namespace CoLearn.Infrastructure
         public IUserProfileRepository UserProfileRepository
             => _userProfileRepository ??= new UserProfileRepository(_context);
 
+        public IUserRepository UserRepository
+            => _userRepository ??= new UserRepository(_context);
         // Generic repository
         public IGenericRepository<UserProfile> UserProfileGenericRepository
             => _userProfileGenericRepository ??= new GenericRepository<UserProfile>(_context);
+
+        public IGenericRepository<User> UserGenericRepository
+            => _userGenericRepository ??= new GenericRepository<User>(_context);
 
         // Commit tất cả thay đổi
         public async Task<int> CommitAsync()

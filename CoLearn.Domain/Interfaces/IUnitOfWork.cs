@@ -9,9 +9,11 @@ namespace CoLearn.Domain.Interfaces
     {
         // Generic Repositories
         IGenericRepository<UserProfile> UserProfileGenericRepository { get; }
+        IGenericRepository<User> UserGenericRepository { get; }
 
         //  Repositories 
         IUserProfileRepository UserProfileRepository { get; }
+        IUserRepository UserRepository { get; }
 
         // Commit tất cả thay đổi
         Task<int> CommitAsync();
