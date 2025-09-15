@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace CoLearn.Domain.Interfaces.Repositories
 {
-    public interface IUserProfileRepository
+    public interface IUserProfileRepository : IGenericRepository<UserProfile>
     {
         Task<UserProfile> GetUserProfileAsync(int userId);
         Task<List<UserProfile>> GetAllProfilesAsync();

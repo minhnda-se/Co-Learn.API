@@ -7,9 +7,10 @@ using System.Threading.Tasks;
 
 namespace CoLearn.Domain.Interfaces.Repositories
 {
-    public interface IParentRepository
+    public interface IParentRepository : IGenericRepository<Parent>
     {
         Task<Parent> GetParentByIdAsync(int parentId);
+        Task<Parent> GetByUserIdAsync(int teacherId);
         Task<List<Parent>> GetAllParentsAsync();
         //Task<int> CreateParentAsync(Parent parent);
         //Task<int> UpdateParentAsync(Parent parent);

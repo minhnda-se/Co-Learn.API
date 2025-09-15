@@ -1,4 +1,5 @@
-﻿using CoLearn.Infrastructure;
+﻿using CoLearn.API.Middlewares;
+using CoLearn.Infrastructure;
 using CoLearn.Services;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -23,6 +24,7 @@ builder.Services.AddInfrastructure(builder.Configuration);
 builder.Services.AddServices(builder.Configuration);
 
 var app = builder.Build();
+app.UseMiddleware<ExceptionMiddleware>();
 
 // 5. Configure the HTTP request pipeline
 if (app.Environment.IsDevelopment())

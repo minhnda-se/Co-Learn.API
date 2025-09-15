@@ -1,5 +1,6 @@
 ﻿using CoLearn.Domain.Interfaces.Services;
 using CoLearn.Services.Implementations;
+using CoLearn.Services.Mappings;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -13,8 +14,15 @@ namespace CoLearn.Services
         public static IServiceCollection AddServices(this IServiceCollection services, IConfiguration configuration)
         {
             // Đăng ký Application Services ở đây
+
+            // AutoMapper
+            services.AddAutoMapper(typeof(UserMapping).Assembly);
+            // Đăng ký Service
             services.AddScoped<IUserService, UserService>();
             services.AddScoped<IUserProfileService, UserProfileService>();
+            services.AddScoped<IStudentService, StudentService>();
+            services.AddScoped<ITeacherService, TeacherService>();
+            services.AddScoped<IParentService, ParentService>();
 
             // JWT Auth
             var jwtSettings = configuration.GetSection("Jwt");
