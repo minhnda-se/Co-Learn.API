@@ -12,7 +12,6 @@ builder.Services.AddControllers()
         opt.JsonSerializerOptions.WriteIndented = true;
     });
 
-
 // 2. Add Swagger
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
@@ -23,10 +22,19 @@ builder.Services.AddInfrastructure(builder.Configuration);
 // 4. Add Services (Application layer services, business logic)
 builder.Services.AddServices(builder.Configuration);
 
+// 5. Add CORS (AllowAll cho dev/test)
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowAll", policy =>
+        policy.AllowAnyOrigin()
+              .AllowAnyHeader()
+              .AllowAnyMethod());
+});
+
 var app = builder.Build();
 app.UseMiddleware<ExceptionMiddleware>();
 
-// 5. Configure the HTTP request pipeline
+// 6. Configure the HTTP request pipeline
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
@@ -34,6 +42,9 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+
+// 🔹 Bật CORS ở đây
+app.UseCors("AllowAll");
 
 app.UseAuthorization();
 
