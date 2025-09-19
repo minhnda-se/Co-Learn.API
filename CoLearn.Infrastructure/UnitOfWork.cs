@@ -17,6 +17,7 @@ namespace CoLearn.Infrastructure
         private ITeacherRepository _teacherRepository;
         private IStudentRepository _studentRepository;
         private IParentRepository _parentRepository;
+        private ICourseRepository _courseRepository;
 
         private IUserRepository _userRepository;
         private IGenericRepository<User> _userGenericRepository;
@@ -37,7 +38,8 @@ namespace CoLearn.Infrastructure
 
         public IParentRepository ParentRepository 
             => _parentRepository ??= new ParentRepository(_context);
-       
+       public ICourseRepository CourseRepository
+            => _courseRepository ??= new CourseRepository(_context);
 
         public IUserRepository UserRepository
             => _userRepository ??= new UserRepository(_context);
