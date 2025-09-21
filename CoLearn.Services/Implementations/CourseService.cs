@@ -24,6 +24,7 @@ namespace CoLearn.Services.Implementations
             var course = _mapper.Map<Course>(dto);
             course.CreatedAt = DateTime.UtcNow;
             course.IsDeleted = false;
+            course.IsDeleted = false;
 
             await _unitOfWork.CourseRepository.AddAndSaveAsync(course);
             await _unitOfWork.CommitAsync();
@@ -73,6 +74,11 @@ namespace CoLearn.Services.Implementations
         {
             var courses = await _unitOfWork.CourseRepository.SearchCoursesAsync(keyword, teacherName);
             return _mapper.Map<List<CourseResponseDto>>(courses);
+        }
+
+        public Task<int> SetCourseActive(int courseId, bool? isActice)
+        {
+            return _unitOfWork.CourseRepository.SetCourseActive(courseId, isActice);
         }
     }
 }

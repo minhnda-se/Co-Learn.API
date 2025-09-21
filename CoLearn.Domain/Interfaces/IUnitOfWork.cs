@@ -15,6 +15,9 @@ namespace CoLearn.Domain.Interfaces
         IStudentRepository StudentRepository { get; }
         IParentRepository ParentRepository { get; }
         ICourseRepository CourseRepository { get; }
+        ILessonRepository LessonRepository { get; }
+        IAssignmentRepository AssignmentRepository { get; }
+        ICourseMaterialRepository CourseMaterialRepository { get; }
 
 
         // Generic Repositories

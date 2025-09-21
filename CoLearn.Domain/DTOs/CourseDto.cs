@@ -13,7 +13,6 @@ namespace CoLearn.Domain.DTOs
         public string? Level { get; set; }
         public decimal? PricePerSession { get; set; }
         public short? DurationMinutes { get; set; }
-        public bool IsActive { get; set; } = true;
     }
 
     public class CourseResponseDto

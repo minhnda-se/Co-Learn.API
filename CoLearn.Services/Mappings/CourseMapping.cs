@@ -27,6 +27,21 @@ namespace CoLearn.Services.Mappings
             CreateMap<Course, CourseResponseDto>()
                 .ForMember(dest => dest.TeacherName, opt => opt.MapFrom(src => src.Teacher != null ? src.Teacher.User.FullName : null)) 
                 .ForMember(dest => dest.CategoryName, opt => opt.MapFrom(src => src.Category != null ? src.Category.Name : null));
+
+            CreateMap<CourseMaterialRequestDto, CourseMaterial>()
+                .ForMember(dest => dest.MaterialId, opt => opt.Ignore())
+                .ForMember(dest => dest.CourseId, opt => opt.Ignore())
+                .ForMember(dest => dest.LessonId, opt => opt.Ignore())
+                .ForMember(dest => dest.IsDeleted, opt => opt.Ignore())
+                .ForMember(dest => dest.DeletedAt, opt => opt.Ignore())
+                .ForMember(dest => dest.CreatedAt, opt => opt.Ignore())
+                .ForMember(dest => dest.Course, opt => opt.Ignore())
+                .ForMember(dest => dest.Lesson, opt => opt.Ignore());
+
+            // Entity -> ResponseDto
+            CreateMap<CourseMaterial, CourseMaterialResponseDto>()
+                .ForMember(dest => dest.LessonTitle, opt => opt.MapFrom(src => src.Lesson != null ? src.Lesson.Title : null))
+                .ForMember(dest => dest.CourseTitle, opt => opt.MapFrom(src => src.Course != null ? src.Course.Title : null));
         }
     }
 }

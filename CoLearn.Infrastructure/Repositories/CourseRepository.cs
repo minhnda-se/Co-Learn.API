@@ -58,5 +58,12 @@ namespace CoLearn.Infrastructure.Repositories
 
             return await query.ToListAsync();
         }
+
+        public async Task<int> SetCourseActive(int courseId, bool? isActice)
+        {
+            return await _context.Courses
+                .Where(c => c.CourseId == courseId && !c.IsDeleted)
+                .ExecuteUpdateAsync(c => c.SetProperty(c => c.IsActive, isActice ?? true));
+        }
     }
 }

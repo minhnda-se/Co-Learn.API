@@ -20,7 +20,7 @@ namespace CoLearn.API.Controllers
         {
             int result = await _courseService.CreateAsync(course);
             if (result > 0)
-                return Ok(new { message = "Create course successfully", rowAffected = result });
+                return CreatedAtAction(nameof(GetCourseById), new { id = result }, course);
             return BadRequest(new { message = "Create course failed" });
         }
 
@@ -30,7 +30,7 @@ namespace CoLearn.API.Controllers
         {
             int result = await _courseService.UpdateAsync(id, course);
             if (result > 0)
-                return Ok(new { message = "Update course successfully", rowAffected = result });
+                return Ok(new { message = "Update course successfully" });
             return NotFound(new { message = "Course not found" });
         }
 
@@ -40,7 +40,7 @@ namespace CoLearn.API.Controllers
         {
             int result = await _courseService.DeleteAsync(id);
             if (result > 0)
-                return Ok(new { message = "Delete course successfully", rowAffected = result });
+                return Ok(new { message = "Delete course successfully" });
             return NotFound(new { message = "Course not found" });
         }
 
@@ -60,6 +60,16 @@ namespace CoLearn.API.Controllers
         {
             var courses = await _courseService.SearchCoursesAsync(keyword, teacherName);
             return Ok(courses);
+        }
+
+        //PUT /api/course/{id}/active?isActive=true/false
+        [HttpPut("{id}/active")]
+        public async Task<IActionResult> SetCourseActive(int id, [FromQuery] bool? isActive)
+        {
+            int result = await _courseService.SetCourseActive(id, isActive);
+            if (result > 0)
+                return Ok(new { message = "Set course active status successfully" });
+            return NotFound(new { message = "Course not found" });
         }
     }
 }

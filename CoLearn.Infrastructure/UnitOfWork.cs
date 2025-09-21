@@ -18,6 +18,9 @@ namespace CoLearn.Infrastructure
         private IStudentRepository _studentRepository;
         private IParentRepository _parentRepository;
         private ICourseRepository _courseRepository;
+        private ILessonRepository _lessonRepository;
+        private IAssignmentRepository _assignmentRepository;
+        private ICourseMaterialRepository _courseMaterialRepository;
 
         private IUserRepository _userRepository;
         private IGenericRepository<User> _userGenericRepository;
@@ -40,6 +43,12 @@ namespace CoLearn.Infrastructure
             => _parentRepository ??= new ParentRepository(_context);
        public ICourseRepository CourseRepository
             => _courseRepository ??= new CourseRepository(_context);
+        public ILessonRepository LessonRepository
+            => _lessonRepository ??= new LessonRepository(_context);
+        public IAssignmentRepository AssignmentRepository
+            => _assignmentRepository ??= new AssignmentRepository(_context);
+        public ICourseMaterialRepository CourseMaterialRepository
+            => _courseMaterialRepository ??= new CourseMaterialRepository(_context);
 
         public IUserRepository UserRepository
             => _userRepository ??= new UserRepository(_context);

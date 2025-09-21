@@ -12,5 +12,6 @@ namespace CoLearn.Domain.Interfaces.Repositories
         Task<List<Course>> GetAllCourseAsync();
         Task<Course?> GetByIdAsync(int id);
         Task<List<Course>> SearchCoursesAsync(string? keyword, string? teacherName);
+        Task<int> SetCourseActive(int courseId, bool? isActice);
     }
 }

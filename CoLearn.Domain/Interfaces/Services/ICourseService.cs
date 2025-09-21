@@ -16,5 +16,7 @@ namespace CoLearn.Domain.Interfaces.Services
         Task<int> CreateAsync(CourseRequestDto dto);
         Task<int> UpdateAsync(int id, CourseRequestDto dto);
         Task<int> DeleteAsync(int couseId);
+        Task<int> SetCourseActive(int courseId, bool? isActice);
+
     }
 }
