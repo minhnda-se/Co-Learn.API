@@ -28,22 +28,28 @@ namespace CoLearn.Services.Implementations
             _configuration = configuration;
         }
 
-        public async Task<UserReponse.GetUserModel?> GetByIdAsync(int id)
+        public async Task<Result<UserReponse.GetUserModel?>> GetByIdAsync(int id)
         {
             var user = await _unitOfWork.UserRepository.GetByIdAsync(id);
-            return user == null ? null : MapToResponse(user);
+            if (user == null)
+                return Result<UserReponse.GetUserModel>.Failure("User not found");
+
+            return Result<UserReponse.GetUserModel>.Success(MapToResponse(user));
         }
 
-        public async Task<PagedResult<UserReponse.GetUserModel>> GetAllAsync(int pageIndex, int pageSize)
+        public async Task<Result<PagedResult<UserReponse.GetUserModel>>> GetAllAsync(int pageIndex, int pageSize)
         {
             var pagedUsers = await _unitOfWork.UserRepository.GetAllAsync(pageIndex, pageSize);
+            if (pagedUsers.Items.Count == 0)
+                return Result<PagedResult<UserReponse.GetUserModel>>.Failure("No users found");
             var mapped = pagedUsers.Items.Select(MapToResponse).ToList();
-            return new PagedResult<UserReponse.GetUserModel>(
+            var response = new PagedResult<UserReponse.GetUserModel>(
                 mapped, pagedUsers.PageIndex, pagedUsers.PageSize, pagedUsers.TotalCount
             );
+            return Result<PagedResult<UserReponse.GetUserModel>>.Success(response);
         }
 
-        public async Task<UserReponse.GetUserModel> CreateAsync(UserRequest.CreateUserModel dto)
+        public async Task<Result<UserReponse.GetUserModel>> CreateAsync(UserRequest.CreateUserModel dto)
         {
             var user = new User
             {
@@ -61,13 +67,13 @@ namespace CoLearn.Services.Implementations
             var created = await _unitOfWork.UserRepository.CreateAsync(user);
             await _unitOfWork.CommitAsync();
 
-            return MapToResponse(created);
+            return Result<UserReponse.GetUserModel>.Success(MapToResponse(created), "User created successfully");
         }
 
-        public async Task<UserReponse.GetUserModel?> UpdateAsync(int id, UserRequest.UpdateUserModel dto)
+        public async Task<Result<UserReponse.GetUserModel?>> UpdateAsync(int id, UserRequest.UpdateUserModel dto)
         {
             var user = await _unitOfWork.UserRepository.GetByIdAsync(id);
-            if (user == null) return null;
+            if (user == null) return Result<UserReponse.GetUserModel>.Failure("User not found");
 
             user.FullName = dto.FullName ?? user.FullName;
             user.Email = dto.Email ?? user.Email;
@@ -83,17 +89,18 @@ namespace CoLearn.Services.Implementations
             var updated = await _unitOfWork.UserRepository.UpdateAsync(user);
             await _unitOfWork.CommitAsync();
 
-            return updated == null ? null : MapToResponse(updated);
+            return Result<UserReponse.GetUserModel>.Success(MapToResponse(updated), "User updated successfully");
         }
 
-        public async Task<bool> DeleteAsync(int id)
+        public async Task<Result> DeleteAsync(int id)
         {
             var result = await _unitOfWork.UserRepository.DeleteAsync(id);
-            if (result)
+            if (!result)
             {
-                await _unitOfWork.CommitAsync();
+                return Result.Failure("User not found");
             }
-            return result;
+            await _unitOfWork.CommitAsync();
+            return Result.Success("User deleted successfully");
         }
 
         private static UserReponse.GetUserModel MapToResponse(User u)
@@ -106,19 +113,20 @@ namespace CoLearn.Services.Implementations
         }
 
         // LOGIN
-        public async Task<UserReponse.Login?> LoginAsync(UserRequest.LoginRequest request)
+        public async Task<Result<UserReponse.Login?>> LoginAsync(UserRequest.LoginRequest request)
         {
             var user = await _unitOfWork.UserRepository.GetByEmailAsync(request.Email);
-            if (user == null) return null;
+            if (user == null) return Result<UserReponse.Login>.Failure("Invalid email");
 
             // verify password
             bool isValid = BCrypt.Net.BCrypt.Verify(request.Password, user.PasswordHash);
-            if (!isValid) return null;
+            if (!isValid) return Result<UserReponse.Login>.Failure("Invalid password");
 
             // generate token
             var tokenHandler = new JwtSecurityTokenHandler();
             var jwtSettings = _configuration.GetSection("Jwt");
             var key = Encoding.UTF8.GetBytes(jwtSettings["Key"]!);
+
 
             var claims = new[]
             {
@@ -141,7 +149,7 @@ namespace CoLearn.Services.Implementations
 
             var token = tokenHandler.CreateToken(tokenDescriptor);
 
-            return new UserReponse.Login
+            var loginResponse = new UserReponse.Login
             {
                 Token = tokenHandler.WriteToken(token),
                 Expiration = tokenDescriptor.Expires ?? DateTime.UtcNow.AddHours(2),
@@ -149,6 +157,7 @@ namespace CoLearn.Services.Implementations
                 FullName = user.FullName,
                 UserId = user.UserId
             };
+            return Result<UserReponse.Login>.Success(loginResponse, "Login successful");
         }
     }
 }

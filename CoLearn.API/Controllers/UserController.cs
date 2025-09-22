@@ -1,7 +1,11 @@
-﻿using CoLearn.Domain.DTOs.Request;
+﻿using CoLearn.Domain.Common;
+using CoLearn.Domain.DTOs.Request;
 using CoLearn.Domain.Interfaces.Services;
+using CoLearn.Domain.Models;
 using CoLearn.Services.Implementations;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 
 namespace CoLearn.API.Controllers
@@ -18,56 +22,50 @@ namespace CoLearn.API.Controllers
         }
 
         [HttpGet("{id}")]
+        [Authorize(Roles = "3,4")]
         public async Task<IActionResult> GetById(int id)
         {
-            var user = await _service.GetByIdAsync(id);
-            if (user == null) return NotFound();
-            return Ok(user);
+            var result = await _service.GetByIdAsync(id);
+            return StatusCode(result.StatusCode, result);
         }
 
         [HttpGet]
+        [Authorize(Roles = "4")]
         public async Task<IActionResult> GetAll([FromQuery] int pageIndex = 1, [FromQuery] int pageSize = 10)
         {
             var users = await _service.GetAllAsync(pageIndex, pageSize);
-            return Ok(users);
+            return StatusCode(users.StatusCode, users);
         }
 
         [HttpPost]
+        [AllowAnonymous]
         public async Task<IActionResult> Create([FromBody] UserRequest.CreateUserModel dto)
         {
-            if (!ModelState.IsValid) return BadRequest(ModelState);
-
             var created = await _service.CreateAsync(dto);
-            return CreatedAtAction(nameof(GetById), new { id = created.UserId }, created);
+            return StatusCode(created.StatusCode, created);
         }
 
         [HttpPut("{id}")]
         public async Task<IActionResult> Update(int id, [FromBody] UserRequest.UpdateUserModel dto)
         {
-            var updated = await _service.UpdateAsync(id, dto);
-            if (updated == null) return NotFound();
-            return Ok(updated);
+            var result = await _service.UpdateAsync(id, dto);
+            return StatusCode(result.StatusCode, result);
         }
 
         [HttpDelete("{id}")]
+        [Authorize(Roles = "4")]
         public async Task<IActionResult> Delete(int id)
         {
             var result = await _service.DeleteAsync(id);
-            if (!result) return NotFound();
-            return NoContent();
+            return StatusCode(result.StatusCode, result);
         }
 
         [HttpPost("login")]
+        [AllowAnonymous]
         public async Task<IActionResult> Login([FromBody] UserRequest.LoginRequest request)
         {
-            if (!ModelState.IsValid)
-                return BadRequest(ModelState);
-
             var result = await _service.LoginAsync(request);
-            if (result == null)
-                return Unauthorized(new { message = "Invalid email or password" });
-
-            return Ok(result); // result là UserReponse.Login
+            return StatusCode(result.StatusCode, result);
         }
     }
 }
