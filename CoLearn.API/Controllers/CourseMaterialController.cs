@@ -45,10 +45,18 @@ namespace CoLearn.API.Controllers
 
         // GET /api/lessons/{lessonId}/materials
         [HttpGet("lessons/{lessonId}/materials")]
-        public async Task<ActionResult<List<CourseMaterialResponseDto>>> GetByLesson(int lessonId)
+        public async Task<IActionResult> GetByLesson(int lessonId, [FromQuery] int pageIndex = 1, [FromQuery] int pageSize = 10)
         {
-            var materials = await _materialService.GetByLessonIdAsync(lessonId);
-            return Ok(materials);
+            var materials = await _materialService.GetByLessonIdAsync(pageIndex, pageSize, lessonId);
+            return StatusCode(materials.StatusCode, materials);
+        }
+
+        // GET /api/materials/{id}
+        [HttpGet("materials/{id}")]
+        public async Task<IActionResult> GetById(int id)
+        {
+            var material = await _materialService.GetByIdAsync(id);
+            return StatusCode(material.StatusCode, material);
         }
     }
 }

@@ -2,6 +2,7 @@
 using CoLearn.Domain.DTOs.Requests;
 using CoLearn.Domain.DTOs.Responses;
 using CoLearn.Domain.Interfaces.Services;
+using CoLearn.Domain.Models;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
@@ -74,20 +75,23 @@ namespace CoLearn.API.Controllers
         }
 
         /// <summary>
-        /// Lấy danh sách lesson trong course
+        /// Lấy danh sách Lesson theo CourseId (phân trang)
         /// </summary>
         [HttpGet("courses/{courseId}/lessons")]
-        public async Task<ActionResult<List<LessonResponseDto>>> GetByCourseId(int courseId)
+        public async Task<IActionResult> GetByCourseId(int courseId, int pageIndex = 1, int pageSize = 10)
         {
-            try
-            {
-                var result = await _lessonService.GetByCourseIdAsync(courseId);
-                return Ok(result);
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(ex.Message);
-            }
+            var result = await _lessonService.GetByCourseIdAsync(pageIndex, pageSize, courseId);
+            return StatusCode(result.StatusCode, result);
+        }
+
+        /// <summary>  
+        /// Lấy danh sách Lesson theo LessonId
+        /// </summary>
+        [HttpGet("lessons/{id}")]
+        public async Task<IActionResult> GetById(int id)
+        {
+            var result = await _lessonService.GetByIdAsync(id);
+            return StatusCode(result.StatusCode, result);
         }
     }
 }

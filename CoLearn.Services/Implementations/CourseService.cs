@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using CoLearn.Domain.Common;
 using CoLearn.Domain.DTOs;
 using CoLearn.Domain.DTOs.Requests;
 using CoLearn.Domain.DTOs.Responses;
@@ -58,16 +59,34 @@ namespace CoLearn.Services.Implementations
             return course.CourseId;
         }
 
-        public async Task<CourseResponseDto?> GetByIdAsync(int courseId)
+        public async Task<Result<CourseResponseDto?>> GetByIdAsync(int courseId)
         {
             var course = await _unitOfWork.CourseRepository.GetByIdAsync(courseId);
-            return course == null ? null : _mapper.Map<CourseResponseDto>(course);
+            if (course == null)
+                return Result<CourseResponseDto?>.Failure("Course not found");
+
+            var courseDto = _mapper.Map<CourseResponseDto>(course);
+            return Result<CourseResponseDto?>.Success(courseDto);
         }
 
-        public async Task<List<CourseResponseDto>> GetAllCourseAsync()
+
+        public async Task<Result<PagedResult<CourseResponseDto>>> GetAllCourseAsync(int pageIndex, int pageSize)
         {
-            var courses = await _unitOfWork.CourseRepository.GetAllAsync();
-            return _mapper.Map<List<CourseResponseDto>>(courses);
+            var pagedCourses = await _unitOfWork.CourseRepository.GetAllCourseAsync(pageIndex, pageSize);
+
+            if (pagedCourses.Items.Count == 0)
+                return Result<PagedResult<CourseResponseDto>>.Failure("No courses found");
+
+            var courseDtos = _mapper.Map<List<CourseResponseDto>>(pagedCourses.Items);
+
+            var response = new PagedResult<CourseResponseDto>(
+                courseDtos,
+                pagedCourses.PageIndex,
+                pagedCourses.PageSize,
+                pagedCourses.TotalCount
+            );
+
+            return Result<PagedResult<CourseResponseDto>>.Success(response);
         }
 
         public async Task<List<CourseResponseDto>> SearchCoursesAsync(string? keyword, string? teacherName)

@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using CoLearn.Domain.Common;
 using CoLearn.Domain.DTOs;
 using CoLearn.Domain.Interfaces;
 using CoLearn.Domain.Interfaces.Services;
@@ -58,11 +59,6 @@ namespace CoLearn.Services.Implementations
             return await _unitOfWork.AssignmentRepository.UpdateAndSaveAsync(assignment);
         }
 
-        public async Task<List<AssignmentResponseDto>> GetByLessonIdAsync(int lessonId)
-        {
-            var assignments = await _unitOfWork.AssignmentRepository.GetByLessonIdAsync(lessonId);
-            return _mapper.Map<List<AssignmentResponseDto>>(assignments);
-        }
         public async Task<List<SubmissionResponseDto>> GetSubmissionsByAssignmentIdAsync(int assignmentId)
         {
             var submissions = await _unitOfWork.AssignmentRepository.GetSubmissionsByAssignmentIdAsync(assignmentId);
@@ -73,6 +69,32 @@ namespace CoLearn.Services.Implementations
         {
             var updated = await _unitOfWork.AssignmentRepository.UpdateFeedbackAsync(submissionId, dto.Grade, dto.Feedback);
             return updated == null ? null : _mapper.Map<SubmissionResponseDto>(updated);
+        }
+
+        public async Task<Result<PagedResult<AssignmentResponseDto>>> GetByLessonIdAsync(int pageIndex, int pageSize, int lessonId)
+        {
+            var pagedAssignments = await _unitOfWork.AssignmentRepository.GetByLessonIdAsync(pageIndex, pageSize, lessonId);
+            if (pagedAssignments.Items == null || !pagedAssignments.Items.Any())
+                return Result<PagedResult<AssignmentResponseDto>>.Failure("No assignments found for this lesson");
+
+            var mappedItems = pagedAssignments.Items.Select(a => _mapper.Map<AssignmentResponseDto>(a)).ToList();
+
+            var dtoPaged = new PagedResult<AssignmentResponseDto>(
+                mappedItems,
+                pagedAssignments.PageIndex,
+                pagedAssignments.PageSize,
+                pagedAssignments.TotalCount
+            );
+            return Result<PagedResult<AssignmentResponseDto>>.Success(dtoPaged);
+        }
+
+        public async Task<Result<AssignmentResponseDto?>> GetByIdAsync(int id)
+        {
+            var assignment =await _unitOfWork.AssignmentRepository.GetByIdAsync(id);
+            if (assignment == null)
+                return Result<AssignmentResponseDto?>.Failure("Assignment not found");
+            var dto = _mapper.Map<AssignmentResponseDto>(assignment);
+            return Result<AssignmentResponseDto?>.Success(dto);
         }
     }
 }

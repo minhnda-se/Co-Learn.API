@@ -1,4 +1,5 @@
-﻿using CoLearn.Domain.Interfaces.Repositories;
+﻿using CoLearn.Domain.Common;
+using CoLearn.Domain.Interfaces.Repositories;
 using CoLearn.Domain.Models;
 using CoLearn.Infrastructure.Context;
 using Microsoft.EntityFrameworkCore;
@@ -13,15 +14,28 @@ namespace CoLearn.Infrastructure.Repositories
     {
         public CourseRepository(AppDbContext context) : base(context) { }
         // Lấy tất cả Course (chưa bị xóa)
-        public async Task<List<Course>> GetAllCourseAsync()
+        public async Task<PagedResult<Course>> GetAllCourseAsync(int pageIndex, int pageSize)
         {
-            return await _context.Courses
+            var query = _context.Courses
                 .Where(c => !c.IsDeleted)
                 .Include(c => c.Teacher).ThenInclude(t => t.User)
                 .Include(c => c.Category)
+
                 .Include(c => c.Lessons).ThenInclude(l => l.CourseMaterials)
+
+                .AsQueryable();
+
+            var totalCount = await query.CountAsync();
+
+            var items = await query
+                .Skip((pageIndex - 1) * pageSize)
+                .Take(pageSize)
+
                 .ToListAsync();
+
+            return new PagedResult<Course>(items, pageIndex, pageSize, totalCount);
         }
+
 
         public async Task<List<Course>> GetAllCourseByTeacherId(int teacherId)
         {
@@ -32,6 +46,7 @@ namespace CoLearn.Infrastructure.Repositories
                .Include(c => c.Lessons).ThenInclude(l => l.CourseMaterials)
                .ToListAsync();
         }
+
 
         // Lấy Course theo Id
         public async Task<Course?> GetByIdAsync(int id)

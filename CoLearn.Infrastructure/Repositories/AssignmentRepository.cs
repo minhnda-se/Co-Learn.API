@@ -1,4 +1,5 @@
-﻿using CoLearn.Domain.Interfaces.Repositories;
+﻿using CoLearn.Domain.Common;
+using CoLearn.Domain.Interfaces.Repositories;
 using CoLearn.Domain.Models;
 using CoLearn.Infrastructure.Context;
 using Microsoft.EntityFrameworkCore;
@@ -14,15 +15,22 @@ namespace CoLearn.Infrastructure.Repositories
     {
         public AssignmentRepository(AppDbContext context) : base(context) { }
 
-        public async Task<List<Assignment>> GetByLessonIdAsync(int lessonId)
+        public async Task<PagedResult<Assignment>> GetByLessonIdAsync(int pageIndex, int pageSize, int lessonId)
         {
-            return await _context.Assignments
+            var query = _context.Assignments
                 .Where(a => a.LessonId == lessonId && !a.IsDeleted)
                 .Include(a => a.Submissions)
-                .Include(a => a.Lesson)
-                .ToListAsync();
-        }
+                .Include(a => a.Lesson);
 
+            var totalCount = await query.CountAsync();
+
+            var items = await query
+                .Skip((pageIndex - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync();
+
+            return new PagedResult<Assignment>(items, pageIndex, pageSize, totalCount);
+        }
         public async Task<Assignment?> GetByIdAsync(int id)
         {
             return await _context.Assignments

@@ -1,5 +1,6 @@
 ﻿using CoLearn.Domain.DTOs;
 using CoLearn.Domain.Interfaces.Services;
+using CoLearn.Domain.Models;
 using Microsoft.AspNetCore.Mvc;
 
 namespace CoLearn.API.Controllers
@@ -44,14 +45,20 @@ namespace CoLearn.API.Controllers
             return NotFound(new { message = "Course not found" });
         }
 
+        // GET /api/course
+        [HttpGet]
+        public async Task<IActionResult> GetAllCourses([FromQuery] int pageIndex = 1, [FromQuery] int pageSize = 10)
+        {
+            var courses = await _courseService.GetAllCourseAsync(pageIndex, pageSize);
+            return StatusCode(courses.StatusCode, courses);
+        }
+
         // GET /api/course/{id}
         [HttpGet("{id}")]
         public async Task<IActionResult> GetCourseById(int id)
         {
             var course = await _courseService.GetByIdAsync(id);
-            if (course == null)
-                return NotFound(new { message = "Course not found" });
-            return Ok(course);
+            return StatusCode(course.StatusCode, course);
         }
 
         // GET /api/course/{teacherId}/get-all

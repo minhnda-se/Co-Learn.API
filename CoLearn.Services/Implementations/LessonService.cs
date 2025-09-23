@@ -1,8 +1,10 @@
 ﻿using AutoMapper;
+using CoLearn.Domain.Common;
 using CoLearn.Domain.DTOs;
 using CoLearn.Domain.DTOs.Requests;
 using CoLearn.Domain.DTOs.Responses;
 using CoLearn.Domain.Interfaces;
+using CoLearn.Domain.Interfaces.Repositories;
 using CoLearn.Domain.Interfaces.Services;
 using CoLearn.Domain.Models;
 using System;
@@ -54,10 +56,36 @@ namespace CoLearn.Services.Implementations
             return await _unitOfWork.LessonRepository.UpdateAndSaveAsync(lesson);
         }
 
-        public async Task<List<LessonResponseDto>> GetByCourseIdAsync(int courseId)
+        public async Task<Result<PagedResult<LessonResponseDto>>> GetByCourseIdAsync(int pageIndex, int pageSize, int courseId)
         {
-            var lessons = await _unitOfWork.LessonRepository.GetByCourseIdAsync(courseId);
-            return _mapper.Map<List<LessonResponseDto>>(lessons);
+            var pagedLessons = await _unitOfWork.LessonRepository.GetByCourseIdAsync(pageIndex, pageSize, courseId);
+
+            if (pagedLessons.Items == null || !pagedLessons.Items.Any())
+                return Result<PagedResult<LessonResponseDto>>.Failure("No lessons found for this course");
+
+            var mappedItems = pagedLessons.Items
+                .Select(l => _mapper.Map<LessonResponseDto>(l))
+                .ToList();
+
+            var dtoPaged = new PagedResult<LessonResponseDto>(
+                mappedItems,
+                pagedLessons.PageIndex,
+                pagedLessons.PageSize,
+                pagedLessons.TotalCount
+            );
+
+            return Result<PagedResult<LessonResponseDto>>.Success(dtoPaged);
+        }
+
+        public async Task<Result<LessonResponseDto?>> GetByIdAsync(int id)
+        {
+            var lesson = await _unitOfWork.LessonRepository.GetByIdAsync(id);
+
+            if (lesson == null)
+                return Result<LessonResponseDto?>.Failure("Lesson not found");
+
+            var dto = _mapper.Map<LessonResponseDto>(lesson);
+            return Result<LessonResponseDto?>.Success(dto);
         }
     }
 }

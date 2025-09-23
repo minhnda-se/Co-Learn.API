@@ -70,20 +70,23 @@ namespace CoLearn.API.Controllers
         }
 
         /// <summary>
+        /// Lấy danh sách assignment theo id
+        /// </summary>
+        [HttpGet("assignments/{id}")]
+        public async Task<IActionResult> GetById(int id)
+        {
+            var result = await _assignmentService.GetByIdAsync(id);
+            return StatusCode(result.StatusCode, result);
+        }
+
+        /// <summary>
         /// Lấy danh sách assignment theo lesson
         /// </summary>
         [HttpGet("lessons/{lessonId}/assignments")]
-        public async Task<ActionResult<List<AssignmentResponseDto>>> GetByLesson(int lessonId)
+        public async Task<IActionResult> GetByLesson(int lessonId, int pageIndex = 1, int pageSize = 10)
         {
-            try
-            {
-                var result = await _assignmentService.GetByLessonIdAsync(lessonId);
-                return Ok(result);
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(ex.Message);
-            }
+            var result = await _assignmentService.GetByLessonIdAsync(pageIndex, pageSize, lessonId);
+            return StatusCode(result.StatusCode, result);
         }
 
         /// <summary>

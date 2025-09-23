@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using CoLearn.Domain.Common;
 using CoLearn.Domain.DTOs;
 using CoLearn.Domain.Interfaces;
 using CoLearn.Domain.Interfaces.Repositories;
@@ -59,10 +60,34 @@ namespace CoLearn.Services.Implementations
             return await _unitOfWork.CommitAsync();
         }
 
-        public async Task<List<CourseMaterialResponseDto>> GetByLessonIdAsync(int lessonId)
+        public async Task<Result<PagedResult<CourseMaterialResponseDto>>> GetByLessonIdAsync(int pageIndex, int pageSize, int lessonId)
         {
-            var materials = await _unitOfWork.CourseMaterialRepository.GetByLessonIdAsync(lessonId);
-            return _mapper.Map<List<CourseMaterialResponseDto>>(materials);
+            var pagedMaterial = await _unitOfWork.CourseMaterialRepository.GetByLessonIdAsync(pageIndex, pageSize, lessonId);
+
+            if (pagedMaterial.Items == null || !pagedMaterial.Items.Any())
+                return Result<PagedResult<CourseMaterialResponseDto>>.Failure("No lessons found for this course");
+
+            var mappedItems = pagedMaterial.Items
+                .Select(l => _mapper.Map<CourseMaterialResponseDto>(l))
+                .ToList();
+
+            var dtoPaged = new PagedResult<CourseMaterialResponseDto>(
+                mappedItems,
+                pagedMaterial.PageIndex,
+                pagedMaterial.PageSize,
+                pagedMaterial.TotalCount
+            );
+
+            return Result<PagedResult<CourseMaterialResponseDto>>.Success(dtoPaged);
+        }
+
+        public async Task<Result<CourseMaterialResponseDto?>> GetByIdAsync(int id)
+        {
+            var material = await _unitOfWork.CourseMaterialRepository.GetByIdAsync(id);
+            if (material == null)
+                return Result<CourseMaterialResponseDto?>.Failure("Material not found");
+            var dto = _mapper.Map<CourseMaterialResponseDto>(material);
+            return Result<CourseMaterialResponseDto?>.Success(dto);
         }
     }
 }

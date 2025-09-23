@@ -1,4 +1,5 @@
-﻿using CoLearn.Domain.Interfaces.Repositories;
+﻿using CoLearn.Domain.Common;
+using CoLearn.Domain.Interfaces.Repositories;
 using CoLearn.Domain.Models;
 using CoLearn.Infrastructure.Context;
 using Microsoft.EntityFrameworkCore;
@@ -20,14 +21,29 @@ namespace CoLearn.Infrastructure.Repositories
                 .FirstOrDefaultAsync(m => m.MaterialId == id && !m.IsDeleted);
         }
 
-        public async Task<List<CourseMaterial>> GetByLessonIdAsync(int lessonId)
+        public async Task<PagedResult<CourseMaterial>> GetByLessonIdAsync(int pageIndex, int pageSize, int lessonId)
         {
+
             return await _context.CourseMaterials
                  .Where(m => m.LessonId == lessonId && !m.IsDeleted)
                  .Include(m => m.Lesson)
                  .Include(m => m.Course)
                  .OrderByDescending(m => m.CreatedAt)
                  .ToListAsync();
+
+            var query = _context.CourseMaterials
+                .Where(m => m.LessonId == lessonId && !m.IsDeleted)
+                .OrderByDescending(m => m.CreatedAt);
+
+            var totalCount = await query.CountAsync();
+
+            var items = await query
+                .Skip((pageIndex - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync();
+
+            return new PagedResult<CourseMaterial>(items, pageIndex, pageSize, totalCount);
+
         }
     }
 }
