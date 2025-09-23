@@ -1,0 +1,23 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace CoLearn.Domain.DTOs.Requests
+{
+    public class StudentDtoRequest
+    {
+        public int UserId { get; set; }
+
+        /// <summary>
+        /// Id của Parent nếu có (có thể null)
+        /// </summary>
+        public int? ParentId { get; set; }
+
+        /// <summary>
+        /// Trình độ lớp/khối (ví dụ: "Grade 5", "High School", ...)
+        /// </summary>
+        public string? GradeLevel { get; set; }
+    }
+}

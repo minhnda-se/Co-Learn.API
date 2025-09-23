@@ -1,4 +1,5 @@
-﻿using CoLearn.Infrastructure;
+﻿using CoLearn.API.Middlewares;
+using CoLearn.Infrastructure;
 using CoLearn.Services;
 using Microsoft.OpenApi.Models;
 
@@ -11,7 +12,6 @@ builder.Services.AddControllers()
         opt.JsonSerializerOptions.ReferenceHandler = System.Text.Json.Serialization.ReferenceHandler.IgnoreCycles;
         opt.JsonSerializerOptions.WriteIndented = true;
     });
-
 
 // 2. Add Swagger
 builder.Services.AddEndpointsApiExplorer();
@@ -51,9 +51,19 @@ builder.Services.AddInfrastructure(builder.Configuration);
 // 4. Add Services (Application layer services, business logic)
 builder.Services.AddServices(builder.Configuration);
 
-var app = builder.Build();
+// 5. Add CORS (AllowAll cho dev/test)
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowAll", policy =>
+        policy.AllowAnyOrigin()
+              .AllowAnyHeader()
+              .AllowAnyMethod());
+});
 
-// 5. Configure the HTTP request pipeline
+var app = builder.Build();
+app.UseMiddleware<ExceptionMiddleware>();
+
+// 6. Configure the HTTP request pipeline
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
@@ -61,6 +71,10 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+
+// 🔹 Bật CORS ở đây
+app.UseCors("AllowAll");
+
 app.UseAuthentication();
 app.UseAuthorization();
 

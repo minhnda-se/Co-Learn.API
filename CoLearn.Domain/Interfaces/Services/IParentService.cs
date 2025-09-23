@@ -1,4 +1,6 @@
-﻿using CoLearn.Domain.Models;
+﻿using CoLearn.Domain.DTOs.Requests;
+using CoLearn.Domain.DTOs.Responses;
+using CoLearn.Domain.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,10 +11,10 @@ namespace CoLearn.Domain.Interfaces.Services
 {
     public interface IParentService
     {
-        Task<Parent> GetParentByIdAsync(int parentId);
-        Task<List<Parent>> GetAllParentsAsync();
-        Task<int> CreateParentAsync(Parent parent);
-        Task<int> UpdateParentAsync(Parent parent);
+        Task<ParentDtoResponse?> GetParentByIdAsync(int parentId);
+        Task<List<ParentDtoResponse>> GetAllParentsAsync();
+        Task<int> CreateParentAsync(ParentDtoRequest dto);
+        Task<int> UpdateParentAsync(ParentDtoRequest dto);
         Task<int> DeleteParentAsync(int parentId);
     }
 }
