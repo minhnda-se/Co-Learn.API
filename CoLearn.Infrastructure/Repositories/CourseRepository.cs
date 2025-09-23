@@ -18,8 +18,11 @@ namespace CoLearn.Infrastructure.Repositories
         {
             var query = _context.Courses
                 .Where(c => !c.IsDeleted)
-                .Include(c => c.Teacher)
+                .Include(c => c.Teacher).ThenInclude(t => t.User)
                 .Include(c => c.Category)
+
+                .Include(c => c.Lessons).ThenInclude(l => l.CourseMaterials)
+
                 .AsQueryable();
 
             var totalCount = await query.CountAsync();
@@ -27,9 +30,21 @@ namespace CoLearn.Infrastructure.Repositories
             var items = await query
                 .Skip((pageIndex - 1) * pageSize)
                 .Take(pageSize)
+
                 .ToListAsync();
 
             return new PagedResult<Course>(items, pageIndex, pageSize, totalCount);
+        }
+
+
+        public async Task<List<Course>> GetAllCourseByTeacherId(int teacherId)
+        {
+            return await _context.Courses
+               .Where(c => !c.IsDeleted && c.TeacherId == teacherId)
+               .Include(c => c.Teacher).ThenInclude(t => t.User)
+               .Include(c => c.Category)
+               .Include(c => c.Lessons).ThenInclude(l => l.CourseMaterials)
+               .ToListAsync();
         }
 
 
@@ -38,8 +53,8 @@ namespace CoLearn.Infrastructure.Repositories
         {
             return await _context.Courses
                 .Where(c => !c.IsDeleted && c.CourseId == id)
-                .Include(c => c.Teacher)
-                .Include(c => c.Category)
+                .Include(c => c.Teacher).ThenInclude(t => t.User).Include(c => c.Category)
+                .Include(c => c.Lessons).ThenInclude(l => l.CourseMaterials)
                 .FirstOrDefaultAsync();
         }
 
@@ -48,8 +63,9 @@ namespace CoLearn.Infrastructure.Repositories
         {
             var query = _context.Courses
                 .Where(c => !c.IsDeleted)
-                .Include(c => c.Teacher)
+                .Include(c => c.Teacher).ThenInclude(t => t.User)
                 .Include(c => c.Category)
+                .Include(c => c.Lessons).ThenInclude(l => l.CourseMaterials)
                 .AsQueryable();
 
             if (!string.IsNullOrWhiteSpace(keyword) || !string.IsNullOrWhiteSpace(teacherName))

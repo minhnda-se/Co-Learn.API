@@ -1,4 +1,5 @@
-﻿using System;
+﻿using CoLearn.Domain.Models;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -27,6 +28,7 @@ namespace CoLearn.Domain.DTOs
 
         // Thông tin bổ sung
         public string? CourseTitle { get; set; }
+        public List<CourseMaterialResponseDto>? CourseMaterials { get; set; }
     }
 
 }

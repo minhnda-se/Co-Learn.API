@@ -61,6 +61,16 @@ namespace CoLearn.API.Controllers
             return StatusCode(course.StatusCode, course);
         }
 
+        // GET /api/course/{teacherId}/get-all
+        [HttpGet("{teacherId}/get-all")]
+        public async Task<IActionResult> GetCoursesByTeacherId(int teacherId)
+        {
+            var course = await _courseService.GetAllCourseByTeacherId(teacherId);
+            if (course == null)
+                return NotFound(new { message = "Course not found" });
+            return Ok(course);
+        }
+
         // GET /api/course/search?keyword=...&teacherName=...
         [HttpGet("search")]
         public async Task<IActionResult> SearchCourses([FromQuery] string? keyword, [FromQuery] string? teacherName)

@@ -26,6 +26,12 @@ namespace CoLearn.Infrastructure.Repositories
         {
             var query = _context.Lessons
                 .Where(l => l.CourseId == courseId && !l.IsDeleted)
+
+                .Include(l => l.Course)
+                .Include(l => l.Assignments)
+                .Include(l => l.CourseMaterials)
+                .OrderBy(l => l.OrderNumber) // sắp xếp theo thứ tự
+
                 .OrderBy(l => l.OrderNumber);
 
             var totalCount = await query.CountAsync();
@@ -33,6 +39,7 @@ namespace CoLearn.Infrastructure.Repositories
             var items = await query
                 .Skip((pageIndex - 1) * pageSize)
                 .Take(pageSize)
+
                 .ToListAsync();
 
             return new PagedResult<Lesson>(items, pageIndex, pageSize, totalCount);

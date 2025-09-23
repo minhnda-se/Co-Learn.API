@@ -32,5 +32,7 @@ namespace CoLearn.Domain.DTOs
         public string? TeacherName { get; set; }
         public int? CategoryId { get; set; }
         public string? CategoryName { get; set; }
+
+        public List<LessonResponseDto>? Lessons { get; set; }
     }
 }

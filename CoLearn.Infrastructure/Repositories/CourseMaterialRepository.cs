@@ -23,6 +23,14 @@ namespace CoLearn.Infrastructure.Repositories
 
         public async Task<PagedResult<CourseMaterial>> GetByLessonIdAsync(int pageIndex, int pageSize, int lessonId)
         {
+
+            return await _context.CourseMaterials
+                 .Where(m => m.LessonId == lessonId && !m.IsDeleted)
+                 .Include(m => m.Lesson)
+                 .Include(m => m.Course)
+                 .OrderByDescending(m => m.CreatedAt)
+                 .ToListAsync();
+
             var query = _context.CourseMaterials
                 .Where(m => m.LessonId == lessonId && !m.IsDeleted)
                 .OrderByDescending(m => m.CreatedAt);
@@ -35,6 +43,7 @@ namespace CoLearn.Infrastructure.Repositories
                 .ToListAsync();
 
             return new PagedResult<CourseMaterial>(items, pageIndex, pageSize, totalCount);
+
         }
     }
 }
