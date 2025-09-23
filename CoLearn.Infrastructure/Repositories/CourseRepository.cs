@@ -17,9 +17,20 @@ namespace CoLearn.Infrastructure.Repositories
         {
             return await _context.Courses
                 .Where(c => !c.IsDeleted)
-                .Include(c => c.Teacher)
+                .Include(c => c.Teacher).ThenInclude(t => t.User)
                 .Include(c => c.Category)
+                .Include(c => c.Lessons).ThenInclude(l => l.CourseMaterials)
                 .ToListAsync();
+        }
+
+        public async Task<List<Course>> GetAllCourseByTeacherId(int teacherId)
+        {
+            return await _context.Courses
+               .Where(c => !c.IsDeleted && c.TeacherId == teacherId)
+               .Include(c => c.Teacher).ThenInclude(t => t.User)
+               .Include(c => c.Category)
+               .Include(c => c.Lessons).ThenInclude(l => l.CourseMaterials)
+               .ToListAsync();
         }
 
         // Lấy Course theo Id
@@ -27,8 +38,8 @@ namespace CoLearn.Infrastructure.Repositories
         {
             return await _context.Courses
                 .Where(c => !c.IsDeleted && c.CourseId == id)
-                .Include(c => c.Teacher)
-                .Include(c => c.Category)
+                .Include(c => c.Teacher).ThenInclude(t => t.User).Include(c => c.Category)
+                .Include(c => c.Lessons).ThenInclude(l => l.CourseMaterials)
                 .FirstOrDefaultAsync();
         }
 
@@ -37,8 +48,9 @@ namespace CoLearn.Infrastructure.Repositories
         {
             var query = _context.Courses
                 .Where(c => !c.IsDeleted)
-                .Include(c => c.Teacher)
+                .Include(c => c.Teacher).ThenInclude(t => t.User)
                 .Include(c => c.Category)
+                .Include(c => c.Lessons).ThenInclude(l => l.CourseMaterials)
                 .AsQueryable();
 
             if (!string.IsNullOrWhiteSpace(keyword) || !string.IsNullOrWhiteSpace(teacherName))

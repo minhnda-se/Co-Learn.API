@@ -80,5 +80,11 @@ namespace CoLearn.Services.Implementations
         {
             return _unitOfWork.CourseRepository.SetCourseActive(courseId, isActice);
         }
+
+        public async Task<List<CourseResponseDto>> GetAllCourseByTeacherId(int teacherId)
+        {
+            var courses = await _unitOfWork.CourseRepository.GetAllCourseByTeacherId(teacherId);
+            return _mapper.Map<List<CourseResponseDto>>(courses);
+        }
     }
 }

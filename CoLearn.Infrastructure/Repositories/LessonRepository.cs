@@ -25,6 +25,9 @@ namespace CoLearn.Infrastructure.Repositories
         {
             return await _context.Lessons
                 .Where(l => l.CourseId == courseId && !l.IsDeleted)
+                .Include(l => l.Course)
+                .Include(l => l.Assignments)
+                .Include(l => l.CourseMaterials)
                 .OrderBy(l => l.OrderNumber) // sắp xếp theo thứ tự
                 .ToListAsync();
         }
