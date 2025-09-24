@@ -11,8 +11,6 @@ namespace CoLearn.Domain.Interfaces.Services
 {
     public interface ICourseService
     {
-
-        Task<List<CourseResponseDto>> GetAllCourseAsync();
         Task<List<CourseResponseDto>> GetAllCourseByTeacherId(int teacherId);
 
 
