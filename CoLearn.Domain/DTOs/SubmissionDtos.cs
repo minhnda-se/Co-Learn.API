@@ -5,6 +5,7 @@
         public int StudentId { get; set; }
         public decimal? Grade { get; set; }
         public string? Feedback { get; set; }
+        public string? FilePath { get; set; }
     }
 
     public class SubmissionResponseDto
@@ -13,6 +14,7 @@
         public DateTime SubmittedAt { get; set; }
         public decimal? Grade { get; set; }
         public string? Feedback { get; set; }
+        public string? FilePath { get; set; }
 
         // Profile Student
         public int StudentId { get; set; }

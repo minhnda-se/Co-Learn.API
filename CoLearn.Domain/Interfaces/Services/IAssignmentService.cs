@@ -1,6 +1,6 @@
 ﻿using CoLearn.Domain.Common;
 using CoLearn.Domain.DTOs;
-using CoLearn.Domain.Models;
+
 using System;
 using System.Collections.Generic;
 using System.Linq;
