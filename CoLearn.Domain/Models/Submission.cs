@@ -17,6 +17,8 @@ public partial class Submission
 
     public string? Feedback { get; set; }
 
+    public string? FilePath { get; set; }
+
     public bool IsDeleted { get; set; }
 
     public DateTime? DeletedAt { get; set; }
