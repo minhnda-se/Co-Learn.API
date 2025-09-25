@@ -11,11 +11,11 @@ namespace CoLearn.Domain.Interfaces.Services
 {
     public interface IUserService
     {
-        Task<UserReponse.GetUserModel?> GetByIdAsync(int id);
-        Task<PagedResult<UserReponse.GetUserModel>> GetAllAsync(int pageIndex, int pageSize);
-        Task<UserReponse.GetUserModel> CreateAsync(UserRequest.CreateUserModel dto);
-        Task<UserReponse.GetUserModel?> UpdateAsync(int id, UserRequest.UpdateUserModel dto);
-        Task<bool> DeleteAsync(int id);
-        Task<UserReponse.Login?> LoginAsync(UserRequest.LoginRequest request);
+        Task<Result<UserReponse.GetUserModel?>> GetByIdAsync(int id);
+        Task<Result<PagedResult<UserReponse.GetUserModel>>> GetAllAsync(int pageIndex, int pageSize);
+        Task<Result<UserReponse.GetUserModel>> CreateAsync(UserRequest.CreateUserModel dto);
+        Task<Result<UserReponse.GetUserModel?>> UpdateAsync(int id, UserRequest.UpdateUserModel dto);
+        Task<Result> DeleteAsync(int id);
+        Task<Result<UserReponse.Login?>> LoginAsync(UserRequest.LoginRequest request);
     }
 }

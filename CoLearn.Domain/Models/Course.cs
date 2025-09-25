@@ -23,6 +23,8 @@ public partial class Course
 
     public short? DurationMinutes { get; set; }
 
+    public string? ImageUrl { get; set; }
+
     public bool IsActive { get; set; }
 
     public bool IsDeleted { get; set; }
