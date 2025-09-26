@@ -13,25 +13,38 @@ namespace CoLearn.Services.Implementations
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
+        private readonly IS3StorageService _s3StorageService; 
 
-        public CourseService(IUnitOfWork unitOfWork, IMapper mapper)
+        public CourseService(IUnitOfWork unitOfWork, IMapper mapper, IS3StorageService s3StorageService)
         {
             _unitOfWork = unitOfWork;
             _mapper = mapper;
+            _s3StorageService = s3StorageService; 
         }
+
 
         public async Task<int> CreateAsync(CourseRequestDto dto)
         {
             var course = _mapper.Map<Course>(dto);
             course.CreatedAt = DateTime.UtcNow;
             course.IsDeleted = false;
-            course.IsDeleted = false;
+
+            // Nếu FE gửi ImageUrl từ temp/, chuyển sang private/
+            if (!string.IsNullOrEmpty(dto.ImageUrl))
+            {
+                // Lấy fileKey từ URL
+                var tempKey = dto.ImageUrl.Replace(_s3StorageService.GetBaseUrl(), "");
+
+                var newKey = tempKey.Replace("temp/", "private/");
+                course.ImageUrl = await _s3StorageService.MoveFileAsync(tempKey, newKey);
+            }
 
             await _unitOfWork.CourseRepository.AddAndSaveAsync(course);
             await _unitOfWork.CommitAsync();
 
             return course.CourseId;
         }
+
 
         public async Task<int> UpdateAsync(int id, CourseRequestDto dto)
         {
