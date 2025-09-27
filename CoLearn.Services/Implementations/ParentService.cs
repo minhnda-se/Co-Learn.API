@@ -75,5 +75,11 @@ namespace CoLearn.Services.Implementations
             var parent = await _unitOfWork.ParentRepository.GetParentByIdAsync(parentId);
             return _mapper.Map<ParentDtoResponse?>(parent);
         }
+
+        public async Task<ParentDtoResponse?> GetParentByUserIdAsync(int userId)
+        {
+            var parent = await _unitOfWork.ParentRepository.GetByUserIdAsync(userId);
+            return parent == null ? null : _mapper.Map<ParentDtoResponse>(parent);
+        }
     }
 }

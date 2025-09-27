@@ -12,6 +12,7 @@ namespace CoLearn.Domain.Interfaces.Services
     public interface IParentService
     {
         Task<ParentDtoResponse?> GetParentByIdAsync(int parentId);
+        Task<ParentDtoResponse?> GetParentByUserIdAsync(int userId);
         Task<List<ParentDtoResponse>> GetAllParentsAsync();
         Task<int> CreateParentAsync(ParentDtoRequest dto);
         Task<int> UpdateParentAsync(ParentDtoRequest dto);

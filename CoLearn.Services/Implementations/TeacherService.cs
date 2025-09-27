@@ -71,4 +71,10 @@ public class TeacherService : ITeacherService
         var teacher = await _unitOfWork.TeacherRepository.GetTeacherByIdAsync(teacherId);
         return teacher == null ? null : _mapper.Map<TeacherDtoResponse>(teacher);
     }
+
+    public async Task<TeacherDtoResponse?> GetTeacherByUserIdAsync(int userId)
+    {
+        var teacher = await _unitOfWork.TeacherRepository.GetByUserIdAsync(userId);
+        return teacher == null ? null : _mapper.Map<TeacherDtoResponse>(teacher);
+    }
 }

@@ -75,5 +75,11 @@ namespace CoLearn.Services.Implementations
             var student = await _unitOfWork.StudentRepository.GetStudentByIdAsync(studentId);
             return _mapper.Map<StudentDtoResponse?>(student);
         }
+
+        public async Task<StudentDtoResponse?> GetStudentByUserIdAsync(int userId)
+        {
+            var student = await _unitOfWork.StudentRepository.GetByUserIdAsync(userId);
+            return _mapper.Map<StudentDtoResponse?>(student);
+        }
     }
 }
