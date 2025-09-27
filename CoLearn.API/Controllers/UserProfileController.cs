@@ -89,10 +89,10 @@ namespace CoLearn.API
             return Ok(students);
         }
 
-        [HttpGet("student/{id}")]
-        public async Task<IActionResult> GetStudentProfileById(int id)
+        [HttpGet("student/{userId}")]
+        public async Task<IActionResult> GetStudentProfileByUserId(int userId)
         {
-            var student = await _studentService.GetStudentByIdAsync(id);
+            var student = await _studentService.GetStudentByUserIdAsync(userId);
             if (student == null) return NotFound(new { message = "Student profile not found" });
 
             return Ok(student);
@@ -106,7 +106,7 @@ namespace CoLearn.API
             var result = await _studentService.CreateStudentAsync(dto);
 
             if (result > 0)
-                return CreatedAtAction(nameof(GetStudentProfileById), new { id = dto.UserId }, dto);
+                return CreatedAtAction(nameof(GetStudentProfileByUserId), new { id = dto.UserId }, dto);
 
             return BadRequest(new { message = "Failed to create student profile" });
         }
@@ -143,10 +143,10 @@ namespace CoLearn.API
             return Ok(teachers);
         }
 
-        [HttpGet("teacher/{id}")]
-        public async Task<IActionResult> GetTeacherProfileById(int id)
+        [HttpGet("teacher/{userId}")]
+        public async Task<IActionResult> GetTeacherProfileByUserId(int userId)
         {
-            var teacher = await _teacherService.GetTeacherByIdAsync(id);
+            var teacher = await _teacherService.GetTeacherByUserIdAsync(userId);
             if (teacher == null) return NotFound(new { message = "Teacher profile not found" });
 
             return Ok(teacher);
@@ -160,7 +160,7 @@ namespace CoLearn.API
             var result = await _teacherService.CreateTeacherAsync(dto);
 
             if (result > 0)
-                return CreatedAtAction(nameof(GetTeacherProfileById), new { id = dto.UserId }, dto);
+                return CreatedAtAction(nameof(GetTeacherProfileByUserId), new { id = dto.UserId }, dto);
 
             return BadRequest(new { message = "Failed to create teacher profile" });
         }
@@ -197,10 +197,10 @@ namespace CoLearn.API
             return Ok(parents);
         }
 
-        [HttpGet("parent/{id}")]
-        public async Task<IActionResult> GetParentProfileById(int id)
+        [HttpGet("parent/{userId}")]
+        public async Task<IActionResult> GetParentProfileByUserId(int userId)
         {
-            var parent = await _parentService.GetParentByIdAsync(id);
+            var parent = await _parentService.GetParentByUserIdAsync(userId);
             if (parent == null) return NotFound(new { message = "Parent profile not found" });
 
             return Ok(parent);
@@ -214,7 +214,7 @@ namespace CoLearn.API
             var result = await _parentService.CreateParentAsync(dto);
 
             if (result > 0)
-                return CreatedAtAction(nameof(GetParentProfileById), new { id = dto.UserId }, dto);
+                return CreatedAtAction(nameof(GetParentProfileByUserId), new { id = dto.UserId }, dto);
 
             return BadRequest(new { message = "Failed to create parent profile" });
         }

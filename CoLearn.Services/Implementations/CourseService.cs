@@ -32,11 +32,19 @@ namespace CoLearn.Services.Implementations
             // Nếu FE gửi ImageUrl từ temp/, chuyển sang private/
             if (!string.IsNullOrEmpty(dto.ImageUrl))
             {
-                // Lấy fileKey từ URL
-                var tempKey = dto.ImageUrl.Replace(_s3StorageService.GetBaseUrl(), "");
+                try
+                {
+                    // Lấy fileKey từ URL
+                    var tempKey = dto.ImageUrl.Replace(_s3StorageService.GetBaseUrl(), "");
 
-                var newKey = tempKey.Replace("temp/", "private/");
-                course.ImageUrl = await _s3StorageService.MoveFileAsync(tempKey, newKey);
+                    var newKey = tempKey.Replace("temp/", "private/");
+                    course.ImageUrl = await _s3StorageService.MoveFileAsync(tempKey, newKey);
+                }
+                catch (Exception ex)
+                {
+                    // Log lỗi nhưng không ảnh hưởng đến tạo course
+                    Console.WriteLine($"Lỗi move ảnh: {ex.Message}");
+                }
             }
 
             await _unitOfWork.CourseRepository.AddAndSaveAsync(course);
@@ -44,6 +52,7 @@ namespace CoLearn.Services.Implementations
 
             return course.CourseId;
         }
+
 
 
         public async Task<int> UpdateAsync(int id, CourseRequestDto dto)

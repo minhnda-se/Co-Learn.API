@@ -40,7 +40,7 @@ namespace CoLearn.API.Middlewares
             {
                 case NotFoundException nf:
                     status = HttpStatusCode.NotFound;
-                    message = nf.Message;           
+                    message = nf.Message;
                     break;
                 case ValidationException ve:
                     status = HttpStatusCode.BadRequest;
