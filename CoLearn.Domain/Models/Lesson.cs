@@ -17,6 +17,8 @@ public partial class Lesson
 
     public short? DurationMinutes { get; set; }
 
+    public string? VideoUrl { get; set; }
+
     public bool IsDeleted { get; set; }
 
     public DateTime? DeletedAt { get; set; }
