@@ -15,17 +15,25 @@ namespace CoLearn.Infrastructure.Repositories
         {
         }
 
-        public async Task<PagedResult<Enrollment>> GetByStudentIdAsync(int studentId, int pageIndex, int pageSize)
+        private IQueryable<Enrollment> BuildEnrollmentQuery()
         {
-            var query = _context.Enrollments
+            return _context.Enrollments
                 .Include(e => e.Course)
+                    .ThenInclude(c => c.Teacher)
+                        .ThenInclude(t => t.User)
+                .Include(e => e.Course)
+                    .ThenInclude(c => c.Category)
                 .Include(e => e.Student)
                     .ThenInclude(s => s.User)
-                .Where(e => e.StudentId == studentId && !e.IsDeleted)
-                .AsQueryable();
+                .Where(e => !e.IsDeleted);
+        }
+
+        public async Task<PagedResult<Enrollment>> GetByStudentIdAsync(int studentId, int pageIndex, int pageSize)
+        {
+            var query = BuildEnrollmentQuery()
+                .Where(e => e.StudentId == studentId);
 
             var totalCount = await query.CountAsync();
-
             var items = await query
                 .Skip((pageIndex - 1) * pageSize)
                 .Take(pageSize)
@@ -36,15 +44,10 @@ namespace CoLearn.Infrastructure.Repositories
 
         public async Task<PagedResult<Enrollment>> GetByCourseIdAsync(int courseId, int pageIndex, int pageSize)
         {
-            var query = _context.Enrollments
-                .Include(e => e.Course)
-                .Include(e => e.Student)
-                    .ThenInclude(s => s.User)
-                .Where(e => e.CourseId == courseId && !e.IsDeleted)
-                .AsQueryable();
+            var query = BuildEnrollmentQuery()
+                .Where(e => e.CourseId == courseId);
 
             var totalCount = await query.CountAsync();
-
             var items = await query
                 .Skip((pageIndex - 1) * pageSize)
                 .Take(pageSize)
@@ -55,14 +58,9 @@ namespace CoLearn.Infrastructure.Repositories
 
         public async Task<PagedResult<Enrollment>> GetAllEnrollmentsAsync(int pageIndex, int pageSize)
         {
-            var query = _context.Enrollments
-                .Include(e => e.Course)
-                .Include(e => e.Student)
-                    .ThenInclude(s => s.User)
-                .AsQueryable();
+            var query = BuildEnrollmentQuery();
 
             var totalCount = await query.CountAsync();
-
             var items = await query
                 .Skip((pageIndex - 1) * pageSize)
                 .Take(pageSize)
@@ -73,11 +71,8 @@ namespace CoLearn.Infrastructure.Repositories
 
         public async Task<Enrollment?> GetByIdAsync(int id)
         {
-            return await _context.Enrollments
-                .Include(e => e.Course)
-                .Include(e => e.Student)
-                    .ThenInclude(s => s.User)
-                .FirstOrDefaultAsync(e => e.EnrollmentId == id && !e.IsDeleted);
+            return await BuildEnrollmentQuery()
+                .FirstOrDefaultAsync(e => e.EnrollmentId == id);
         }
     }
 }

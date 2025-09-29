@@ -7,11 +7,17 @@ public partial class Booking
 {
     public int BookingId { get; set; }
 
-    public int ScheduleId { get; set; }
+    public int TeacherId { get; set; }
 
     public int StudentId { get; set; }
 
     public int BookingStatusId { get; set; }
+
+    public int? ScheduleId { get; set; }
+
+    public DateTime? RequestedStartTime { get; set; }
+
+    public DateTime? RequestedEndTime { get; set; }
 
     public string? Notes { get; set; }
 
@@ -29,7 +35,9 @@ public partial class Booking
 
     public virtual ICollection<Payment> Payments { get; set; } = new List<Payment>();
 
-    public virtual Schedule Schedule { get; set; } = null!;
+    public virtual Schedule? Schedule { get; set; }
 
     public virtual Student Student { get; set; } = null!;
+
+    public virtual Teacher Teacher { get; set; } = null!;
 }
