@@ -2,8 +2,10 @@
 using CoLearn.API.Middlewares;
 using CoLearn.Domain.Interfaces;
 using CoLearn.Infrastructure;
+using CoLearn.Infrastructure.Context;
 using CoLearn.Infrastructure.Services;
 using CoLearn.Services;
+using Microsoft.Data.SqlClient;
 using Microsoft.OpenApi.Models;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -68,6 +70,8 @@ builder.Services.AddCors(options =>
 });
 
 var app = builder.Build();
+
+
 app.UseMiddleware<ExceptionMiddleware>();
 
 // 6. Configure the HTTP request pipeline

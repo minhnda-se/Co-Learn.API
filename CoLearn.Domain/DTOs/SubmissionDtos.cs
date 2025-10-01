@@ -3,7 +3,7 @@
     public class SubmissionRequestDto
     {
         public int StudentId { get; set; }
-        public decimal? Grade { get; set; }
+        public int AssignmentId { get; set; }
         public string? Feedback { get; set; }
         public string? FilePath { get; set; }
     }
