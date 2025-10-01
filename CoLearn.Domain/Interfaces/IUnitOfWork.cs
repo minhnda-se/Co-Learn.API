@@ -19,7 +19,7 @@ namespace CoLearn.Domain.Interfaces
         IAssignmentRepository AssignmentRepository { get; }
         ICourseMaterialRepository CourseMaterialRepository { get; }
         IEnrollmentRepository EnrollmentRepository { get; }
-
+        IBookingRepository BookingRepository { get; }
         // Generic Repositories
         IGenericRepository<User> UserGenericRepository { get; }
 

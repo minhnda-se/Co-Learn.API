@@ -22,6 +22,7 @@ namespace CoLearn.Infrastructure
         private IAssignmentRepository _assignmentRepository;
         private ICourseMaterialRepository _courseMaterialRepository;
         private IEnrollmentRepository _enrollmentRepository;
+        private IBookingRepository _bookingRepository;
 
         private IUserRepository _userRepository;
         private IGenericRepository<User> _userGenericRepository;
@@ -52,7 +53,8 @@ namespace CoLearn.Infrastructure
             => _courseMaterialRepository ??= new CourseMaterialRepository(_context);
         public IEnrollmentRepository EnrollmentRepository
             => _enrollmentRepository ??= new EnrollmentRepository(_context);
-
+        public IBookingRepository BookingRepository
+            => _bookingRepository ??= new BookingRepository(_context);
         public IUserRepository UserRepository
             => _userRepository ??= new UserRepository(_context);
         // Generic repository
