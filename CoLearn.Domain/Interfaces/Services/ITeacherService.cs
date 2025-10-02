@@ -12,6 +12,7 @@ namespace CoLearn.Domain.Interfaces.Services
     public interface ITeacherService
     {
         Task<TeacherDtoResponse?> GetTeacherByIdAsync(int teacherId);
+        Task<TeacherDtoResponse?> GetTeacherByUserIdAsync(int userId);
         Task<List<TeacherDtoResponse>> GetAllTeachersAsync();
         Task<int> CreateTeacherAsync(TeacherDtoRequest dto);
         Task<int> UpdateTeacherAsync(TeacherDtoRequest dto);

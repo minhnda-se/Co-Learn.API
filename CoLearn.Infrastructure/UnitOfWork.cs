@@ -21,7 +21,11 @@ namespace CoLearn.Infrastructure
         private ILessonRepository _lessonRepository;
         private IAssignmentRepository _assignmentRepository;
         private ICourseMaterialRepository _courseMaterialRepository;
+        private IEnrollmentRepository _enrollmentRepository;
+        private IBookingRepository _bookingRepository;
 
+        private ISubmissionRepository _submissionRepository;
+        private IScheduleRepository _scheduleRepository;
         private IUserRepository _userRepository;
         private IGenericRepository<User> _userGenericRepository;
         public UnitOfWork(AppDbContext context)
@@ -49,9 +53,18 @@ namespace CoLearn.Infrastructure
             => _assignmentRepository ??= new AssignmentRepository(_context);
         public ICourseMaterialRepository CourseMaterialRepository
             => _courseMaterialRepository ??= new CourseMaterialRepository(_context);
-
+        public IEnrollmentRepository EnrollmentRepository
+            => _enrollmentRepository ??= new EnrollmentRepository(_context);
+        public IBookingRepository BookingRepository
+            => _bookingRepository ??= new BookingRepository(_context);
         public IUserRepository UserRepository
             => _userRepository ??= new UserRepository(_context);
+
+        public ISubmissionRepository SubmissionRepository
+            => _submissionRepository ??= new SubmissionRepository(_context);
+
+        public IScheduleRepository ScheduleRepository 
+            => _scheduleRepository ??= new ScheduleRepository(_context);
         // Generic repository
 
         public IGenericRepository<User> UserGenericRepository

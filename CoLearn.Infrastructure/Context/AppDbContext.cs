@@ -73,12 +73,11 @@ public partial class AppDbContext : DbContext
 
     public virtual DbSet<UserRole> UserRoles { get; set; }
 
-
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<Assignment>(entity =>
         {
-            entity.HasKey(e => e.AssignmentId).HasName("PK__Assignme__32499E577E3D8FC7");
+            entity.HasKey(e => e.AssignmentId).HasName("PK__Assignme__32499E5785DB4D7F");
 
             entity.Property(e => e.AssignmentId).HasColumnName("AssignmentID");
             entity.Property(e => e.CreatedAt).HasDefaultValueSql("(sysutcdatetime())");
@@ -93,32 +92,25 @@ public partial class AppDbContext : DbContext
 
         modelBuilder.Entity<AuditTrail>(entity =>
         {
-            entity.HasKey(e => e.AuditId).HasName("PK__AuditTra__A17F23B826C44015");
+            entity.HasKey(e => e.AuditId).HasName("PK__AuditTra__A17F23B8966D7110");
 
             entity.ToTable("AuditTrail");
 
             entity.Property(e => e.AuditId).HasColumnName("AuditID");
-            entity.Property(e => e.Action).HasMaxLength(50);
-            entity.Property(e => e.PerformedAt).HasDefaultValueSql("(sysutcdatetime())");
-            entity.Property(e => e.Pkvalue)
-                .HasMaxLength(200)
-                .HasColumnName("PKValue");
-            entity.Property(e => e.TableName).HasMaxLength(200);
+            entity.Property(e => e.Action).HasMaxLength(200);
+            entity.Property(e => e.CreatedAt).HasDefaultValueSql("(sysutcdatetime())");
+            entity.Property(e => e.RecordId).HasColumnName("RecordID");
+            entity.Property(e => e.TableName).HasMaxLength(100);
+            entity.Property(e => e.UserId).HasColumnName("UserID");
 
-            entity.HasOne(d => d.PerformedByNavigation).WithMany(p => p.AuditTrails)
-                .HasForeignKey(d => d.PerformedBy)
-                .HasConstraintName("FK_Audit_PerformedBy");
+            entity.HasOne(d => d.User).WithMany(p => p.AuditTrails)
+                .HasForeignKey(d => d.UserId)
+                .HasConstraintName("FK_AuditTrail_User");
         });
 
         modelBuilder.Entity<Booking>(entity =>
         {
-            entity.HasKey(e => e.BookingId).HasName("PK__Bookings__73951ACDE18EAE33");
-
-            entity.HasIndex(e => e.IsDeleted, "IX_Bookings_IsDeleted");
-
-            entity.HasIndex(e => e.ScheduleId, "IX_Bookings_ScheduleID").HasFilter("([IsDeleted]=(0))");
-
-            entity.HasIndex(e => e.StudentId, "IX_Bookings_StudentID").HasFilter("([IsDeleted]=(0))");
+            entity.HasKey(e => e.BookingId).HasName("PK__Bookings__73951ACD15E5320F");
 
             entity.Property(e => e.BookingId).HasColumnName("BookingID");
             entity.Property(e => e.BookingStatusId).HasColumnName("BookingStatusID");
@@ -126,6 +118,7 @@ public partial class AppDbContext : DbContext
             entity.Property(e => e.Notes).HasMaxLength(1000);
             entity.Property(e => e.ScheduleId).HasColumnName("ScheduleID");
             entity.Property(e => e.StudentId).HasColumnName("StudentID");
+            entity.Property(e => e.TeacherId).HasColumnName("TeacherID");
 
             entity.HasOne(d => d.BookingStatus).WithMany(p => p.Bookings)
                 .HasForeignKey(d => d.BookingStatusId)
@@ -134,22 +127,26 @@ public partial class AppDbContext : DbContext
 
             entity.HasOne(d => d.Schedule).WithMany(p => p.Bookings)
                 .HasForeignKey(d => d.ScheduleId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_Bookings_Schedule");
 
             entity.HasOne(d => d.Student).WithMany(p => p.Bookings)
                 .HasForeignKey(d => d.StudentId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_Bookings_Student");
+
+            entity.HasOne(d => d.Teacher).WithMany(p => p.Bookings)
+                .HasForeignKey(d => d.TeacherId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_Bookings_Teacher");
         });
 
         modelBuilder.Entity<BookingStatus>(entity =>
         {
-            entity.HasKey(e => e.StatusId).HasName("PK__BookingS__C8EE204398A5A86A");
+            entity.HasKey(e => e.StatusId).HasName("PK__BookingS__C8EE20437D1B5679");
 
             entity.ToTable("BookingStatus");
 
-            entity.HasIndex(e => e.StatusName, "UQ__BookingS__05E7698AABC03824").IsUnique();
+            entity.HasIndex(e => e.StatusName, "UQ__BookingS__05E7698AFAACAB6D").IsUnique();
 
             entity.Property(e => e.StatusId).HasColumnName("StatusID");
             entity.Property(e => e.StatusName).HasMaxLength(50);
@@ -157,9 +154,7 @@ public partial class AppDbContext : DbContext
 
         modelBuilder.Entity<Course>(entity =>
         {
-            entity.HasKey(e => e.CourseId).HasName("PK__Courses__C92D71879A39F3DA");
-
-            entity.HasIndex(e => e.IsDeleted, "IX_Courses_IsDeleted");
+            entity.HasKey(e => e.CourseId).HasName("PK__Courses__C92D7187DD0D8D39");
 
             entity.Property(e => e.CourseId).HasColumnName("CourseID");
             entity.Property(e => e.CategoryId).HasColumnName("CategoryID");
@@ -183,11 +178,9 @@ public partial class AppDbContext : DbContext
 
         modelBuilder.Entity<CourseCategory>(entity =>
         {
-            entity.HasKey(e => e.CategoryId).HasName("PK__CourseCa__19093A2B76FB9621");
+            entity.HasKey(e => e.CategoryId).HasName("PK__CourseCa__19093A2B3E9ACA36");
 
-            entity.HasIndex(e => e.IsDeleted, "IX_CourseCategories_IsDeleted");
-
-            entity.HasIndex(e => e.Name, "UQ__CourseCa__737584F6FF17C439").IsUnique();
+            entity.HasIndex(e => e.Name, "UQ__CourseCa__737584F6AE6069A8").IsUnique();
 
             entity.Property(e => e.CategoryId).HasColumnName("CategoryID");
             entity.Property(e => e.Description).HasMaxLength(512);
@@ -196,9 +189,7 @@ public partial class AppDbContext : DbContext
 
         modelBuilder.Entity<CourseMaterial>(entity =>
         {
-            entity.HasKey(e => e.MaterialId).HasName("PK__CourseMa__C506131716657386");
-
-            entity.HasIndex(e => e.IsDeleted, "IX_CourseMaterials_IsDeleted");
+            entity.HasKey(e => e.MaterialId).HasName("PK__CourseMa__C5061317E3A58217");
 
             entity.Property(e => e.MaterialId).HasColumnName("MaterialID");
             entity.Property(e => e.CourseId).HasColumnName("CourseID");
@@ -219,13 +210,7 @@ public partial class AppDbContext : DbContext
 
         modelBuilder.Entity<Enrollment>(entity =>
         {
-            entity.HasKey(e => e.EnrollmentId).HasName("PK__Enrollme__7F6877FBF871597A");
-
-            entity.HasIndex(e => e.CourseId, "IX_Enrollments_CourseID").HasFilter("([IsDeleted]=(0))");
-
-            entity.HasIndex(e => e.IsDeleted, "IX_Enrollments_IsDeleted");
-
-            entity.HasIndex(e => e.StudentId, "IX_Enrollments_StudentID").HasFilter("([IsDeleted]=(0))");
+            entity.HasKey(e => e.EnrollmentId).HasName("PK__Enrollme__7F6877FB83B23EAC");
 
             entity.HasIndex(e => new { e.StudentId, e.CourseId }, "UX_Enrollments_Student_Course").IsUnique();
 
@@ -251,9 +236,9 @@ public partial class AppDbContext : DbContext
 
         modelBuilder.Entity<ErrorType>(entity =>
         {
-            entity.HasKey(e => e.ErrorTypeId).HasName("PK__ErrorTyp__9BB6BEEB9A53956C");
+            entity.HasKey(e => e.ErrorTypeId).HasName("PK__ErrorTyp__9BB6BEEB3F91546C");
 
-            entity.HasIndex(e => e.ErrorName, "UQ__ErrorTyp__DB3189624F0013FB").IsUnique();
+            entity.HasIndex(e => e.ErrorName, "UQ__ErrorTyp__DB3189623C38200A").IsUnique();
 
             entity.Property(e => e.ErrorTypeId).HasColumnName("ErrorTypeID");
             entity.Property(e => e.ErrorName).HasMaxLength(100);
@@ -261,7 +246,7 @@ public partial class AppDbContext : DbContext
 
         modelBuilder.Entity<FileUpload>(entity =>
         {
-            entity.HasKey(e => e.FileId).HasName("PK__FileUplo__6F0F989F602A7382");
+            entity.HasKey(e => e.FileId).HasName("PK__FileUplo__6F0F989FB8524BEF");
 
             entity.Property(e => e.FileId).HasColumnName("FileID");
             entity.Property(e => e.ContentType).HasMaxLength(200);
@@ -279,14 +264,13 @@ public partial class AppDbContext : DbContext
 
         modelBuilder.Entity<Lesson>(entity =>
         {
-            entity.HasKey(e => e.LessonId).HasName("PK__Lessons__B084ACB0082F19AD");
-
-            entity.HasIndex(e => e.IsDeleted, "IX_Lessons_IsDeleted");
+            entity.HasKey(e => e.LessonId).HasName("PK__Lessons__B084ACB05E15C6AF");
 
             entity.Property(e => e.LessonId).HasColumnName("LessonID");
             entity.Property(e => e.CourseId).HasColumnName("CourseID");
             entity.Property(e => e.CreatedAt).HasDefaultValueSql("(sysutcdatetime())");
             entity.Property(e => e.Title).HasMaxLength(255);
+            entity.Property(e => e.VideoUrl).HasMaxLength(512);
 
             entity.HasOne(d => d.Course).WithMany(p => p.Lessons)
                 .HasForeignKey(d => d.CourseId)
@@ -296,9 +280,9 @@ public partial class AppDbContext : DbContext
 
         modelBuilder.Entity<MaterialType>(entity =>
         {
-            entity.HasKey(e => e.MaterialTypeId).HasName("PK__Material__1621BBFFED40EAB2");
+            entity.HasKey(e => e.MaterialTypeId).HasName("PK__Material__1621BBFFC09DD50D");
 
-            entity.HasIndex(e => e.TypeName, "UQ__Material__D4E7DFA82DC9C7BE").IsUnique();
+            entity.HasIndex(e => e.TypeName, "UQ__Material__D4E7DFA8B3DD251A").IsUnique();
 
             entity.Property(e => e.MaterialTypeId).HasColumnName("MaterialTypeID");
             entity.Property(e => e.TypeName).HasMaxLength(50);
@@ -306,9 +290,9 @@ public partial class AppDbContext : DbContext
 
         modelBuilder.Entity<Parent>(entity =>
         {
-            entity.HasKey(e => e.ParentId).HasName("PK__Parents__D339510FD353DF12");
+            entity.HasKey(e => e.ParentId).HasName("PK__Parents__D339510F962263D6");
 
-            entity.HasIndex(e => e.UserId, "UQ__Parents__1788CCADEC6D7D50").IsUnique();
+            entity.HasIndex(e => e.UserId, "UQ__Parents__1788CCAD682CB2CE").IsUnique();
 
             entity.Property(e => e.ParentId).HasColumnName("ParentID");
             entity.Property(e => e.CreatedAt).HasDefaultValueSql("(sysutcdatetime())");
@@ -323,13 +307,7 @@ public partial class AppDbContext : DbContext
 
         modelBuilder.Entity<Payment>(entity =>
         {
-            entity.HasKey(e => e.PaymentId).HasName("PK__Payments__9B556A5812592706");
-
-            entity.HasIndex(e => e.BookingId, "IX_Payments_BookingID").HasFilter("([IsDeleted]=(0))");
-
-            entity.HasIndex(e => e.EnrollmentId, "IX_Payments_EnrollmentID").HasFilter("([IsDeleted]=(0))");
-
-            entity.HasIndex(e => e.IsDeleted, "IX_Payments_IsDeleted");
+            entity.HasKey(e => e.PaymentId).HasName("PK__Payments__9B556A58CB17D6FA");
 
             entity.Property(e => e.PaymentId).HasColumnName("PaymentID");
             entity.Property(e => e.Amount).HasColumnType("decimal(14, 2)");
@@ -362,9 +340,9 @@ public partial class AppDbContext : DbContext
 
         modelBuilder.Entity<PaymentMethod>(entity =>
         {
-            entity.HasKey(e => e.MethodId).HasName("PK__PaymentM__FC681FB16A229E65");
+            entity.HasKey(e => e.MethodId).HasName("PK__PaymentM__FC681FB1C7E14E18");
 
-            entity.HasIndex(e => e.MethodName, "UQ__PaymentM__218CFB17152EA0C1").IsUnique();
+            entity.HasIndex(e => e.MethodName, "UQ__PaymentM__218CFB17B6571403").IsUnique();
 
             entity.Property(e => e.MethodId).HasColumnName("MethodID");
             entity.Property(e => e.MethodName).HasMaxLength(50);
@@ -372,9 +350,9 @@ public partial class AppDbContext : DbContext
 
         modelBuilder.Entity<Role>(entity =>
         {
-            entity.HasKey(e => e.RoleId).HasName("PK__Roles__8AFACE3AFA867194");
+            entity.HasKey(e => e.RoleId).HasName("PK__Roles__8AFACE3A9CCCCCBB");
 
-            entity.HasIndex(e => e.RoleName, "UQ__Roles__8A2B616073116DDB").IsUnique();
+            entity.HasIndex(e => e.RoleName, "UQ__Roles__8A2B6160A7C22457").IsUnique();
 
             entity.Property(e => e.RoleId).HasColumnName("RoleID");
             entity.Property(e => e.Description).HasMaxLength(255);
@@ -384,11 +362,7 @@ public partial class AppDbContext : DbContext
 
         modelBuilder.Entity<Schedule>(entity =>
         {
-            entity.HasKey(e => e.ScheduleId).HasName("PK__Schedule__9C8A5B69F40E1DD3");
-
-            entity.HasIndex(e => e.CourseId, "IX_Schedules_CourseID").HasFilter("([IsDeleted]=(0))");
-
-            entity.HasIndex(e => e.TeacherId, "IX_Schedules_TeacherID").HasFilter("([IsDeleted]=(0))");
+            entity.HasKey(e => e.ScheduleId).HasName("PK__Schedule__9C8A5B6996A97D61");
 
             entity.Property(e => e.ScheduleId).HasColumnName("ScheduleID");
             entity.Property(e => e.CourseId).HasColumnName("CourseID");
@@ -417,11 +391,11 @@ public partial class AppDbContext : DbContext
 
         modelBuilder.Entity<ScheduleStatus>(entity =>
         {
-            entity.HasKey(e => e.ScheduleStatusId).HasName("PK__Schedule__3A1C0AC53E4A2F19");
+            entity.HasKey(e => e.ScheduleStatusId).HasName("PK__Schedule__3A1C0AC5B0E59787");
 
             entity.ToTable("ScheduleStatus");
 
-            entity.HasIndex(e => e.StatusName, "UQ__Schedule__05E7698AD8CEA63D").IsUnique();
+            entity.HasIndex(e => e.StatusName, "UQ__Schedule__05E7698AAAA59B95").IsUnique();
 
             entity.Property(e => e.ScheduleStatusId).HasColumnName("ScheduleStatusID");
             entity.Property(e => e.StatusName).HasMaxLength(50);
@@ -429,13 +403,11 @@ public partial class AppDbContext : DbContext
 
         modelBuilder.Entity<Student>(entity =>
         {
-            entity.HasKey(e => e.StudentId).HasName("PK__Students__32C52A7912BF12D4");
-
-            entity.HasIndex(e => e.IsDeleted, "IX_Students_IsDeleted");
+            entity.HasKey(e => e.StudentId).HasName("PK__Students__32C52A79A6027C2F");
 
             entity.HasIndex(e => e.ParentId, "IX_Students_Parent");
 
-            entity.HasIndex(e => e.UserId, "UQ__Students__1788CCADCC448527").IsUnique();
+            entity.HasIndex(e => e.UserId, "UQ__Students__1788CCAD4C334A81").IsUnique();
 
             entity.Property(e => e.StudentId).HasColumnName("StudentID");
             entity.Property(e => e.CreatedAt).HasDefaultValueSql("(sysutcdatetime())");
@@ -455,7 +427,7 @@ public partial class AppDbContext : DbContext
 
         modelBuilder.Entity<StudentProgress>(entity =>
         {
-            entity.HasKey(e => e.ProgressId).HasName("PK__StudentP__BAE29C8526F85A4A");
+            entity.HasKey(e => e.ProgressId).HasName("PK__StudentP__BAE29C859B894AF5");
 
             entity.ToTable("StudentProgress");
 
@@ -481,7 +453,7 @@ public partial class AppDbContext : DbContext
 
         modelBuilder.Entity<Submission>(entity =>
         {
-            entity.HasKey(e => e.SubmissionId).HasName("PK__Submissi__449EE1054123880F");
+            entity.HasKey(e => e.SubmissionId).HasName("PK__Submissi__449EE105B86BB7F4");
 
             entity.HasIndex(e => e.AssignmentId, "IX_Submissions_AssignmentID");
 
@@ -507,7 +479,7 @@ public partial class AppDbContext : DbContext
 
         modelBuilder.Entity<SystemLog>(entity =>
         {
-            entity.HasKey(e => e.LogId).HasName("PK__SystemLo__5E5499A8EEB14AC0");
+            entity.HasKey(e => e.LogId).HasName("PK__SystemLo__5E5499A81F731F75");
 
             entity.Property(e => e.LogId).HasColumnName("LogID");
             entity.Property(e => e.Action).HasMaxLength(200);
@@ -517,7 +489,7 @@ public partial class AppDbContext : DbContext
 
             entity.HasOne(d => d.ErrorType).WithMany(p => p.SystemLogs)
                 .HasForeignKey(d => d.ErrorTypeId)
-                .HasConstraintName("FK_SystemLogs_ErrorType");
+                .HasConstraintName("FK_SystemLogs_Error");
 
             entity.HasOne(d => d.User).WithMany(p => p.SystemLogs)
                 .HasForeignKey(d => d.UserId)
@@ -526,13 +498,11 @@ public partial class AppDbContext : DbContext
 
         modelBuilder.Entity<Teacher>(entity =>
         {
-            entity.HasKey(e => e.TeacherId).HasName("PK__Teachers__EDF25944EE3E7381");
-
-            entity.HasIndex(e => e.IsDeleted, "IX_Teachers_IsDeleted");
+            entity.HasKey(e => e.TeacherId).HasName("PK__Teachers__EDF259448E19315E");
 
             entity.HasIndex(e => e.VerificationStatus, "IX_Teachers_Verification");
 
-            entity.HasIndex(e => e.UserId, "UQ__Teachers__1788CCAD3D46420A").IsUnique();
+            entity.HasIndex(e => e.UserId, "UQ__Teachers__1788CCAD1900F28E").IsUnique();
 
             entity.Property(e => e.TeacherId).HasColumnName("TeacherID");
             entity.Property(e => e.AvgRating).HasColumnType("decimal(3, 2)");
@@ -552,7 +522,7 @@ public partial class AppDbContext : DbContext
 
         modelBuilder.Entity<Transaction>(entity =>
         {
-            entity.HasKey(e => e.TransactionId).HasName("PK__Transact__55433A4BBA463793");
+            entity.HasKey(e => e.TransactionId).HasName("PK__Transact__55433A4B70E42813");
 
             entity.Property(e => e.TransactionId).HasColumnName("TransactionID");
             entity.Property(e => e.CreatedAt).HasDefaultValueSql("(sysutcdatetime())");
@@ -569,11 +539,11 @@ public partial class AppDbContext : DbContext
 
         modelBuilder.Entity<TransactionStatus>(entity =>
         {
-            entity.HasKey(e => e.TransactionStatusId).HasName("PK__Transact__57B5E1A3C1707DBB");
+            entity.HasKey(e => e.TransactionStatusId).HasName("PK__Transact__57B5E1A30117F186");
 
             entity.ToTable("TransactionStatus");
 
-            entity.HasIndex(e => e.StatusName, "UQ__Transact__05E7698A60F1FD44").IsUnique();
+            entity.HasIndex(e => e.StatusName, "UQ__Transact__05E7698A0A2B7DD8").IsUnique();
 
             entity.Property(e => e.TransactionStatusId).HasColumnName("TransactionStatusID");
             entity.Property(e => e.StatusName).HasMaxLength(50);
@@ -581,15 +551,11 @@ public partial class AppDbContext : DbContext
 
         modelBuilder.Entity<User>(entity =>
         {
-            entity.HasKey(e => e.UserId).HasName("PK__Users__1788CCAC25DD048F");
-
-            entity.HasIndex(e => e.Email, "IX_Users_Email");
-
-            entity.HasIndex(e => e.IsDeleted, "IX_Users_IsDeleted");
+            entity.HasKey(e => e.UserId).HasName("PK__Users__1788CCACD83C4AC9");
 
             entity.HasIndex(e => e.PrimaryRoleId, "IX_Users_PrimaryRole");
 
-            entity.HasIndex(e => e.Email, "UQ__Users__A9D10534144F8919").IsUnique();
+            entity.HasIndex(e => e.Email, "UQ__Users__A9D10534108D0055").IsUnique();
 
             entity.Property(e => e.UserId).HasColumnName("UserID");
             entity.Property(e => e.CreatedAt).HasDefaultValueSql("(sysutcdatetime())");
@@ -597,7 +563,7 @@ public partial class AppDbContext : DbContext
             entity.Property(e => e.FullName).HasMaxLength(200);
             entity.Property(e => e.Gender).HasMaxLength(10);
             entity.Property(e => e.IsActive).HasDefaultValue(true);
-            entity.Property(e => e.PasswordHash).HasMaxLength(255);
+            entity.Property(e => e.PasswordHash).HasMaxLength(512);
             entity.Property(e => e.Phone).HasMaxLength(20);
             entity.Property(e => e.PrimaryRoleId).HasColumnName("PrimaryRoleID");
 
@@ -608,9 +574,9 @@ public partial class AppDbContext : DbContext
 
         modelBuilder.Entity<UserProfile>(entity =>
         {
-            entity.HasKey(e => e.ProfileId).HasName("PK__UserProf__290C8884D51A7933");
+            entity.HasKey(e => e.ProfileId).HasName("PK__UserProf__290C888413E8060B");
 
-            entity.HasIndex(e => e.UserId, "UQ__UserProf__1788CCADB16DF333").IsUnique();
+            entity.HasIndex(e => e.UserId, "UQ__UserProf__1788CCAD39E50D72").IsUnique();
 
             entity.Property(e => e.ProfileId).HasColumnName("ProfileID");
             entity.Property(e => e.Address).HasMaxLength(512);
@@ -625,7 +591,7 @@ public partial class AppDbContext : DbContext
 
         modelBuilder.Entity<UserRole>(entity =>
         {
-            entity.HasKey(e => new { e.UserId, e.RoleId }).HasName("PK__UserRole__AF27604F16893D20");
+            entity.HasKey(e => new { e.UserId, e.RoleId }).HasName("PK__UserRole__AF27604FCEB3D2BD");
 
             entity.Property(e => e.UserId).HasColumnName("UserID");
             entity.Property(e => e.RoleId).HasColumnName("RoleID");

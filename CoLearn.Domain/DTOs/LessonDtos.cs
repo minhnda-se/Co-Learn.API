@@ -14,6 +14,7 @@ namespace CoLearn.Domain.DTOs
         public string? Content { get; set; }
         public byte? OrderNumber { get; set; }
         public short? DurationMinutes { get; set; }
+        public string? VideoUrl { get; set; }
     }
 
     public class LessonResponseDto
@@ -25,6 +26,7 @@ namespace CoLearn.Domain.DTOs
         public byte? OrderNumber { get; set; }
         public short? DurationMinutes { get; set; }
         public DateTime CreatedAt { get; set; }
+        public string? VideoUrl { get; set; }
 
         // Thông tin bổ sung
         public string? CourseTitle { get; set; }

@@ -1,6 +1,11 @@
-﻿using CoLearn.API.Middlewares;
+﻿using Amazon.S3;
+using CoLearn.API.Middlewares;
+using CoLearn.Domain.Interfaces;
 using CoLearn.Infrastructure;
+using CoLearn.Infrastructure.Context;
+using CoLearn.Infrastructure.Services;
 using CoLearn.Services;
+using Microsoft.Data.SqlClient;
 using Microsoft.OpenApi.Models;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -44,7 +49,11 @@ builder.Services.AddSwaggerGen(c =>
                     }
      });
 });
-
+builder.Services.AddSingleton<IAmazonS3>(sp =>
+{
+    var config = sp.GetRequiredService<IConfiguration>();
+    return new AmazonS3Client(config["AWS:AccessKey"], config["AWS:SecretKey"], Amazon.RegionEndpoint.USEast1);
+});
 // 3. Add Infrastructure (DbContext, Repositories, UnitOfWork, etc.)
 builder.Services.AddInfrastructure(builder.Configuration);
 
@@ -61,6 +70,8 @@ builder.Services.AddCors(options =>
 });
 
 var app = builder.Build();
+
+
 app.UseMiddleware<ExceptionMiddleware>();
 
 // 6. Configure the HTTP request pipeline
