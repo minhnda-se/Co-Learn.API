@@ -97,18 +97,15 @@ public class TeacherService : ITeacherService
         }
 
         // Update UserProfile
-        var profile = await _unitOfWork.UserProfileRepository.GetByIdAsync(dto.UserId);
+        var profile = await _unitOfWork.UserProfileRepository.GetUserProfileAsync(dto.UserId);
         if (profile != null)
         {
             profile.AvatarUrl = dto.Photo;
-            _unitOfWork.UserProfileRepository.Update(profile);
         }
 
         // Update Teacher
         teacher.Qualification = $"{dto.Degree}|{dto.Cv}";
         teacher.Bio = dto.Description;
-
-        _unitOfWork.TeacherRepository.Update(teacher);
 
         return await _unitOfWork.CommitAsync();
     }
