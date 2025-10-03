@@ -43,6 +43,11 @@ namespace CoLearn.Services.Implementations
             var query = (await _unitOfWork.BookingRepository.GetByStudentIdAsync(studentId)).AsQueryable();
             return BuildPagedResult(query, pageIndex, pageSize);
         }
+        public async Task<Result<PagedResult<BookingResponseDto>>> GetByParentIdAsync(int parentId, int pageIndex, int pageSize)
+        {
+            var query = (await _unitOfWork.BookingRepository.GetByParentIdAsync(parentId)).AsQueryable();
+            return BuildPagedResult(query, pageIndex, pageSize);
+        }
 
         public async Task<Result<PagedResult<BookingResponseDto>>> GetByScheduleIdAsync(int scheduleId, int pageIndex, int pageSize)
         {
@@ -51,7 +56,7 @@ namespace CoLearn.Services.Implementations
         }
         public async Task<Result<PagedResult<BookingResponseDto>>> GetByTeacherIdAsync(int teacherId, int pageIndex, int pageSize)
         {
-            var query = (await _unitOfWork.BookingRepository.GetByScheduleIdAsync(teacherId)).AsQueryable();
+            var query = (await _unitOfWork.BookingRepository.GetByTeacherIdAsync(teacherId)).AsQueryable();
             return BuildPagedResult(query, pageIndex, pageSize);
         }
 
@@ -66,30 +71,42 @@ namespace CoLearn.Services.Implementations
             var entity = _mapper.Map<Booking>(dto);
             entity.CreatedAt = DateTime.UtcNow;
             entity.IsDeleted = false;
+            entity.BookingStatusId = 1; // Pending
+            entity.IsPaid = false;      // mặc định chưa thanh toán
 
+            // ✅ Check conflict
+            bool hasConflict = await _unitOfWork.BookingRepository
+                .CheckBookingConflictAsync(entity.TeacherId,
+                                           entity.RequestedStartTime.Value,
+                                           entity.RequestedEndTime.Value);
+
+            if (hasConflict)
+            {
+                throw new InvalidOperationException("Thời gian này đã có booking được thanh toán.");
+            }
+
+            // ✅ Save booking
             await _unitOfWork.BookingRepository.AddAndSaveAsync(entity);
             await _unitOfWork.CommitAsync();
 
-            // Lấy booking có include đầy đủ (Student.User, Schedule.Teacher.User, Schedule.Course...)
+            // Load booking full info
             var full = await _unitOfWork.BookingRepository.GetByIdAsync(entity.BookingId);
             if (full != null)
             {
-                // Map sang BookingEmailDto
                 var bookingInfo = _mapper.Map<BookingEmailDto>(full);
-
-                // Gửi email (bắt lỗi: email lỗi ko làm fail flow)
                 try
                 {
                     await _notificationService.SendBookingCreatedAsync(bookingInfo);
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine($"Failed to send booking created email: {ex.Message}"); // Log lỗi
+                    Console.WriteLine($"Failed to send booking created email: {ex.Message}");
                 }
             }
 
             return entity.BookingId;
         }
+
 
         public async Task<int> UpdateAsync(int id, BookingRequestDto dto)
         {
@@ -97,6 +114,17 @@ namespace CoLearn.Services.Implementations
             if (entity == null || entity.IsDeleted) return -1;
 
             _mapper.Map(dto, entity);
+            entity.UpdatedAt = DateTime.UtcNow;
+
+            await _unitOfWork.BookingRepository.UpdateAndSaveAsync(entity);
+            return entity.BookingId;
+        }
+        public async Task<int> UpdateStatusAsync(int id, int statusId)
+        {
+            var entity = await _unitOfWork.BookingRepository.GetByIdAsync(id);
+            if (entity == null || entity.IsDeleted) return -1;
+
+            entity.BookingStatusId = statusId;
             entity.UpdatedAt = DateTime.UtcNow;
 
             await _unitOfWork.BookingRepository.UpdateAndSaveAsync(entity);
@@ -119,6 +147,7 @@ namespace CoLearn.Services.Implementations
         {
             var totalCount = query.Count();
             var items = query
+                .OrderByDescending(b => b.CreatedAt)
                 .Skip((pageIndex - 1) * pageSize)
                 .Take(pageSize)
                 .ToList();

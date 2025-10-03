@@ -9,6 +9,7 @@ namespace CoLearn.Domain.Interfaces.Repositories
         Task<Booking?> GetByIdAsync(int id);
         Task<List<Booking>> GetAllBookingsAsync();
         Task<List<Booking>> GetByStudentIdAsync(int studentId);
+        Task<List<Booking>> GetByParentIdAsync(int parentId);
         Task<List<Booking>> GetByScheduleIdAsync(int scheduleId);
         Task<List<Booking>> GetByTeacherIdAsync(int teacherId);
         Task<List<Booking>> GetByStatusIdAsync(int statusId);

@@ -14,13 +14,33 @@ namespace CoLearn.Services.Mappings
     {
         public BookingMapping()
         {
-            // Map RequestDto -> Entity
-            CreateMap<BookingRequestDto, Booking>();
+            // Map từ BookingRequestDto → Booking
+            CreateMap<BookingRequestDto, Booking>()
+                .ForMember(dest => dest.RequestedStartTime,
+                    opt => opt.MapFrom(src =>
+                        src.Date.ToDateTime(src.StartTime)))   // chuyển thẳng DateOnly + TimeOnly
+                .ForMember(dest => dest.RequestedEndTime,
+                    opt => opt.MapFrom(src =>
+                        src.Date.ToDateTime(src.StartTime).AddMinutes(src.DurationMinutes)));
 
             // Map Entity -> ResponseDto
             CreateMap<Booking, BookingResponseDto>()
+                .ForMember(dest => dest.TeacherName,
+                           opt => opt.MapFrom(src => src.Teacher != null && src.Teacher.User != null
+                               ? src.Teacher.User.FullName
+                               : string.Empty))
+                .ForMember(dest => dest.TeacherEmail,
+                           opt => opt.MapFrom(src => src.Teacher != null && src.Teacher.User != null
+                               ? src.Teacher.User.Email
+                               : string.Empty))
                 .ForMember(dest => dest.StudentName,
-                           opt => opt.MapFrom(src => src.Student != null ? src.Student.User.FullName : null))
+                           opt => opt.MapFrom(src => src.Student != null && src.Student.User != null
+                               ? src.Student.User.FullName
+                               : string.Empty))
+                .ForMember(dest => dest.StudentEmail,
+                           opt => opt.MapFrom(src => src.Student != null && src.Student.User != null
+                               ? src.Student.User.Email
+                               : string.Empty))
                 //.ForMember(dest => dest.ScheduleTitle,
                 //           opt => opt.MapFrom(src => src.Schedule != null ? src.Schedule.Title : null))
                 .ForMember(dest => dest.BookingStatusName,
@@ -51,8 +71,6 @@ namespace CoLearn.Services.Mappings
                            opt => opt.MapFrom(src => src.RequestedEndTime ?? DateTime.MinValue))
                 .ForMember(dest => dest.Notes,
                            opt => opt.MapFrom(src => src.Notes ?? string.Empty));
-
-
         }
     }
 }
