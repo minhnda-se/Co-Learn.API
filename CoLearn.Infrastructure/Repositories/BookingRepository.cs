@@ -98,15 +98,31 @@ namespace CoLearn.Infrastructure.Repositories
         /// <summary>
         /// Kiểm tra xem khoảng thời gian có conflict với booking đã thanh toán không
         /// </summary>
-        public async Task<bool> CheckBookingConflictAsync(int teacherId, DateTime start, DateTime end)
+        public async Task<bool> CheckBookingConflictWithPaidAsync(int teacherId, DateTime start, DateTime end)
         {
             return await _context.Bookings
                 .Where(b => b.TeacherId == teacherId
                             && !b.IsDeleted
-                            && b.IsPaid
-                            && b.RequestedStartTime < end   // bắt đầu trước khi kết thúc mới
-                            && b.RequestedEndTime > start) // kết thúc sau khi bắt đầu mới
+                            && b.IsPaid == true
+                            && b.RequestedStartTime < end
+                            && b.RequestedEndTime > start)
                 .AnyAsync();
         }
+
+        public async Task<bool> CheckBookingConflictWithConfirmedAsync(int teacherId, DateTime start, DateTime end, int? excludeBookingId = null)
+        {
+            var query = _context.Bookings
+                .Where(b => b.TeacherId == teacherId
+                            && !b.IsDeleted
+                            && b.BookingStatusId == 2 // Confirmed
+                            && b.RequestedStartTime < end
+                            && b.RequestedEndTime > start);
+
+            if (excludeBookingId.HasValue)
+                query = query.Where(b => b.BookingId != excludeBookingId.Value);
+
+            return await query.AnyAsync();
+        }
+
     }
 }
