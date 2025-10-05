@@ -63,7 +63,7 @@ namespace CoLearn.API.Controllers
         [HttpGet("teacher/{teacherId}")]
         public async Task<IActionResult> GetByTeacherId(int teacherId, [FromQuery] int pageIndex = 1, [FromQuery] int pageSize = 10)
         {
-            var result = await _bookingService.GetByScheduleIdAsync(teacherId, pageIndex, pageSize);
+            var result = await _bookingService.GetByTeacherIdAsync(teacherId, pageIndex, pageSize);
             return StatusCode(result.StatusCode, result.Value);
         }
 
