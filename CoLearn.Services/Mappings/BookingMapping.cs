@@ -41,6 +41,14 @@ namespace CoLearn.Services.Mappings
                            opt => opt.MapFrom(src => src.Student != null && src.Student.User != null
                                ? src.Student.User.Email
                                : string.Empty))
+                 .ForMember(dest => dest.ParentName,
+                opt => opt.MapFrom(src => src.Student != null && src.Student.Parent != null && src.Student.Parent.User != null
+                                 ? src.Student.Parent.User.FullName
+                                 : string.Empty))
+                .ForMember(dest => dest.ParentEmail,
+                opt => opt.MapFrom(src => src.Student != null && src.Student.Parent != null && src.Student.Parent.User != null
+                                 ? src.Student.Parent.User.Email
+                                 : string.Empty))
                 //.ForMember(dest => dest.ScheduleTitle,
                 //           opt => opt.MapFrom(src => src.Schedule != null ? src.Schedule.Title : null))
                 .ForMember(dest => dest.BookingStatusName,
@@ -63,6 +71,14 @@ namespace CoLearn.Services.Mappings
                            opt => opt.MapFrom(src => src.Student != null && src.Student.User != null
                                ? src.Student.User.Email
                                : string.Empty))
+                .ForMember(dest => dest.ParentName,
+                opt => opt.MapFrom(src => src.Student != null && src.Student.Parent != null && src.Student.Parent.User != null
+                                 ? src.Student.Parent.User.FullName
+                                 : string.Empty))
+                .ForMember(dest => dest.ParentEmail,
+                opt => opt.MapFrom(src => src.Student != null && src.Student.Parent != null && src.Student.Parent.User != null
+                                 ? src.Student.Parent.User.Email
+                                 : string.Empty))
                 .ForMember(dest => dest.CreateAt,
                            opt => opt.MapFrom(src => src.CreatedAt))
                 .ForMember(dest => dest.StartTime,

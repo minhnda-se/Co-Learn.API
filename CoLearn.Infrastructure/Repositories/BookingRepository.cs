@@ -16,6 +16,7 @@ namespace CoLearn.Infrastructure.Repositories
         {
             return await _context.Bookings
                 .Include(b => b.Student).ThenInclude(s => s.User)
+                .Include(b => b.Student).ThenInclude(s => s.Parent).ThenInclude(p => p.User)
                 .Include(b => b.Schedule)
                 .Include(s => s.Teacher).ThenInclude(t => t.User)
                 .Include(b => b.BookingStatus)
@@ -27,6 +28,7 @@ namespace CoLearn.Infrastructure.Repositories
         {
             return await _context.Bookings
                 .Include(b => b.Student).ThenInclude(s => s.User)
+                .Include(b => b.Student).ThenInclude(s => s.Parent).ThenInclude(p => p.User)
                 .Include(b => b.Schedule)
                 .Include(s => s.Teacher).ThenInclude(t => t.User)
                 .Include(b => b.BookingStatus)
@@ -39,6 +41,7 @@ namespace CoLearn.Infrastructure.Repositories
         {
             return await _context.Bookings
                 .Include(b => b.Student).ThenInclude(s => s.User)
+                .Include(b => b.Student).ThenInclude(s => s.Parent).ThenInclude(p => p.User)
                 .Include(b => b.Schedule)
                 .Include(s => s.Teacher).ThenInclude(t => t.User)
                 .Include(b => b.BookingStatus)
@@ -51,7 +54,7 @@ namespace CoLearn.Infrastructure.Repositories
         {
             return await _context.Bookings
                 .Include(b => b.Student).ThenInclude(s => s.User)
-                .Include(b => b.Student).ThenInclude(s => s.Parent)
+                .Include(b => b.Student).ThenInclude(s => s.Parent).ThenInclude(p => p.User)
                 .Include(b => b.Schedule)
                 .Include(s => s.Teacher).ThenInclude(t => t.User)
                 .Include(b => b.BookingStatus)
@@ -64,6 +67,7 @@ namespace CoLearn.Infrastructure.Repositories
         {
             return await _context.Bookings
                 .Include(b => b.Student).ThenInclude(s => s.User)
+                .Include(b => b.Student).ThenInclude(s => s.Parent).ThenInclude(p => p.User)
                 .Include(b => b.Schedule)
                 .Include(s => s.Teacher).ThenInclude(t => t.User)
                 .Include(b => b.BookingStatus)
@@ -75,6 +79,7 @@ namespace CoLearn.Infrastructure.Repositories
         {
             return await _context.Bookings
                 .Include(b => b.Student).ThenInclude(s => s.User)
+                .Include(b => b.Student).ThenInclude(s => s.Parent).ThenInclude(p => p.User)
                 .Include(b => b.Schedule)
                 .Include(s => s.Teacher).ThenInclude(t => t.User)
                 .Include(b => b.BookingStatus)
@@ -87,6 +92,7 @@ namespace CoLearn.Infrastructure.Repositories
         {
             return await _context.Bookings
                 .Include(b => b.Student).ThenInclude(s => s.User)
+                .Include(b => b.Student).ThenInclude(s => s.Parent).ThenInclude(p => p.User)
                 .Include(b => b.Schedule)
                 .Include(s => s.Teacher).ThenInclude(t => t.User)
                 .Include(b => b.BookingStatus)

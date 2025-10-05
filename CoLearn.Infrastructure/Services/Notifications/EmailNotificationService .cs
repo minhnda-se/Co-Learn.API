@@ -47,8 +47,8 @@ namespace CoLearn.Infrastructure.Notifications
                     <html>
                         <body style='font-family: Arial'>
                             <h2>Your booking has been confirmed!</h2>
-                            <p><b>Teacher:</b> {dto.TeacherName}</p>
-                            <p><b>Teacher:</b> {dto.TeacherEmail}</p>
+                            <p><strong>Student:</strong> {dto.StudentName} ({dto.StudentEmail})</p>
+                            <p><strong>Teacher:</strong> {dto.TeacherName} ({dto.TeacherEmail})</p>
                             <p><strong>Booked at:</strong> {dto.CreateAt:dd/MM/yyyy HH:mm}</p>
                             <p><b>Time:</b> {dto.StartTime:HH:mm dd/MM/yyyy} - {dto.EndTime:HH:mm dd/MM/yyyy}</p>
                             <p><b>Notes:</b> {dto.Notes}</p>
@@ -56,7 +56,7 @@ namespace CoLearn.Infrastructure.Notifications
                             <p>Please complete the payement in 10 minutes! We look forward to seeing you in class!</p>
                         </body>
                     </html>";
-                await SendEmailAsync(dto.StudentEmail, subject, body);
+                await SendEmailAsync(dto.ParentEmail, subject, body);
             }
             catch (Exception ex)
             {
@@ -74,8 +74,9 @@ namespace CoLearn.Infrastructure.Notifications
                     <html>
                         <body style='font-family: Arial'>
                             <h2>Your booking has been declined!</h2>
-                            <p><b>Teacher:</b> {dto.TeacherName}</p>
-                            <p><b>Teacher:</b> {dto.TeacherEmail}</p>
+                            <p><strong>Teacher:</strong> {dto.TeacherName} ({dto.TeacherEmail})</p>
+                            <p><strong>Student:</strong> {dto.StudentName} ({dto.StudentEmail})</p>
+
                             <p><strong>Booked at:</strong> {dto.CreateAt:dd/MM/yyyy HH:mm}</p>
                             <p><b>Time:</b> {dto.StartTime:HH:mm dd/MM/yyyy} - {dto.EndTime:HH:mm dd/MM/yyyy}</p>
                             <p><b>Notes:</b> {dto.Notes}</p>
@@ -83,7 +84,7 @@ namespace CoLearn.Infrastructure.Notifications
                             <p>Please try to book another slot with the same or different teacher. We look forward to seeing you in class!</p>
                         </body>
                     </html>";
-                await SendEmailAsync(dto.StudentEmail, subject, body);
+                await SendEmailAsync(dto.ParentEmail, subject, body);
             }
             catch (Exception ex)
             {
@@ -133,6 +134,8 @@ namespace CoLearn.Infrastructure.Notifications
                     <body style='font-family: Arial'>
                         <h2>New booking received</h2>
                         <p><strong>Student:</strong> {dto.StudentName} ({dto.StudentEmail})</p>
+                        <p><strong>Parent:</strong> {dto.ParentName} ({dto.ParentEmail})</p>
+                        <p><strong>Teacher:</strong> {dto.TeacherName} ({dto.TeacherEmail})</p>
                         <p><strong>Booked at:</strong> {dto.CreateAt:dd/MM/yyyy HH:mm}</p>
                         <p><strong>Time:</strong> {dto.StartTime:HH:mm dd/MM/yyyy} - {dto.EndTime:HH:mm dd/MM/yyyy}</p>
                         <p><strong>Notes:</strong> {dto.Notes}</p>
