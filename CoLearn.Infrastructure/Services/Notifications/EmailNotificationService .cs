@@ -64,6 +64,33 @@ namespace CoLearn.Infrastructure.Notifications
             }
         }
 
+        // 🟢 Gửi khi teacher decline
+        public async Task SendBookingDeclineAsync(BookingEmailDto dto)
+        {
+            try
+            {
+                var subject = $"[Co&Learn] Booking declined - {dto.TeacherName}";
+                var body = $@"
+                    <html>
+                        <body style='font-family: Arial'>
+                            <h2>Your booking has been declined!</h2>
+                            <p><b>Teacher:</b> {dto.TeacherName}</p>
+                            <p><b>Teacher:</b> {dto.TeacherEmail}</p>
+                            <p><strong>Booked at:</strong> {dto.CreateAt:dd/MM/yyyy HH:mm}</p>
+                            <p><b>Time:</b> {dto.StartTime:HH:mm dd/MM/yyyy} - {dto.EndTime:HH:mm dd/MM/yyyy}</p>
+                            <p><b>Notes:</b> {dto.Notes}</p>
+                            <hr/>
+                            <p>Please try to book another slot with the same or different teacher. We look forward to seeing you in class!</p>
+                        </body>
+                    </html>";
+                await SendEmailAsync(dto.StudentEmail, subject, body);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Failed to send booking decline email for booking {BookingId}", dto.BookingId);
+            }
+        }
+
         // 🟢 Reminder trước giờ học
         public async Task SendReminderAsync(BookingEmailDto dto)
         {

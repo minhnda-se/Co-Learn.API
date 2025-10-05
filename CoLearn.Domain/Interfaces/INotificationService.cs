@@ -22,5 +22,7 @@ namespace CoLearn.Domain.Interfaces.Services
         /// Gửi email khi teacher xác nhận buổi học.
         /// </summary>
         Task SendBookingConfirmedAsync(BookingEmailDto bookingDto);
+        Task SendBookingDeclineAsync(BookingEmailDto bookingDto);
+
     }
 }

@@ -105,6 +105,33 @@ namespace CoLearn.Services.Implementations
 
             return Result<string>.Success("Booking đã được xác nhận thành công.");
         }
+        public async Task<Result<string>> DeclineBookingAsync(int bookingId)
+        {
+            var booking = await _unitOfWork.BookingRepository.GetByIdAsync(bookingId);
+            if (booking == null || booking.IsDeleted)
+                return Result<string>.Failure("Booking không tồn tại.");
+
+            if (booking.BookingStatusId != 1) // 1 = Pending
+                return Result<string>.Failure("Booking không ở trạng thái chờ xác nhận.");
+
+            booking.BookingStatusId = 3; // Declined
+            booking.UpdatedAt = DateTime.UtcNow;
+
+            await _unitOfWork.BookingRepository.UpdateAndSaveAsync(booking);
+            await _unitOfWork.CommitAsync();
+            // Gửi email cho student
+            try
+            {
+                var info = _mapper.Map<BookingEmailDto>(booking);
+                await _notificationService.SendBookingDeclineAsync(info);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Email error: {ex.Message}");
+            }
+
+            return Result<string>.Success("Booking đã bị từ chối.");
+        }
 
 
         public async Task<int> CreateAsync(BookingRequestDto dto)
