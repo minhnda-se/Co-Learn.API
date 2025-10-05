@@ -118,5 +118,15 @@ namespace CoLearn.API.Controllers
 
             return NoContent();
         }
+
+        [HttpPost("{id}/confirm")]
+        public async Task<IActionResult> ConfirmBooking(int id)
+        {
+            var result = await _bookingService.ConfirmBookingAsync(id);
+            if (result.StatusCode != 200)
+                return BadRequest(result.Message);
+
+            return Ok(result.Message);
+        }
     }
 }

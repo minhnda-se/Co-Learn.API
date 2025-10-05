@@ -66,6 +66,47 @@ namespace CoLearn.Services.Implementations
             return BuildPagedResult(query, pageIndex, pageSize);
         }
 
+        public async Task<Result<string>> ConfirmBookingAsync(int bookingId)
+        {
+            var booking = await _unitOfWork.BookingRepository.GetByIdAsync(bookingId);
+            if (booking == null || booking.IsDeleted)
+                return Result<string>.Failure("Booking không tồn tại.");
+
+            if (booking.BookingStatusId != 1) // 1 = Pending
+                return Result<string>.Failure("Booking không ở trạng thái chờ xác nhận.");
+
+            // Check conflict với các booking đã được confirm
+            bool hasConflict = await _unitOfWork.BookingRepository.CheckBookingConflictWithConfirmedAsync(
+                booking.TeacherId,
+                booking.RequestedStartTime ?? DateTime.MinValue,
+                booking.RequestedEndTime ?? DateTime.MinValue,
+                excludeBookingId: booking.BookingId
+            );
+
+            if (hasConflict)
+                return Result<string>.Failure("Lịch này bị trùng với một buổi học khác đã được xác nhận.");
+
+            booking.BookingStatusId = 2; // Confirmed
+            booking.UpdatedAt = DateTime.UtcNow;
+
+            await _unitOfWork.BookingRepository.UpdateAndSaveAsync(booking);
+            await _unitOfWork.CommitAsync();
+
+            // Gửi email cho student
+            try
+            {
+                var info = _mapper.Map<BookingEmailDto>(booking);
+                await _notificationService.SendBookingConfirmedAsync(info);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Email error: {ex.Message}");
+            }
+
+            return Result<string>.Success("Booking đã được xác nhận thành công.");
+        }
+
+
         public async Task<int> CreateAsync(BookingRequestDto dto)
         {
             var entity = _mapper.Map<Booking>(dto);
@@ -76,7 +117,7 @@ namespace CoLearn.Services.Implementations
 
             // ✅ Check conflict
             bool hasConflict = await _unitOfWork.BookingRepository
-                .CheckBookingConflictAsync(entity.TeacherId,
+                .CheckBookingConflictWithPaidAsync(entity.TeacherId,
                                            entity.RequestedStartTime.Value,
                                            entity.RequestedEndTime.Value);
 
