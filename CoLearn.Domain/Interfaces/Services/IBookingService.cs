@@ -17,6 +17,8 @@ namespace CoLearn.Domain.Interfaces.Services
         Task<Result<PagedResult<BookingResponseDto>>> GetByTeacherIdAsync(int teacher, int pageIndex, int pageSize);
         Task<Result<PagedResult<BookingResponseDto>>> GetByStatusIdAsync(int statusId, int pageIndex, int pageSize);
         Task<Result<string>> ConfirmBookingAsync(int bookingId);
+        Task<Result<string>> DeclineBookingAsync(int bookingId);
+
 
         Task<int> CreateAsync(BookingRequestDto dto);
         Task<int> UpdateAsync(int id, BookingRequestDto dto);

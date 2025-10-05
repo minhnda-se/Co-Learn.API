@@ -126,7 +126,16 @@ namespace CoLearn.API.Controllers
             if (result.StatusCode != 200)
                 return BadRequest(result.Message);
 
-            return Ok(result.Message);
+            return Ok(result);
+        }
+        [HttpPost("{id}/decline")]
+        public async Task<IActionResult> DeclineBooking(int id)
+        {
+            var result = await _bookingService.DeclineBookingAsync(id);
+            if (result.StatusCode != 200)
+                return BadRequest(result.Message);
+
+            return Ok(result);
         }
     }
 }
