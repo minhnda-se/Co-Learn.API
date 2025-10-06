@@ -24,6 +24,7 @@ namespace CoLearn.API.Middlewares
             {
                 await _next(context);
             }
+            
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Unhandled exception occurred.");
@@ -50,13 +51,18 @@ namespace CoLearn.API.Middlewares
                     status = HttpStatusCode.Conflict;
                     message = "Database update failed.";
                     break;
+                case BusinessException be:
+                    status = (HttpStatusCode)be.StatusCode;
+                    message = be.Message;
+                    break;
             }
 
             var response = new
             {
                 success = false,
                 error = message,
-                statusCode = (int)status
+                statusCode = (int)status,
+                traceId = context.TraceIdentifier
             };
 
             context.Response.ContentType = "application/json";

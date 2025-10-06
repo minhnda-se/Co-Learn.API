@@ -9,6 +9,9 @@ using CoLearn.Infrastructure.Services;
 using Amazon.S3;
 using CoLearn.Domain.Interfaces.Services;
 using CoLearn.Infrastructure.Notifications;
+using Hangfire;
+using Hangfire.SqlServer;
+using CoLearn.Infrastructure.Services.BackgroundJobs;
 
 
 namespace CoLearn.Infrastructure
@@ -29,6 +32,23 @@ namespace CoLearn.Infrastructure
             // Stmp Email
             services.Configure<EmailSettings>(configuration.GetSection("EmailSettings"));
             services.AddScoped<INotificationService, EmailNotificationService>();
+            // Background Job with Hangfire
+            services.AddScoped<IBackgroundJobService, HangfireBackgroundJobService>();
+            services.AddHangfire(config => config
+                    .SetDataCompatibilityLevel(CompatibilityLevel.Version_180)
+                    .UseSimpleAssemblyNameTypeSerializer()
+                    .UseRecommendedSerializerSettings()
+                    .UseSqlServerStorage(configuration.GetConnectionString("DefaultConnection"), new SqlServerStorageOptions
+                    {
+                        CommandBatchMaxTimeout = TimeSpan.FromMinutes(5),
+                        SlidingInvisibilityTimeout = TimeSpan.FromMinutes(5),
+                        QueuePollInterval = TimeSpan.Zero,
+                        UseRecommendedIsolationLevel = true,
+                        DisableGlobalLocks = true
+                    }));
+
+            // Thêm server xử lý background jobs
+            services.AddHangfireServer();
 
             return services;
         }

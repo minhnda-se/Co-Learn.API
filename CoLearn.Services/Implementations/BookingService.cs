@@ -4,6 +4,8 @@ using CoLearn.Domain.DTOs;
 using CoLearn.Domain.Interfaces;
 using CoLearn.Domain.Interfaces.Services;
 using CoLearn.Domain.Models;
+using CoLearn.Services.Exceptions;
+using CoLearn.Services.Handler;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -17,12 +19,14 @@ namespace CoLearn.Services.Implementations
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
         private readonly INotificationService _notificationService;
+        private readonly IBackgroundJobService _backgroundJobService;
 
-        public BookingService(IUnitOfWork unitOfWork, IMapper mapper, INotificationService notificationService)
+        public BookingService(IUnitOfWork unitOfWork, IMapper mapper, INotificationService notificationService, IBackgroundJobService backgroundJobService)
         {
             _unitOfWork = unitOfWork;
             _mapper = mapper;
             _notificationService = notificationService;
+            _backgroundJobService = backgroundJobService;
         }
 
         public async Task<Result<BookingResponseDto?>> GetByIdAsync(int id)
@@ -92,7 +96,7 @@ namespace CoLearn.Services.Implementations
             await _unitOfWork.BookingRepository.UpdateAndSaveAsync(booking);
             await _unitOfWork.CommitAsync();
 
-            // Gửi email cho student
+            // Gửi email cho parent
             try
             {
                 var info = _mapper.Map<BookingEmailDto>(booking);
@@ -102,6 +106,18 @@ namespace CoLearn.Services.Implementations
             {
                 Console.WriteLine($"Email error: {ex.Message}");
             }
+            // ✅ Schedule reminder sau 7 phút
+            _backgroundJobService.Schedule<BookingJobHandler>(
+                x => x.SendPaymentReminderAsync(bookingId),
+                TimeSpan.FromMinutes(7)
+            );
+
+
+            // ✅ Schedule cancel sau 10 phút
+            _backgroundJobService.Schedule<BookingJobHandler>(
+                x => x.AutoCancelUnpaidBookingAsync(bookingId),
+                TimeSpan.FromMinutes(10)
+            );
 
             return Result<string>.Success("Booking đã được xác nhận thành công.");
         }
@@ -150,7 +166,7 @@ namespace CoLearn.Services.Implementations
 
             if (hasConflict)
             {
-                throw new InvalidOperationException("Thời gian này đã có booking được thanh toán.");
+                throw new BusinessException("Thời gian này đã có booking được thanh toán.");
             }
 
             // ✅ Save booking

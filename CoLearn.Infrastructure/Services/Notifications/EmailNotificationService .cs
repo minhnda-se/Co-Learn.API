@@ -160,7 +160,72 @@ namespace CoLearn.Infrastructure.Notifications
                     </body>
                 </html>";
         }
+
+        // 🟡 Nhắc nhở thanh toán (còn 3 phút)
+        public async Task SendPaymentReminderAsync(BookingEmailDto dto)
+        {
+            try
+            {
+                var subject = $"[Co&Learn] Payment Reminder - Booking #{dto.BookingId}";
+                var body = $@"
+            <html>
+                <body style='font-family: Arial'>
+                    <h2>⏰ Payment Reminder</h2>
+                    <p>Dear {dto.ParentName},</p>
+                    <p>Your booking for <strong>{dto.StudentName}</strong> with teacher <strong>{dto.TeacherName}</strong> 
+                    is still <b>unpaid</b>.</p>
+
+                    <p><strong>Session time:</strong> {dto.StartTime:HH:mm dd/MM/yyyy} - {dto.EndTime:HH:mm dd/MM/yyyy}</p>
+                    <p>Please complete the payment within <b>3 minutes</b> to confirm this booking.</p>
+                    <p>Otherwise, your booking will be automatically cancelled.</p>
+
+                    <hr/>
+                    <p>Booking ID: {dto.BookingId}</p>
+                    <p>Thank you for using <b>Co&Learn</b>.</p>
+                </body>
+            </html>";
+
+                await SendEmailAsync(dto.ParentEmail, subject, body);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Failed to send payment reminder email for booking {BookingId}", dto.BookingId);
+            }
+        }
+
+        // 🔴 Hủy booking do quá hạn thanh toán
+        public async Task SendBookingCancelledAsync(BookingEmailDto dto)
+        {
+            try
+            {
+                var subject = $"[Co&Learn] Booking Cancelled - #{dto.BookingId}";
+                var body = $@"
+            <html>
+                <body style='font-family: Arial'>
+                    <h2>❌ Booking Cancelled</h2>
+                    <p>Dear {dto.ParentName},</p>
+                    <p>Your booking for <strong>{dto.StudentName}</strong> with teacher 
+                    <strong>{dto.TeacherName}</strong> has been <b>cancelled</b> due to unpaid status.</p>
+
+                    <p><strong>Original session:</strong> {dto.StartTime:HH:mm dd/MM/yyyy} - {dto.EndTime:HH:mm dd/MM/yyyy}</p>
+                    <p>If you still wish to continue, please create a new booking and complete the payment on time.</p>
+
+                    <hr/>
+                    <p>Booking ID: {dto.BookingId}</p>
+                    <p>We hope to see you again on <b>Co&Learn</b>.</p>
+                </body>
+            </html>";
+
+                await SendEmailAsync(dto.ParentEmail, subject, body);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Failed to send booking cancelled email for booking {BookingId}", dto.BookingId);
+            }
+        }
+
     }
+
 
     public class EmailSettings
     {
