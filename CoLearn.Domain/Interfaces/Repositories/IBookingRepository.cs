@@ -15,6 +15,7 @@ namespace CoLearn.Domain.Interfaces.Repositories
         Task<List<Booking>> GetByStatusIdAsync(int statusId);
         Task<bool> CheckBookingConflictWithPaidAsync(int teacherId, DateTime start, DateTime end);
         Task<bool> CheckBookingConflictWithConfirmedAsync(int teacherId, DateTime start, DateTime end, int? excludeBookingId = null);
+        Task<List<(DateTime Start, DateTime End)>> GetOccupiedSlotsAsync(int teacherId, DateOnly date);
 
     }
 }

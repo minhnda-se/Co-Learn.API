@@ -1,9 +1,12 @@
 ﻿using AutoMapper;
 using CoLearn.Domain.Common;
 using CoLearn.Domain.DTOs;
+using CoLearn.Domain.Enums;
 using CoLearn.Domain.Interfaces;
 using CoLearn.Domain.Interfaces.Services;
 using CoLearn.Domain.Models;
+using CoLearn.Services.Exceptions;
+using CoLearn.Services.Handler;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -17,12 +20,14 @@ namespace CoLearn.Services.Implementations
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
         private readonly INotificationService _notificationService;
+        private readonly IBackgroundJobService _backgroundJobService;
 
-        public BookingService(IUnitOfWork unitOfWork, IMapper mapper, INotificationService notificationService)
+        public BookingService(IUnitOfWork unitOfWork, IMapper mapper, INotificationService notificationService, IBackgroundJobService backgroundJobService)
         {
             _unitOfWork = unitOfWork;
             _mapper = mapper;
             _notificationService = notificationService;
+            _backgroundJobService = backgroundJobService;
         }
 
         public async Task<Result<BookingResponseDto?>> GetByIdAsync(int id)
@@ -92,7 +97,7 @@ namespace CoLearn.Services.Implementations
             await _unitOfWork.BookingRepository.UpdateAndSaveAsync(booking);
             await _unitOfWork.CommitAsync();
 
-            // Gửi email cho student
+            // Gửi email cho parent
             try
             {
                 var info = _mapper.Map<BookingEmailDto>(booking);
@@ -102,6 +107,26 @@ namespace CoLearn.Services.Implementations
             {
                 Console.WriteLine($"Email error: {ex.Message}");
             }
+
+            await _backgroundJobService.DeleteByTargetAsync("Booking", bookingId);
+            // ✅ Schedule reminder sau 7 phút
+            _backgroundJobService.Schedule<BookingJobHandler>(
+                x => x.SendPaymentReminderAsync(bookingId),
+                TimeSpan.FromMinutes(7),
+                JobType.BookingReminder,
+                "Booking",
+                bookingId
+);
+
+
+            // ✅ Schedule cancel sau 10 phút
+            _backgroundJobService.Schedule<BookingJobHandler>(
+                x => x.AutoCancelUnpaidBookingAsync(bookingId),
+                TimeSpan.FromMinutes(10),
+                JobType.AutoCancel,
+                "Booking",
+                bookingId
+);
 
             return Result<string>.Success("Booking đã được xác nhận thành công.");
         }
@@ -119,7 +144,8 @@ namespace CoLearn.Services.Implementations
 
             await _unitOfWork.BookingRepository.UpdateAndSaveAsync(booking);
             await _unitOfWork.CommitAsync();
-            // Gửi email cho student
+
+            // 🔹 Gửi email thông báo
             try
             {
                 var info = _mapper.Map<BookingEmailDto>(booking);
@@ -130,8 +156,20 @@ namespace CoLearn.Services.Implementations
                 Console.WriteLine($"Email error: {ex.Message}");
             }
 
+            // 🔹 Xóa toàn bộ job Hangfire liên quan đến booking này
+            try
+            {
+                var deletedCount = await _backgroundJobService.DeleteByTargetAsync("Booking", bookingId);
+                Console.WriteLine($"Deleted {deletedCount} related Hangfire jobs for BookingID={bookingId}");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Failed to delete related jobs: {ex.Message}");
+            }
+
             return Result<string>.Success("Booking đã bị từ chối.");
         }
+
 
 
         public async Task<int> CreateAsync(BookingRequestDto dto)
@@ -150,7 +188,16 @@ namespace CoLearn.Services.Implementations
 
             if (hasConflict)
             {
-                throw new InvalidOperationException("Thời gian này đã có booking được thanh toán.");
+                var date = DateOnly.FromDateTime(entity.RequestedStartTime.Value);
+                var occupiedSlots = await _unitOfWork.BookingRepository
+                    .GetOccupiedSlotsAsync(entity.TeacherId, date);
+                throw new BookingConflictException(
+                    $"Thời gian này đã có booking được thanh toán.",
+                    400
+                )
+                {
+                    Data = { ["occupiedSlots"] = occupiedSlots }
+                };
             }
 
             // ✅ Save booking

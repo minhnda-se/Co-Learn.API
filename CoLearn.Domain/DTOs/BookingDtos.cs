@@ -34,6 +34,8 @@ namespace CoLearn.Domain.DTOs
             public string? StudentEmail { get; set; }
             public string? TeacherName { get; set; }
             public string? TeacherEmail { get; set; }
+            public string? ParentName { get; set; }
+            public string? ParentEmail { get; set; }
             //public string? ScheduleTitle { get; set; }
             public string? BookingStatusName { get; set; }
 
