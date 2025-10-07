@@ -130,5 +130,23 @@ namespace CoLearn.Infrastructure.Repositories
             return await query.AnyAsync();
         }
 
+        public async Task<List<(DateTime Start, DateTime End)>> GetOccupiedSlotsAsync(int teacherId, DateOnly date)
+        {
+            var startOfDay = date.ToDateTime(new TimeOnly(0, 0));
+            var endOfDay = date.ToDateTime(new TimeOnly(23, 59));
+
+            return await _context.Bookings
+                .Where(b => b.TeacherId == teacherId
+                            && !b.IsDeleted
+                            && (b.IsPaid || b.BookingStatusId == 2) // Paid hoặc Confirmed
+                            && b.RequestedStartTime >= startOfDay
+                            && b.RequestedStartTime <= endOfDay)
+                .Select(b => new ValueTuple<DateTime, DateTime>(
+                    b.RequestedStartTime.Value,
+                    b.RequestedEndTime.Value
+                ))
+                .ToListAsync();
+        }
+
     }
 }
