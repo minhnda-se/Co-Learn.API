@@ -118,6 +118,8 @@ namespace CoLearn.Services.Implementations
             var user = await _unitOfWork.UserRepository.GetByEmailAsync(request.Email);
             if (user == null) return Result<UserReponse.Login>.Failure("Invalid email");
 
+            if (!user.IsActive) return Result<UserReponse.Login>.Failure("Email is still not verified!");
+
             // verify password
             bool isValid = BCrypt.Net.BCrypt.Verify(request.Password, user.PasswordHash);
             if (!isValid) return Result<UserReponse.Login>.Failure("Invalid password");

@@ -26,6 +26,8 @@ namespace CoLearn.Domain.Interfaces.Services
         Task SendPaymentReminderAsync(BookingEmailDto bookingDto);
         Task SendBookingCancelledAsync(BookingEmailDto bookingDto);
 
+        Task SendEmailAsync(string to, string subject, string htmlBody);
+
 
     }
 }
