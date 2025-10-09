@@ -91,6 +91,7 @@ public class TeacherService : ITeacherService
         {
             user.FullName = dto.FullName;
             user.Phone = dto.Phone;
+            user.DateOfBirth = dto.Born;
             user.Gender = dto.Gender;
             user.UpdatedAt = DateTime.UtcNow;
             await _unitOfWork.UserRepository.UpdateAsync(user);

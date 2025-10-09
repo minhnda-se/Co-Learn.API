@@ -25,6 +25,33 @@ namespace CoLearn.Services.Implementations
             // Nếu đã tồn tại student active -> không cho tạo
             if (existing != null && existing.IsDeleted == false) return 0;
 
+            var user = await _unitOfWork.UserRepository.GetByIdAsync(dto.UserId);
+            if (user != null)
+            {
+                user.FullName = dto.FullName;
+                user.DateOfBirth = dto.Born;
+                user.UpdatedAt = DateTime.UtcNow;
+                await _unitOfWork.UserRepository.UpdateAsync(user);
+            }
+
+            // Update UserProfile
+            var profile = await _unitOfWork.UserProfileRepository.GetUserProfileAsync(dto.UserId);
+            if (profile == null)
+            {
+                profile = new UserProfile
+                {
+                    UserId = dto.UserId,
+                    AvatarUrl = dto.Photo
+
+                };
+                _unitOfWork.UserProfileRepository.Add(profile);
+            }
+            else
+            {
+                profile.AvatarUrl = dto.Photo;
+                _unitOfWork.UserProfileRepository.Update(profile);
+            }
+
             // Nếu có student đã bị xóa -> khôi phục lại
             if (existing != null && existing.IsDeleted == true)
             {
@@ -32,7 +59,8 @@ namespace CoLearn.Services.Implementations
                 existing.IsDeleted = false;
                 existing.CreatedAt = DateTime.UtcNow;
 
-                return await _unitOfWork.StudentRepository.UpdateAndSaveAsync(existing);
+                await _unitOfWork.StudentRepository.UpdateAndSaveAsync(existing);
+                return await _unitOfWork.CommitAsync();
             }
 
             // Nếu chưa có -> tạo mới
@@ -47,10 +75,27 @@ namespace CoLearn.Services.Implementations
             var existing = await _unitOfWork.StudentRepository.GetByUserIdAsync(dto.UserId);
             if (existing == null || existing.IsDeleted) return 0;
 
+            var user = await _unitOfWork.UserRepository.GetByIdAsync(dto.UserId);
+            if (user != null)
+            {
+                user.FullName = dto.FullName;
+                user.DateOfBirth = dto.Born;
+                user.UpdatedAt = DateTime.UtcNow;
+                
+            }
+
+            // Update UserProfile
+            var profile = await _unitOfWork.UserProfileRepository.GetUserProfileAsync(dto.UserId);
+            if (profile != null)
+            {
+                profile.AvatarUrl = dto.Photo;
+            }
+
             _mapper.Map(dto, existing);
             existing.CreatedAt = DateTime.UtcNow;
 
-            return await _unitOfWork.StudentRepository.UpdateAndSaveAsync(existing);
+            await _unitOfWork.StudentRepository.UpdateAndSaveAsync(existing);
+            return await _unitOfWork.CommitAsync();
         }
 
         public async Task<int> DeleteStudentAsync(int studentId)
