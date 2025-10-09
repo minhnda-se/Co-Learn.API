@@ -175,6 +175,15 @@ namespace CoLearn.Services.Implementations
             user.VerificationTokenExpiry = null;
             await _unitOfWork.CommitAsync();
 
+            // Tạo profile 
+            var profile = new UserProfile
+            {
+                UserId = user.UserId,
+                AvatarUrl = null,
+                UpdatedAt = DateTime.UtcNow
+            };
+            await _unitOfWork.UserProfileRepository.AddAndSaveAsync(profile);
+
             switch (user.PrimaryRoleId)
             {
                 case 1:
