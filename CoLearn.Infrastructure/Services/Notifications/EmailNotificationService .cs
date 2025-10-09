@@ -111,7 +111,7 @@ namespace CoLearn.Infrastructure.Notifications
         }
 
         // 🧱 Hàm gửi email chung
-        private async Task SendEmailAsync(string to, string subject, string htmlBody)
+        public async Task SendEmailAsync(string to, string subject, string htmlBody)
         {
             var message = new MimeMessage();
             message.From.Add(new MailboxAddress(_settings.SenderName, _settings.SenderEmail));

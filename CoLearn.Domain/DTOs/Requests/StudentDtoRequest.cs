@@ -14,7 +14,10 @@ namespace CoLearn.Domain.DTOs.Requests
         /// Id của Parent nếu có (có thể null)
         /// </summary>
         public int? ParentId { get; set; }
-
+        public string FullName { get; set; } = string.Empty;
+        public string Email { get; set; } = string.Empty;
+        public DateTime? Born { get; set; }
+        public string Photo { get; set; }
         /// <summary>
         /// Trình độ lớp/khối (ví dụ: "Grade 5", "High School", ...)
         /// </summary>

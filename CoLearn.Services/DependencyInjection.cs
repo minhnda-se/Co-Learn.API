@@ -31,6 +31,7 @@ namespace CoLearn.Services
             services.AddScoped<IEnrollmentService, EnrollmentService>();
             services.AddScoped<ISubmissionService, SubmissionService>();
             services.AddScoped<IBookingService, BookingService>();
+            services.AddScoped<IAuthService, AuthService>();
 
             services.AddScoped<BookingJobHandler>();
             // JWT Auth

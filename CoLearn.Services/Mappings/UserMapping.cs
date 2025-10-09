@@ -62,10 +62,23 @@ namespace CoLearn.Services.Mappings
                 .ForMember(dest => dest.User, opt => opt.Ignore());     // Navigation
 
             CreateMap<Parent, ParentDtoResponse>()
-                .ForMember(dest => dest.FullName,
+                 .ForMember(dest => dest.FullName,
                            opt => opt.MapFrom(src => src.User.FullName))
                 .ForMember(dest => dest.Email,
                            opt => opt.MapFrom(src => src.User.Email))
+                .ForMember(dest => dest.Born,
+                           opt => opt.MapFrom(src => src.User.DateOfBirth))
+                .ForMember(dest => dest.Phone,
+                           opt => opt.MapFrom(src => src.User.Phone))
+                .ForMember(dest => dest.Gender,
+                           opt => opt.MapFrom(src => src.User.Gender))
+                .ForMember(dest => dest.Age,
+                           opt => opt.MapFrom(src =>
+                               src.User.DateOfBirth.HasValue
+                                   ? (int?)((DateTime.Now - src.User.DateOfBirth.Value).TotalDays / 365)
+                                   : null))
+                .ForMember(dest => dest.Photo,
+                           opt => opt.MapFrom(src => src.User.UserProfile.AvatarUrl))
                 .ForMember(dest => dest.UserProfile,
                            opt => opt.MapFrom(src => src.User.UserProfile))
                 .ForMember(dest => dest.Children,
@@ -80,10 +93,23 @@ namespace CoLearn.Services.Mappings
                 .ForMember(dest => dest.Parent, opt => opt.Ignore());   // Navigation
 
             CreateMap<Student, StudentDtoResponse>()
-                .ForMember(dest => dest.FullName,
-                           opt => opt.MapFrom(src => src.User.FullName))
-                .ForMember(dest => dest.Email,
-                           opt => opt.MapFrom(src => src.User.Email))
+                 .ForMember(dest => dest.FullName,
+            opt => opt.MapFrom(src => src.User.FullName))
+                 .ForMember(dest => dest.Email,
+                            opt => opt.MapFrom(src => src.User.Email))
+                 .ForMember(dest => dest.Born,
+                            opt => opt.MapFrom(src => src.User.DateOfBirth))
+                 .ForMember(dest => dest.Phone,
+                            opt => opt.MapFrom(src => src.User.Phone))
+                 .ForMember(dest => dest.Gender,
+                            opt => opt.MapFrom(src => src.User.Gender))
+                 .ForMember(dest => dest.Age,
+                            opt => opt.MapFrom(src =>
+                                src.User.DateOfBirth.HasValue
+                                    ? (int?)((DateTime.Now - src.User.DateOfBirth.Value).TotalDays / 365)
+                                    : null))
+                 .ForMember(dest => dest.Photo,
+                            opt => opt.MapFrom(src => src.User.UserProfile.AvatarUrl))
                 .ForMember(dest => dest.UserProfile,
                            opt => opt.MapFrom(src => src.User.UserProfile));
         }

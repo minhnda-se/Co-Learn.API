@@ -144,5 +144,8 @@ namespace CoLearn.Infrastructure.Services.BackgroundJobs
                 Console.WriteLine($"[HangfireBackgroundJobService] Error saving job log: {ex.Message}");
             }
         }
+
+        // Job xóa user chưa xác thực sau 5p
+        
     }
 }
