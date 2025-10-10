@@ -252,5 +252,12 @@ namespace CoLearn.Services.Implementations
             var student = await _unitOfWork.StudentRepository.GetByUserIdAsync(userId);
             return _mapper.Map<StudentDtoResponse?>(student);
         }
+
+        public async Task<List<StudentDtoResponse>> GetStudentsByParentIdAsync(int parentId)
+        {
+            var students = await _unitOfWork.StudentRepository.GetByParentIdAsync(parentId);
+            return _mapper.Map<List<StudentDtoResponse>>(students);
+        }
+
     }
 }
