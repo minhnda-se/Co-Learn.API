@@ -14,6 +14,7 @@ namespace CoLearn.Domain.Interfaces.Services
     {
         Task<StudentDtoResponse?> GetStudentByIdAsync(int studentId);
         Task<StudentDtoResponse?> GetStudentByUserIdAsync(int userId);
+        Task<List<StudentDtoResponse>> GetStudentsByParentIdAsync(int parentId);
         Task<List<StudentDtoResponse>> GetAllStudentsAsync();
         Task<Result<string>> CreateStudentAsync(StudentDtoRequest dto);
         Task<int> UpdateStudentAsync(int userId, StudentDtoRequest dto);

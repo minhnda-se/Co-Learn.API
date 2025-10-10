@@ -98,6 +98,15 @@ namespace CoLearn.API
             return Ok(student);
         }
 
+        [HttpGet("students/{parentId}")]
+        public async Task<IActionResult> GetStudentsProfileByParnetId(int parentId)
+        {
+            var student = await _studentService.GetStudentsByParentIdAsync(parentId);
+            if (student == null) return NotFound(new { message = "Student profile not found" });
+
+            return Ok(student);
+        }
+
         [HttpPost("student")]
         public async Task<IActionResult> CreateStudentProfile([FromBody] StudentDtoRequest dto)
         {

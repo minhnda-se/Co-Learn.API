@@ -11,6 +11,7 @@ namespace CoLearn.Domain.Interfaces.Repositories
     {
         Task<Student> GetStudentByIdAsync(int studentId);
         Task<Student> GetByUserIdAsync(int teacherId);
+        Task<List<Student>> GetByParentIdAsync(int parentId);
         Task<List<Student>> GetAllStudentsAsync();
         //Task<int> CreateStudentAsync(Student student);
         //Task<int> UpdateStudentAsync(Student student);
