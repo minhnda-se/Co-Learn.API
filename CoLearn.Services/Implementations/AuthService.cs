@@ -57,7 +57,7 @@ namespace CoLearn.Services.Implementations
             await _unitOfWork.CommitAsync();
 
             // Gửi email xác minh
-            var verifyLink = $"https://localhost:7142/api/auth/verify?token={token}";
+            var verifyLink = $"https://localhost:7142/api/auth/verify?type={(int)VerifyTypeEnum.Register}&token={token}";
             string emailBody = $@"<html>
 <head>
   <meta charset=""UTF-8"">
@@ -161,7 +161,7 @@ namespace CoLearn.Services.Implementations
             return Result<string>.Success("Registration successful. Please verify your email.");
         }
 
-        public async Task<Result<string>> VerifyEmailAsync(string token)
+        public async Task<Result<string>> VerifyEmailAsync(int type, string token)
         {
             var user = await _unitOfWork.UserRepository.GetByVerificationTokenAsync(token);
             if (user == null)
@@ -174,48 +174,48 @@ namespace CoLearn.Services.Implementations
             user.VerificationToken = null;
             user.VerificationTokenExpiry = null;
             await _unitOfWork.CommitAsync();
-
-            // Tạo profile 
-            var profile = new UserProfile
+            if (type == (int)VerifyTypeEnum.Register)
             {
-                UserId = user.UserId,
-                AvatarUrl = null,
-                UpdatedAt = DateTime.UtcNow
-            };
-            await _unitOfWork.UserProfileRepository.AddAndSaveAsync(profile);
+                // Tạo profile 
+                var profile = new UserProfile
+                {
+                    UserId = user.UserId,
+                    AvatarUrl = null,
+                    UpdatedAt = DateTime.UtcNow
+                };
+                await _unitOfWork.UserProfileRepository.AddAndSaveAsync(profile);
 
-            switch (user.PrimaryRoleId)
-            {
-                case 1:
-                    var student = new Student
-                    {
-                        UserId = user.UserId,
-                        CreatedAt = DateTime.UtcNow,
-                        IsDeleted = false
-                    };
-                    await _unitOfWork.StudentRepository.AddAndSaveAsync(student);
-                    break;
+                switch (user.PrimaryRoleId)
+                {
+                    case 1:
+                        var student = new Student
+                        {
+                            UserId = user.UserId,
+                            CreatedAt = DateTime.UtcNow,
+                            IsDeleted = false
+                        };
+                        await _unitOfWork.StudentRepository.AddAndSaveAsync(student);
+                        break;
 
-                case 2:
-                    var parent = new Parent
-                    {
-                        UserId = user.UserId,
-                        CreatedAt = DateTime.UtcNow,
-                        IsDeleted = false
-                    };
-                    await _unitOfWork.ParentRepository.AddAndSaveAsync(parent);
-                    break;
-                case 3:
-                    var teacher = new Teacher
-                    {
-                        UserId = user.UserId,
-                        CreatedAt = DateTime.UtcNow,
-                        IsDeleted = false
-                    };
-                    break;
+                    case 2:
+                        var parent = new Parent
+                        {
+                            UserId = user.UserId,
+                            CreatedAt = DateTime.UtcNow,
+                            IsDeleted = false
+                        };
+                        await _unitOfWork.ParentRepository.AddAndSaveAsync(parent);
+                        break;
+                    case 3:
+                        var teacher = new Teacher
+                        {
+                            UserId = user.UserId,
+                            CreatedAt = DateTime.UtcNow,
+                            IsDeleted = false
+                        };
+                        break;
+                }
             }
-
-
             try
             {
                 var deletedCount = await _backgroundJobService.DeleteByTargetAsync("User", user.UserId);

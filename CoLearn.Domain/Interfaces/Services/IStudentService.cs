@@ -1,4 +1,5 @@
-﻿using CoLearn.Domain.DTOs.Requests;
+﻿using CoLearn.Domain.Common;
+using CoLearn.Domain.DTOs.Requests;
 using CoLearn.Domain.DTOs.Responses;
 using CoLearn.Domain.Models;
 using System;
@@ -14,8 +15,8 @@ namespace CoLearn.Domain.Interfaces.Services
         Task<StudentDtoResponse?> GetStudentByIdAsync(int studentId);
         Task<StudentDtoResponse?> GetStudentByUserIdAsync(int userId);
         Task<List<StudentDtoResponse>> GetAllStudentsAsync();
-        Task<int> CreateStudentAsync(StudentDtoRequest dto);
-        Task<int> UpdateStudentAsync(StudentDtoRequest dto);
+        Task<Result<string>> CreateStudentAsync(StudentDtoRequest dto);
+        Task<int> UpdateStudentAsync(int userId, StudentDtoRequest dto);
         Task<int> DeleteStudentAsync(int studentId);
     }
 }

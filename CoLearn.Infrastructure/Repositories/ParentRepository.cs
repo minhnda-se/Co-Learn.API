@@ -26,7 +26,7 @@ namespace CoLearn.Infrastructure.Repositories
                 .ToListAsync();
         }
 
-        public async Task<Parent> GetByUserIdAsync(int userId)
+        public async Task<Parent> GetByUserIdAsync(int? userId)
         {
             return await _context.Parents
                .Include(p => p.User)
@@ -37,7 +37,7 @@ namespace CoLearn.Infrastructure.Repositories
                .FirstOrDefaultAsync(p => p.UserId == userId);
         }
 
-        public async Task<Parent> GetParentByIdAsync(int parentId)
+        public async Task<Parent> GetParentByIdAsync(int? parentId)
         {
             return await _context.Parents
                 .Include(p => p.User)
