@@ -24,10 +24,10 @@ namespace CoLearn.API.Controllers
         }
 
         [HttpGet("verify")]
-        public async Task<IActionResult> Verify([FromQuery] string token)
+        public async Task<IActionResult> Verify([FromQuery] int type, string token)
         {
-            var result = await _authService.VerifyEmailAsync(token);
-            return result.StatusCode == 200 ? Ok("Your email has been successfully verified 🎉. You can login now!!") : BadRequest(result);
+            var result = await _authService.VerifyEmailAsync(type, token);
+            return result.StatusCode == 200 ? Ok("Your email has been successfully verified 🎉. You can login now!!") : BadRequest(result.Value);
         }
     }
 

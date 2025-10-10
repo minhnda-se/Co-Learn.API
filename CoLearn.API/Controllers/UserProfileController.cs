@@ -105,19 +105,16 @@ namespace CoLearn.API
 
             var result = await _studentService.CreateStudentAsync(dto);
 
-            if (result > 0)
-                return CreatedAtAction(nameof(GetStudentProfileByUserId), new { userId = dto.UserId }, dto);
-
-            return BadRequest(new { message = "Failed to create student profile" });
+            return result.StatusCode == 200 ? Ok(result) : BadRequest(result);
         }
 
         [HttpPut("student/{id}")]
         public async Task<IActionResult> UpdateStudentProfile(int id, [FromBody] StudentDtoRequest dto)
         {
-            if (dto == null || id != dto.UserId)
+            if (dto == null)
                 return BadRequest(new { message = "Invalid request data" });
 
-            var result = await _studentService.UpdateStudentAsync(dto);
+            var result = await _studentService.UpdateStudentAsync(id, dto);
 
             if (result > 0) return Ok(new { message = "Update successfully" });
 

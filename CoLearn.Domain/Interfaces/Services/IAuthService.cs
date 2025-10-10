@@ -11,7 +11,7 @@ namespace CoLearn.Domain.Interfaces.Services
     public interface IAuthService
     {
         Task<Result<string>> RegisterAsync(UserRequest.CreateUserModel dto);
-        Task<Result<string>> VerifyEmailAsync(string token);
+        Task<Result<string>> VerifyEmailAsync(int type, string token);
     }
 
 }

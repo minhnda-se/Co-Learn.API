@@ -8,8 +8,6 @@ namespace CoLearn.Domain.DTOs.Requests
 {
     public class StudentDtoRequest
     {
-        public int UserId { get; set; }
-
         /// <summary>
         /// Id của Parent nếu có (có thể null)
         /// </summary>
