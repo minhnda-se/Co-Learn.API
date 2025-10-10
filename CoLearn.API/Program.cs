@@ -5,6 +5,7 @@ using CoLearn.Infrastructure;
 using CoLearn.Infrastructure.Context;
 using CoLearn.Infrastructure.Services;
 using CoLearn.Services;
+using Hangfire;
 using Microsoft.Data.SqlClient;
 using Microsoft.OpenApi.Models;
 
@@ -88,6 +89,11 @@ app.UseCors("AllowAll");
 
 app.UseAuthentication();
 app.UseAuthorization();
+
+app.UseHangfireDashboard("/hangfire", new DashboardOptions
+{
+    Authorization = [] // nếu muốn public cho dev
+});
 
 app.MapControllers();
 

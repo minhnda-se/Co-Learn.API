@@ -19,6 +19,8 @@ public partial class Booking
 
     public DateTime? RequestedEndTime { get; set; }
 
+    public decimal? TotalAmount { get; set; }
+
     public string? Notes { get; set; }
 
     public bool IsPaid { get; set; }

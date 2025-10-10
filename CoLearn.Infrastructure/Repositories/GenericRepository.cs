@@ -61,7 +61,7 @@ namespace CoLearn.Infrastructure.Repositories
 
         public void Update(T entity)
         {
-            _context.ChangeTracker.Clear();
+            //_context.ChangeTracker.Clear();
             _context.Set<T>().Attach(entity);
             _context.Entry(entity).State = EntityState.Modified;
             // ❌ Không commit, để UnitOfWork quyết định
@@ -69,7 +69,7 @@ namespace CoLearn.Infrastructure.Repositories
 
         public async Task<int> UpdateAndSaveAsync(T entity)
         {
-            _context.ChangeTracker.Clear();
+            //_context.ChangeTracker.Clear();
             _context.Set<T>().Attach(entity);
             _context.Entry(entity).State = EntityState.Modified;
             return await _context.SaveChangesAsync(); // commit ngay

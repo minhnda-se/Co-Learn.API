@@ -1,4 +1,5 @@
 ﻿using CoLearn.Domain.Common;
+using CoLearn.Domain.Interfaces;
 using CoLearn.Domain.Interfaces.Repositories;
 using CoLearn.Domain.Models;
 using CoLearn.Infrastructure.Context;
@@ -63,7 +64,12 @@ namespace CoLearn.Infrastructure.Repositories
             if (user == null)
                 return false;
 
-            _context.Users.Remove(user);
+            user.VerificationToken = null;
+            user.VerificationTokenExpiry = null;
+            user.IsDeleted = true;
+            user.IsActive = false;
+            user.DeletedAt = DateTime.UtcNow;
+            user.Email = $"deleted_{user.UserId}_{Guid.NewGuid()}@example.com";
             await _context.SaveChangesAsync();
             return true;
         }
@@ -73,5 +79,8 @@ namespace CoLearn.Infrastructure.Repositories
                 .Include(u => u.PrimaryRole)
                 .FirstOrDefaultAsync(u => u.Email == email && !u.IsDeleted);
         }
+
+        public async Task<User?> GetByVerificationTokenAsync(string token)
+        => await _context.Users.FirstOrDefaultAsync(u => u.VerificationToken == token && !u.IsDeleted);
     }
 }

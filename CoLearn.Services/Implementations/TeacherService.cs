@@ -18,46 +18,113 @@ public class TeacherService : ITeacherService
 
     public async Task<int> CreateTeacherAsync(TeacherDtoRequest dto)
     {
-        var existing = await _unitOfWork.TeacherRepository.GetByUserIdAsync(dto.UserId);
+        // Lấy User
+        var user = await _unitOfWork.UserRepository.GetByIdAsync(dto.UserId);
+        if (user == null) return 0;
 
-        if (existing != null && !existing.IsDeleted)
-            return 0; // User đã có teacher profile
+        // Cập nhật thông tin User
+        user.FullName = dto.FullName;
+        user.Phone = dto.Phone;
+        user.Gender = dto.Gender;
+        user.DateOfBirth = dto.Born;
+        user.UpdatedAt = DateTime.UtcNow;
+        await _unitOfWork.UserRepository.UpdateAsync(user);
 
-        if (existing != null && existing.IsDeleted)
+        // Cập nhật UserProfile
+        var profile = await _unitOfWork.UserProfileRepository.GetUserProfileAsync(dto.UserId);
+        if (profile == null)
         {
-            _mapper.Map(dto, existing);
-            existing.IsDeleted = false;
-            existing.CreatedAt = DateTime.UtcNow;
+            profile = new UserProfile
+            {
+                UserId = dto.UserId,
+                AvatarUrl = dto.Photo
 
-            return await _unitOfWork.TeacherRepository.UpdateAndSaveAsync(existing);
+            };
+             _unitOfWork.UserProfileRepository.Add(profile);
+        }
+        else
+        {
+            profile.AvatarUrl = dto.Photo;
+            _unitOfWork.UserProfileRepository.Update(profile);
         }
 
-        var entity = _mapper.Map<Teacher>(dto);
-        entity.CreatedAt = DateTime.UtcNow;
+        // Kiểm tra Teacher đã tồn tại chưa
+        var teacher = await _unitOfWork.TeacherRepository.GetByUserIdAsync(dto.UserId);
 
-        return await _unitOfWork.TeacherRepository.AddAndSaveAsync(entity);
+        if (teacher != null && !teacher.IsDeleted)
+        {
+            return 0; // Đã có teacher profile
+        }
+
+        if (teacher != null && teacher.IsDeleted)
+        {
+            teacher.Qualification = $"{dto.Degree}|{dto.Cv}";
+            teacher.Bio = dto.Description;
+            teacher.IsDeleted = false;
+            teacher.CreatedAt = DateTime.UtcNow;
+
+            _unitOfWork.TeacherRepository.Update(teacher);
+        }
+        else
+        {
+            teacher = new Teacher
+            {
+                UserId = dto.UserId,
+                Qualification = $"{dto.Degree}|{dto.Cv}",
+                Bio = dto.Description,
+                CreatedAt = DateTime.UtcNow
+            };
+            _unitOfWork.TeacherRepository.Add(teacher);
+        }
+
+        return await _unitOfWork.CommitAsync();
     }
 
     public async Task<int> UpdateTeacherAsync(TeacherDtoRequest dto)
     {
-        var existing = await _unitOfWork.TeacherRepository.GetByUserIdAsync(dto.UserId);
-        if (existing == null || existing.IsDeleted) return 0;
+        var teacher = await _unitOfWork.TeacherRepository.GetByUserIdAsync(dto.UserId);
+        if (teacher == null || teacher.IsDeleted) return 0;
 
-        _mapper.Map(dto, existing);
-        existing.CreatedAt = DateTime.UtcNow;
+        // Update User
+        var user = await _unitOfWork.UserRepository.GetByIdAsync(dto.UserId);
+        if (user != null)
+        {
+            user.FullName = dto.FullName;
+            user.Phone = dto.Phone;
+            user.DateOfBirth = dto.Born;
+            user.Gender = dto.Gender;
+            user.UpdatedAt = DateTime.UtcNow;
+            await _unitOfWork.UserRepository.UpdateAsync(user);
+        }
 
-        return await _unitOfWork.TeacherRepository.UpdateAndSaveAsync(existing);
+        // Update UserProfile
+        var profile = await _unitOfWork.UserProfileRepository.GetUserProfileAsync(dto.UserId);
+        if (profile != null)
+        {
+            profile.AvatarUrl = dto.Photo;
+        }
+
+        // Update Teacher
+        teacher.Qualification = $"{dto.Degree}|{dto.Cv}";
+        teacher.Bio = dto.Description;
+
+        return await _unitOfWork.CommitAsync();
     }
 
     public async Task<int> DeleteTeacherAsync(int teacherId)
     {
-        var profile = await _unitOfWork.TeacherRepository.GetByUserIdAsync(teacherId);
-        if (profile == null) return 0;
-
+        var profile = await _unitOfWork.TeacherRepository.GetTeacherByIdAsync(teacherId);
+        var user = await _unitOfWork.UserRepository.GetByIdAsync(profile.UserId);
+        if (profile == null || user == null) return 0;
+        user.IsDeleted = true;
+        user.DeletedAt = DateTime.UtcNow;
         profile.IsDeleted = true;
         profile.DeletedAt = DateTime.UtcNow;
 
-        return await _unitOfWork.TeacherRepository.UpdateAndSaveAsync(profile);
+        await _unitOfWork.UserRepository.UpdateAsync(user);
+        _unitOfWork.TeacherRepository.Update(profile);
+
+        return await _unitOfWork.CommitAsync();
     }
 
     public async Task<List<TeacherDtoResponse>> GetAllTeachersAsync()

@@ -98,6 +98,15 @@ namespace CoLearn.API
             return Ok(student);
         }
 
+        [HttpGet("students/{parentId}")]
+        public async Task<IActionResult> GetStudentsProfileByParnetId(int parentId)
+        {
+            var student = await _studentService.GetStudentsByParentIdAsync(parentId);
+            if (student == null) return NotFound(new { message = "Student profile not found" });
+
+            return Ok(student);
+        }
+
         [HttpPost("student")]
         public async Task<IActionResult> CreateStudentProfile([FromBody] StudentDtoRequest dto)
         {
@@ -105,19 +114,16 @@ namespace CoLearn.API
 
             var result = await _studentService.CreateStudentAsync(dto);
 
-            if (result > 0)
-                return CreatedAtAction(nameof(GetStudentProfileByUserId), new { id = dto.UserId }, dto);
-
-            return BadRequest(new { message = "Failed to create student profile" });
+            return result.StatusCode == 200 ? Ok(result) : BadRequest(result);
         }
 
         [HttpPut("student/{id}")]
         public async Task<IActionResult> UpdateStudentProfile(int id, [FromBody] StudentDtoRequest dto)
         {
-            if (dto == null || id != dto.UserId)
+            if (dto == null)
                 return BadRequest(new { message = "Invalid request data" });
 
-            var result = await _studentService.UpdateStudentAsync(dto);
+            var result = await _studentService.UpdateStudentAsync(id, dto);
 
             if (result > 0) return Ok(new { message = "Update successfully" });
 
@@ -160,7 +166,7 @@ namespace CoLearn.API
             var result = await _teacherService.CreateTeacherAsync(dto);
 
             if (result > 0)
-                return CreatedAtAction(nameof(GetTeacherProfileByUserId), new { id = dto.UserId }, dto);
+                return CreatedAtAction(nameof(GetTeacherProfileByUserId), new { userId = dto.UserId }, dto);
 
             return BadRequest(new { message = "Failed to create teacher profile" });
         }
@@ -214,7 +220,7 @@ namespace CoLearn.API
             var result = await _parentService.CreateParentAsync(dto);
 
             if (result > 0)
-                return CreatedAtAction(nameof(GetParentProfileByUserId), new { id = dto.UserId }, dto);
+                return CreatedAtAction(nameof(GetParentProfileByUserId), new { userId = dto.UserId }, dto);
 
             return BadRequest(new { message = "Failed to create parent profile" });
         }

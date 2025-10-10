@@ -8,12 +8,19 @@ namespace CoLearn.Domain.DTOs.Requests
 {
     public class TeacherDtoRequest
     {
-        public int UserId { get; set; } 
-        public string? Bio { get; set; }
-        public string? Qualification { get; set; }
-        public byte? YearsExperience { get; set; }
-        public string? VerificationStatus { get; set; }
-        public decimal? HourlyRate { get; set; }
-        public decimal? AvgRating { get; set; }
+        public int UserId { get; set; }
+        // Thông tin cá nhân
+        public string FullName { get; set; }
+        public DateTime? Born { get; set; }
+        public string Phone { get; set; }
+        public string Gender { get; set; }
+
+        // Hồ sơ chuyên môn
+        public string Degree { get; set; }
+        public string Cv { get; set; }
+        public string Photo { get; set; }
+
+        // Giới thiệu
+        public string Description { get; set; }
     }
 }
