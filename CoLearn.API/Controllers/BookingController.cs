@@ -43,6 +43,13 @@ namespace CoLearn.API.Controllers
             var result = await _bookingService.GetByStudentIdAsync(studentId, pageIndex, pageSize);
             return StatusCode(result.StatusCode, result.Value);
         }
+        // GET: api/bookings/parent/{parentId}?pageIndex=1&pageSize=10
+        [HttpGet("parent/{parentId}")]
+        public async Task<IActionResult> GetByParentId(int parentId, [FromQuery] int pageIndex = 1, [FromQuery] int pageSize = 10)
+        {
+            var result = await _bookingService.GetByParentIdAsync(parentId, pageIndex, pageSize);
+            return StatusCode(result.StatusCode, result.Value);
+        }
 
         // GET: api/bookings/schedule/{scheduleId}?pageIndex=1&pageSize=10
         [HttpGet("schedule/{scheduleId}")]
@@ -56,7 +63,7 @@ namespace CoLearn.API.Controllers
         [HttpGet("teacher/{teacherId}")]
         public async Task<IActionResult> GetByTeacherId(int teacherId, [FromQuery] int pageIndex = 1, [FromQuery] int pageSize = 10)
         {
-            var result = await _bookingService.GetByScheduleIdAsync(teacherId, pageIndex, pageSize);
+            var result = await _bookingService.GetByTeacherIdAsync(teacherId, pageIndex, pageSize);
             return StatusCode(result.StatusCode, result.Value);
         }
 
@@ -96,17 +103,7 @@ namespace CoLearn.API.Controllers
         {
             var booking = await _bookingService.GetByIdAsync(id);
             if (booking.Value == null) return NotFound();
-
-            var dto = new BookingRequestDto
-            {
-                TeacherId = booking.Value.TeacherId,
-                StudentId = booking.Value.StudentId,
-                Notes = booking.Value.Notes,
-                IsPaid = booking.Value.IsPaid,
-                BookingStatusId = statusId
-            };
-
-            var result = await _bookingService.UpdateAsync(id, dto);
+            var result = await _bookingService.UpdateStatusAsync(id, statusId);
             if (result == -1) return NotFound();
 
             return NoContent();
@@ -120,6 +117,25 @@ namespace CoLearn.API.Controllers
             if (result == -1) return NotFound();
 
             return NoContent();
+        }
+
+        [HttpPost("{id}/confirm")]
+        public async Task<IActionResult> ConfirmBooking(int id)
+        {
+            var result = await _bookingService.ConfirmBookingAsync(id);
+            if (result.StatusCode != 200)
+                return BadRequest(result.Message);
+
+            return Ok(result);
+        }
+        [HttpPost("{id}/decline")]
+        public async Task<IActionResult> DeclineBooking(int id)
+        {
+            var result = await _bookingService.DeclineBookingAsync(id);
+            if (result.StatusCode != 200)
+                return BadRequest(result.Message);
+
+            return Ok(result);
         }
     }
 }

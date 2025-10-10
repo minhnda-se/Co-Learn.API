@@ -25,6 +25,8 @@ public partial class Student
 
     public virtual Parent? Parent { get; set; }
 
+    public virtual ICollection<Schedule> Schedules { get; set; } = new List<Schedule>();
+
     public virtual ICollection<Submission> Submissions { get; set; } = new List<Submission>();
 
     public virtual User User { get; set; } = null!;

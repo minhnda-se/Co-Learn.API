@@ -16,6 +16,7 @@ namespace CoLearn.Infrastructure.Repositories
         {
             return await _context.Bookings
                 .Include(b => b.Student).ThenInclude(s => s.User)
+                .Include(b => b.Student).ThenInclude(s => s.Parent).ThenInclude(p => p.User)
                 .Include(b => b.Schedule)
                 .Include(s => s.Teacher).ThenInclude(t => t.User)
                 .Include(b => b.BookingStatus)
@@ -27,6 +28,7 @@ namespace CoLearn.Infrastructure.Repositories
         {
             return await _context.Bookings
                 .Include(b => b.Student).ThenInclude(s => s.User)
+                .Include(b => b.Student).ThenInclude(s => s.Parent).ThenInclude(p => p.User)
                 .Include(b => b.Schedule)
                 .Include(s => s.Teacher).ThenInclude(t => t.User)
                 .Include(b => b.BookingStatus)
@@ -39,6 +41,7 @@ namespace CoLearn.Infrastructure.Repositories
         {
             return await _context.Bookings
                 .Include(b => b.Student).ThenInclude(s => s.User)
+                .Include(b => b.Student).ThenInclude(s => s.Parent).ThenInclude(p => p.User)
                 .Include(b => b.Schedule)
                 .Include(s => s.Teacher).ThenInclude(t => t.User)
                 .Include(b => b.BookingStatus)
@@ -47,10 +50,24 @@ namespace CoLearn.Infrastructure.Repositories
                 .ToListAsync();
         }
 
+        public async Task<List<Booking>> GetByParentIdAsync(int parentId)
+        {
+            return await _context.Bookings
+                .Include(b => b.Student).ThenInclude(s => s.User)
+                .Include(b => b.Student).ThenInclude(s => s.Parent).ThenInclude(p => p.User)
+                .Include(b => b.Schedule)
+                .Include(s => s.Teacher).ThenInclude(t => t.User)
+                .Include(b => b.BookingStatus)
+                .Include(b => b.Payments)
+                .Where(b => b.Student.Parent.ParentId == parentId && !b.IsDeleted)
+                .ToListAsync();
+        }
+
         public async Task<List<Booking>> GetByScheduleIdAsync(int scheduleId)
         {
             return await _context.Bookings
                 .Include(b => b.Student).ThenInclude(s => s.User)
+                .Include(b => b.Student).ThenInclude(s => s.Parent).ThenInclude(p => p.User)
                 .Include(b => b.Schedule)
                 .Include(s => s.Teacher).ThenInclude(t => t.User)
                 .Include(b => b.BookingStatus)
@@ -62,6 +79,7 @@ namespace CoLearn.Infrastructure.Repositories
         {
             return await _context.Bookings
                 .Include(b => b.Student).ThenInclude(s => s.User)
+                .Include(b => b.Student).ThenInclude(s => s.Parent).ThenInclude(p => p.User)
                 .Include(b => b.Schedule)
                 .Include(s => s.Teacher).ThenInclude(t => t.User)
                 .Include(b => b.BookingStatus)
@@ -74,6 +92,7 @@ namespace CoLearn.Infrastructure.Repositories
         {
             return await _context.Bookings
                 .Include(b => b.Student).ThenInclude(s => s.User)
+                .Include(b => b.Student).ThenInclude(s => s.Parent).ThenInclude(p => p.User)
                 .Include(b => b.Schedule)
                 .Include(s => s.Teacher).ThenInclude(t => t.User)
                 .Include(b => b.BookingStatus)
@@ -81,5 +100,53 @@ namespace CoLearn.Infrastructure.Repositories
                 .Where(b => b.BookingStatusId == statusId && !b.IsDeleted)
                 .ToListAsync();
         }
+
+        /// <summary>
+        /// Kiểm tra xem khoảng thời gian có conflict với booking đã thanh toán không
+        /// </summary>
+        public async Task<bool> CheckBookingConflictWithPaidAsync(int teacherId, DateTime start, DateTime end)
+        {
+            return await _context.Bookings
+                .Where(b => b.TeacherId == teacherId
+                            && !b.IsDeleted
+                            && b.IsPaid == true
+                            && b.RequestedStartTime < end
+                            && b.RequestedEndTime > start)
+                .AnyAsync();
+        }
+
+        public async Task<bool> CheckBookingConflictWithConfirmedAsync(int teacherId, DateTime start, DateTime end, int? excludeBookingId = null)
+        {
+            var query = _context.Bookings
+                .Where(b => b.TeacherId == teacherId
+                            && !b.IsDeleted
+                            && b.BookingStatusId == 2 // Confirmed
+                            && b.RequestedStartTime < end
+                            && b.RequestedEndTime > start);
+
+            if (excludeBookingId.HasValue)
+                query = query.Where(b => b.BookingId != excludeBookingId.Value);
+
+            return await query.AnyAsync();
+        }
+
+        public async Task<List<(DateTime Start, DateTime End)>> GetOccupiedSlotsAsync(int teacherId, DateOnly date)
+        {
+            var startOfDay = date.ToDateTime(new TimeOnly(0, 0));
+            var endOfDay = date.ToDateTime(new TimeOnly(23, 59));
+
+            return await _context.Bookings
+                .Where(b => b.TeacherId == teacherId
+                            && !b.IsDeleted
+                            && (b.IsPaid || b.BookingStatusId == 2) // Paid hoặc Confirmed
+                            && b.RequestedStartTime >= startOfDay
+                            && b.RequestedStartTime <= endOfDay)
+                .Select(b => new ValueTuple<DateTime, DateTime>(
+                    b.RequestedStartTime.Value,
+                    b.RequestedEndTime.Value
+                ))
+                .ToListAsync();
+        }
+
     }
 }

@@ -23,6 +23,8 @@ namespace CoLearn.Domain.DTOs
         public string TeacherEmail { get; set; } = string.Empty;
         public string StudentName { get; set; } = string.Empty;
         public string StudentEmail { get; set; } = string.Empty;
+        public string ParentName { get; set; } = string.Empty;
+        public string ParentEmail { get; set; } = string.Empty;
         public string Notes { get; set; } = string.Empty;
     }
 }

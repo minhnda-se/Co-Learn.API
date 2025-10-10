@@ -91,24 +91,22 @@ public class TeacherService : ITeacherService
         {
             user.FullName = dto.FullName;
             user.Phone = dto.Phone;
+            user.DateOfBirth = dto.Born;
             user.Gender = dto.Gender;
             user.UpdatedAt = DateTime.UtcNow;
             await _unitOfWork.UserRepository.UpdateAsync(user);
         }
 
         // Update UserProfile
-        var profile = await _unitOfWork.UserProfileRepository.GetByIdAsync(dto.UserId);
+        var profile = await _unitOfWork.UserProfileRepository.GetUserProfileAsync(dto.UserId);
         if (profile != null)
         {
             profile.AvatarUrl = dto.Photo;
-            _unitOfWork.UserProfileRepository.Update(profile);
         }
 
         // Update Teacher
         teacher.Qualification = $"{dto.Degree}|{dto.Cv}";
         teacher.Bio = dto.Description;
-
-        _unitOfWork.TeacherRepository.Update(teacher);
 
         return await _unitOfWork.CommitAsync();
     }

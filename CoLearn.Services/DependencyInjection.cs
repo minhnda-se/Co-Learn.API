@@ -1,4 +1,5 @@
 ﻿using CoLearn.Domain.Interfaces.Services;
+using CoLearn.Services.Handler;
 using CoLearn.Services.Implementations;
 using CoLearn.Services.Mappings;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -30,6 +31,9 @@ namespace CoLearn.Services
             services.AddScoped<IEnrollmentService, EnrollmentService>();
             services.AddScoped<ISubmissionService, SubmissionService>();
             services.AddScoped<IBookingService, BookingService>();
+            services.AddScoped<IAuthService, AuthService>();
+
+            services.AddScoped<BookingJobHandler>();
             services.AddScoped<IPaymentService, PaymentService>();
             // JWT Auth
             var jwtSettings = configuration.GetSection("Jwt");
