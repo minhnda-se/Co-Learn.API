@@ -96,8 +96,8 @@ namespace CoLearn.Services.Implementations
             _mapper.Map(dto, existing);
             existing.CreatedAt = DateTime.UtcNow;
 
-            await _unitOfWork.ParentRepository.UpdateAndSaveAsync(existing);
-            return await _unitOfWork.CommitAsync();
+            await _unitOfWork.CommitAsync();
+            return await _unitOfWork.ParentRepository.UpdateAndSaveAsync(existing);
         }
 
         public async Task<int> DeleteParentAsync(int parentId)
