@@ -220,8 +220,8 @@ namespace CoLearn.Services.Implementations
             _mapper.Map(dto, existing);
             existing.CreatedAt = DateTime.UtcNow;
 
-            await _unitOfWork.StudentRepository.UpdateAndSaveAsync(existing);
-            return await _unitOfWork.CommitAsync();
+            await _unitOfWork.CommitAsync();
+            return await _unitOfWork.StudentRepository.UpdateAndSaveAsync(existing);
         }
 
         public async Task<int> DeleteStudentAsync(int studentId)
