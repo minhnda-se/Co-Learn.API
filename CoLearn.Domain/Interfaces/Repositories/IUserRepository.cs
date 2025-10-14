@@ -18,5 +18,7 @@ namespace CoLearn.Domain.Interfaces.Repositories
 
         Task<User?> GetByEmailAsync(string email);
         Task<User?> GetByVerificationTokenAsync(string token);
+        Task<User?> GetActiveUserByIdAsync(int userId);
+
     }
 }

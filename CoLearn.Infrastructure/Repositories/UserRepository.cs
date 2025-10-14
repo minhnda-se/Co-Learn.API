@@ -82,5 +82,10 @@ namespace CoLearn.Infrastructure.Repositories
 
         public async Task<User?> GetByVerificationTokenAsync(string token)
         => await _context.Users.FirstOrDefaultAsync(u => u.VerificationToken == token && !u.IsDeleted);
+
+        public async Task<User?> GetActiveUserByIdAsync(int userId)
+        {
+            return await _context.Users.FirstOrDefaultAsync(u => u.UserId == userId && !u.IsDeleted);
+        }
     }
 }

@@ -228,6 +228,24 @@ namespace CoLearn.Services.Implementations
 
             return Result<string>.Success("Email verified successfully");
         }
+
+        public async Task<Result> ChangePasswordAsync(int userId, string currentPassword, string newPassword)
+        {
+            var user = await _unitOfWork.UserRepository.GetByIdAsync(userId);
+            if (user == null)
+                return Result.Failure("User not found.");
+
+            bool passwordValid = BCrypt.Net.BCrypt.Verify(currentPassword, user.PasswordHash);
+            if (!passwordValid)
+                return Result.Failure("Current password is incorrect.");
+
+            user.PasswordHash = BCrypt.Net.BCrypt.HashPassword(newPassword);
+            user.UpdatedAt = DateTime.UtcNow;
+    
+            await _unitOfWork.CommitAsync();
+
+            return Result.Success("Password changed successfully.");
+        }
     }
 
 }

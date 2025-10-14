@@ -1,5 +1,6 @@
 ﻿using CoLearn.Domain.DTOs;
 using CoLearn.Domain.Interfaces.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
 using static CoLearn.Domain.DTOs.BookingDtos;
@@ -8,6 +9,7 @@ namespace CoLearn.API.Controllers
 {
     [ApiController]
     [Route("api/bookings")]
+    [Authorize] // ✅ chỉ cho user đăng nhập
     public class BookingController : ControllerBase
     {
         private readonly IBookingService _bookingService;
@@ -17,8 +19,11 @@ namespace CoLearn.API.Controllers
             _bookingService = bookingService;
         }
 
-        // GET: api/bookings/{id}
+        // ==================== GET ====================
+
+        // ✅ Admin + Teacher + Parent có thể xem chi tiết booking
         [HttpGet("{id}")]
+        [Authorize(Roles = "2,3,4")]
         public async Task<IActionResult> GetById(int id)
         {
             var result = await _bookingService.GetByIdAsync(id);
@@ -28,55 +33,63 @@ namespace CoLearn.API.Controllers
             return Ok(result.Value);
         }
 
-        // GET: api/bookings?pageIndex=1&pageSize=10
+        // ✅ Admin có thể xem tất cả booking
         [HttpGet]
+        [Authorize(Roles = "4")]
         public async Task<IActionResult> GetAll([FromQuery] int pageIndex = 1, [FromQuery] int pageSize = 10)
         {
             var result = await _bookingService.GetAllAsync(pageIndex, pageSize);
             return StatusCode(result.StatusCode, result.Value);
         }
 
-        // GET: api/bookings/student/{studentId}?pageIndex=1&pageSize=10
+        // ✅ Student xem booking của chính mình
         [HttpGet("student/{studentId}")]
+        [Authorize(Roles = "1")]
         public async Task<IActionResult> GetByStudentId(int studentId, [FromQuery] int pageIndex = 1, [FromQuery] int pageSize = 10)
         {
             var result = await _bookingService.GetByStudentIdAsync(studentId, pageIndex, pageSize);
             return StatusCode(result.StatusCode, result.Value);
         }
-        // GET: api/bookings/parent/{parentId}?pageIndex=1&pageSize=10
+
+        // ✅ Parent xem booking của con mình
         [HttpGet("parent/{parentId}")]
+        [Authorize(Roles = "2")]
         public async Task<IActionResult> GetByParentId(int parentId, [FromQuery] int pageIndex = 1, [FromQuery] int pageSize = 10)
         {
             var result = await _bookingService.GetByParentIdAsync(parentId, pageIndex, pageSize);
             return StatusCode(result.StatusCode, result.Value);
         }
 
-        // GET: api/bookings/schedule/{scheduleId}?pageIndex=1&pageSize=10
+        // ✅ Teacher xem booking theo schedule hoặc của mình
         [HttpGet("schedule/{scheduleId}")]
+        [Authorize(Roles = "3,4")]
         public async Task<IActionResult> GetByScheduleId(int scheduleId, [FromQuery] int pageIndex = 1, [FromQuery] int pageSize = 10)
         {
             var result = await _bookingService.GetByScheduleIdAsync(scheduleId, pageIndex, pageSize);
             return StatusCode(result.StatusCode, result.Value);
         }
 
-        // GET: api/bookings/schedule/{scheduleId}?pageIndex=1&pageSize=10
         [HttpGet("teacher/{teacherId}")]
+        [Authorize(Roles = "3,4")]
         public async Task<IActionResult> GetByTeacherId(int teacherId, [FromQuery] int pageIndex = 1, [FromQuery] int pageSize = 10)
         {
             var result = await _bookingService.GetByTeacherIdAsync(teacherId, pageIndex, pageSize);
             return StatusCode(result.StatusCode, result.Value);
         }
 
-        // GET: api/bookings/status/{statusId}?pageIndex=1&pageSize=10
         [HttpGet("status/{statusId}")]
+        [Authorize(Roles = "3,4")]
         public async Task<IActionResult> GetByStatusId(int statusId, [FromQuery] int pageIndex = 1, [FromQuery] int pageSize = 10)
         {
             var result = await _bookingService.GetByStatusIdAsync(statusId, pageIndex, pageSize);
             return StatusCode(result.StatusCode, result.Value);
         }
 
-        // POST: api/bookings
+        // ==================== POST ====================
+
+        // ✅ Student hoặc Parent có thể tạo booking mới
         [HttpPost]
+        [Authorize(Roles = "1,2")]
         public async Task<IActionResult> Create([FromBody] BookingRequestDto dto)
         {
             if (dto == null) return BadRequest("Request body is null");
@@ -85,8 +98,11 @@ namespace CoLearn.API.Controllers
             return CreatedAtAction(nameof(GetById), new { id }, id);
         }
 
-        // PUT: api/bookings/{id}
+        // ==================== PUT ====================
+
+        // ✅ Student, Parent có thể update trước khi teacher confirm
         [HttpPut("{id}")]
+        [Authorize(Roles = "1,2,4")]
         public async Task<IActionResult> Update(int id, [FromBody] BookingRequestDto dto)
         {
             if (dto == null) return BadRequest("Request body is null");
@@ -97,8 +113,9 @@ namespace CoLearn.API.Controllers
             return NoContent();
         }
 
-        // PUT: api/bookings/{id}/status
+        // ✅ Admin hoặc Teacher có thể cập nhật trạng thái booking
         [HttpPut("{id}/status")]
+        [Authorize(Roles = "3,4")]
         public async Task<IActionResult> UpdateStatus(int id, [FromBody] int statusId)
         {
             var booking = await _bookingService.GetByIdAsync(id);
@@ -109,8 +126,11 @@ namespace CoLearn.API.Controllers
             return NoContent();
         }
 
-        // DELETE: api/bookings/{id}
+        // ==================== DELETE ====================
+
+        // ✅ Admin hoặc Parent có thể xóa booking
         [HttpDelete("{id}")]
+        [Authorize(Roles = "2,4")]
         public async Task<IActionResult> Delete(int id)
         {
             var result = await _bookingService.DeleteAsync(id);
@@ -119,7 +139,11 @@ namespace CoLearn.API.Controllers
             return NoContent();
         }
 
+        // ==================== ACTIONS ====================
+
+        // ✅ Teacher hoặc Admin confirm
         [HttpPost("{id}/confirm")]
+        [Authorize(Roles = "3,4")]
         public async Task<IActionResult> ConfirmBooking(int id)
         {
             var result = await _bookingService.ConfirmBookingAsync(id);
@@ -128,7 +152,10 @@ namespace CoLearn.API.Controllers
 
             return Ok(result);
         }
+
+        // ✅ Teacher hoặc Admin decline
         [HttpPost("{id}/decline")]
+        [Authorize(Roles = "3,4")]
         public async Task<IActionResult> DeclineBooking(int id)
         {
             var result = await _bookingService.DeclineBookingAsync(id);

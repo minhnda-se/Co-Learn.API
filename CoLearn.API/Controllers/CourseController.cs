@@ -1,21 +1,23 @@
 ﻿using CoLearn.Domain.DTOs;
 using CoLearn.Domain.Interfaces.Services;
-using CoLearn.Domain.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace CoLearn.API.Controllers
 {
-    [Route("api/[controller]")] // => /api/course
+    [Route("api/[controller]")]
     [ApiController]
     public class CourseController : ControllerBase
     {
         private readonly ICourseService _courseService;
+
         public CourseController(ICourseService courseService)
         {
             _courseService = courseService;
         }
 
         // POST /api/course
+        [Authorize(Roles = "3,4")] // Teacher + Admin
         [HttpPost]
         public async Task<IActionResult> CreateCourse([FromBody] CourseRequestDto course)
         {
@@ -26,6 +28,7 @@ namespace CoLearn.API.Controllers
         }
 
         // PUT /api/course/{id}
+        [Authorize(Roles = "3,4")] // Teacher + Admin
         [HttpPut("{id}")]
         public async Task<IActionResult> UpdateCourse(int id, [FromBody] CourseRequestDto course)
         {
@@ -36,6 +39,7 @@ namespace CoLearn.API.Controllers
         }
 
         // DELETE /api/course/{id}
+        [Authorize(Roles = "3, 4")] // Teacher + Admin only
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteCourse(int id)
         {
@@ -46,6 +50,7 @@ namespace CoLearn.API.Controllers
         }
 
         // GET /api/course
+        [AllowAnonymous] // Public - ai cũng có thể xem danh sách khóa học
         [HttpGet]
         public async Task<IActionResult> GetAllCourses([FromQuery] int pageIndex = 1, [FromQuery] int pageSize = 10)
         {
@@ -54,6 +59,7 @@ namespace CoLearn.API.Controllers
         }
 
         // GET /api/course/{id}
+        [AllowAnonymous] // Public
         [HttpGet("{id}")]
         public async Task<IActionResult> GetCourseById(int id)
         {
@@ -62,6 +68,7 @@ namespace CoLearn.API.Controllers
         }
 
         // GET /api/course/{teacherId}/get-all
+        [Authorize(Roles = "3,4")] // Teacher + Admin
         [HttpGet("{teacherId}/get-all")]
         public async Task<IActionResult> GetCoursesByTeacherId(int teacherId)
         {
@@ -72,6 +79,7 @@ namespace CoLearn.API.Controllers
         }
 
         // GET /api/course/search?keyword=...&teacherName=...
+        [AllowAnonymous]
         [HttpGet("search")]
         public async Task<IActionResult> SearchCourses([FromQuery] string? keyword, [FromQuery] string? teacherName)
         {
@@ -79,7 +87,8 @@ namespace CoLearn.API.Controllers
             return Ok(courses);
         }
 
-        //PUT /api/course/{id}/active?isActive=true/false
+        // PUT /api/course/{id}/active?isActive=true
+        [Authorize(Roles = "4")] // Admin only
         [HttpPut("{id}/active")]
         public async Task<IActionResult> SetCourseActive(int id, [FromQuery] bool? isActive)
         {
