@@ -28,6 +28,7 @@ namespace CoLearn.Infrastructure
         private IScheduleRepository _scheduleRepository;
         private IUserRepository _userRepository;
         private IGenericRepository<User> _userGenericRepository;
+        private ITransactionRepository _transactionRepository;
         public UnitOfWork(AppDbContext context)
         {
             _context = context;
@@ -68,6 +69,8 @@ namespace CoLearn.Infrastructure
 
         public IPaymentRepository PaymentRepository
             => _paymentRepository ??= new PaymentRepository(_context);
+        public ITransactionRepository TransactionRepository
+            => _transactionRepository ??= new TransactionRepository(_context);
         // Generic repository
 
         public IGenericRepository<User> UserGenericRepository

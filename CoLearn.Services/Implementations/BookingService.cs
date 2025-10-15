@@ -54,11 +54,6 @@ namespace CoLearn.Services.Implementations
             return BuildPagedResult(query, pageIndex, pageSize);
         }
 
-        public async Task<Result<PagedResult<BookingResponseDto>>> GetByScheduleIdAsync(int scheduleId, int pageIndex, int pageSize)
-        {
-            var query = (await _unitOfWork.BookingRepository.GetByScheduleIdAsync(scheduleId)).AsQueryable();
-            return BuildPagedResult(query, pageIndex, pageSize);
-        }
         public async Task<Result<PagedResult<BookingResponseDto>>> GetByTeacherIdAsync(int teacherId, int pageIndex, int pageSize)
         {
             var query = (await _unitOfWork.BookingRepository.GetByTeacherIdAsync(teacherId)).AsQueryable();

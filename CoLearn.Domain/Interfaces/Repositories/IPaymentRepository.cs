@@ -11,9 +11,11 @@ namespace CoLearn.Domain.Interfaces.Repositories
     public interface IPaymentRepository : IGenericRepository<Payment>
     {
         Task<Payment> CreateAsync(CreateRequest request);
+        Task<int> CreatePaymentAsync(Payment payment);
 
         Task<Payment?> GetByIdAsync(long paymentId);
-
+        Task<Payment> GetByBookingIdAsync(int bookingId);
+        Task<Payment> GetByEnrollmentIdAsync(int enrollmentId);
         Task UpdateStatusAsync(long paymentId, int statusId, string? transactionNo);
 
         Task<bool> SaveTransactionAsync(Return vnPayReturn);

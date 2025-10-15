@@ -7,6 +7,8 @@ public partial class Schedule
 {
     public int ScheduleId { get; set; }
 
+    public int? BookingId { get; set; }
+
     public int? CourseId { get; set; }
 
     public int TeacherId { get; set; }
@@ -39,7 +41,7 @@ public partial class Schedule
 
     public DateTime? UpdatedAt { get; set; }
 
-    public virtual ICollection<Booking> Bookings { get; set; } = new List<Booking>();
+    public virtual Booking? Booking { get; set; }
 
     public virtual Course? Course { get; set; }
 

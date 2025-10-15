@@ -12,6 +12,8 @@ namespace CoLearn.Domain.Interfaces.Services
     {
         Task<Result<string>> RegisterAsync(UserRequest.CreateUserModel dto);
         Task<Result<string>> VerifyEmailAsync(int type, string token);
+        Task<Result> ChangePasswordAsync(int userId, string currentPassword, string newPassword);
+
     }
 
 }
