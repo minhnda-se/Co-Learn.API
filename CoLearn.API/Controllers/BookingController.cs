@@ -60,14 +60,14 @@ namespace CoLearn.API.Controllers
             return StatusCode(result.StatusCode, result.Value);
         }
 
-        // ✅ Teacher xem booking theo schedule hoặc của mình
-        [HttpGet("schedule/{scheduleId}")]
-        [Authorize(Roles = "3,4")]
-        public async Task<IActionResult> GetByScheduleId(int scheduleId, [FromQuery] int pageIndex = 1, [FromQuery] int pageSize = 10)
-        {
-            var result = await _bookingService.GetByScheduleIdAsync(scheduleId, pageIndex, pageSize);
-            return StatusCode(result.StatusCode, result.Value);
-        }
+        //// ✅ Teacher xem booking theo schedule hoặc của mình
+        //[HttpGet("schedule/{scheduleId}")]
+        //[Authorize(Roles = "3,4")]
+        //public async Task<IActionResult> GetByScheduleId(int scheduleId, [FromQuery] int pageIndex = 1, [FromQuery] int pageSize = 10)
+        //{
+        //    var result = await _bookingService.GetByScheduleIdAsync(scheduleId, pageIndex, pageSize);
+        //    return StatusCode(result.StatusCode, result.Value);
+        //}
 
         [HttpGet("teacher/{teacherId}")]
         [Authorize(Roles = "3,4")]

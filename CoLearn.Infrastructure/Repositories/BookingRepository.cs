@@ -17,7 +17,6 @@ namespace CoLearn.Infrastructure.Repositories
             return await _context.Bookings
                 .Include(b => b.Student).ThenInclude(s => s.User)
                 .Include(b => b.Student).ThenInclude(s => s.Parent).ThenInclude(p => p.User)
-                .Include(b => b.Schedule)
                 .Include(s => s.Teacher).ThenInclude(t => t.User)
                 .Include(b => b.BookingStatus)
                 .Include(b => b.Payments)
@@ -29,7 +28,6 @@ namespace CoLearn.Infrastructure.Repositories
             return await _context.Bookings
                 .Include(b => b.Student).ThenInclude(s => s.User)
                 .Include(b => b.Student).ThenInclude(s => s.Parent).ThenInclude(p => p.User)
-                .Include(b => b.Schedule)
                 .Include(s => s.Teacher).ThenInclude(t => t.User)
                 .Include(b => b.BookingStatus)
                 .Include(b => b.Payments)
@@ -42,7 +40,7 @@ namespace CoLearn.Infrastructure.Repositories
             return await _context.Bookings
                 .Include(b => b.Student).ThenInclude(s => s.User)
                 .Include(b => b.Student).ThenInclude(s => s.Parent).ThenInclude(p => p.User)
-                .Include(b => b.Schedule)
+                
                 .Include(s => s.Teacher).ThenInclude(t => t.User)
                 .Include(b => b.BookingStatus)
                 .Include(b => b.Payments)
@@ -55,7 +53,7 @@ namespace CoLearn.Infrastructure.Repositories
             return await _context.Bookings
                 .Include(b => b.Student).ThenInclude(s => s.User)
                 .Include(b => b.Student).ThenInclude(s => s.Parent).ThenInclude(p => p.User)
-                .Include(b => b.Schedule)
+                
                 .Include(s => s.Teacher).ThenInclude(t => t.User)
                 .Include(b => b.BookingStatus)
                 .Include(b => b.Payments)
@@ -63,24 +61,12 @@ namespace CoLearn.Infrastructure.Repositories
                 .ToListAsync();
         }
 
-        public async Task<List<Booking>> GetByScheduleIdAsync(int scheduleId)
-        {
-            return await _context.Bookings
-                .Include(b => b.Student).ThenInclude(s => s.User)
-                .Include(b => b.Student).ThenInclude(s => s.Parent).ThenInclude(p => p.User)
-                .Include(b => b.Schedule)
-                .Include(s => s.Teacher).ThenInclude(t => t.User)
-                .Include(b => b.BookingStatus)
-                .Include(b => b.Payments)
-                .Where(b => b.ScheduleId == scheduleId && !b.IsDeleted)
-                .ToListAsync();
-        }
         public async Task<List<Booking>> GetByTeacherIdAsync(int teacherId)
         {
             return await _context.Bookings
                 .Include(b => b.Student).ThenInclude(s => s.User)
                 .Include(b => b.Student).ThenInclude(s => s.Parent).ThenInclude(p => p.User)
-                .Include(b => b.Schedule)
+                
                 .Include(s => s.Teacher).ThenInclude(t => t.User)
                 .Include(b => b.BookingStatus)
                 .Include(b => b.Payments)
@@ -93,7 +79,7 @@ namespace CoLearn.Infrastructure.Repositories
             return await _context.Bookings
                 .Include(b => b.Student).ThenInclude(s => s.User)
                 .Include(b => b.Student).ThenInclude(s => s.Parent).ThenInclude(p => p.User)
-                .Include(b => b.Schedule)
+                
                 .Include(s => s.Teacher).ThenInclude(t => t.User)
                 .Include(b => b.BookingStatus)
                 .Include(b => b.Payments)

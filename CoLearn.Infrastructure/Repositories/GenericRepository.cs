@@ -1,9 +1,11 @@
 ﻿using CoLearn.Domain.Interfaces.Repositories;
 using CoLearn.Infrastructure.Context;
 using Microsoft.EntityFrameworkCore;
+using Org.BouncyCastle.Asn1;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Threading.Tasks;
 
 namespace CoLearn.Infrastructure.Repositories
@@ -91,6 +93,8 @@ namespace CoLearn.Infrastructure.Repositories
             return await _context.SaveChangesAsync(); // commit ngay
         }
 
+        public async Task<T?> FindAsync(Expression<Func<T, bool>> predicate)
+    => await _context.Set<T>().FirstOrDefaultAsync(predicate);
         #endregion
     }
 }

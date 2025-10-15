@@ -1,4 +1,5 @@
 ﻿using CoLearn.Domain.DTOs;
+using CoLearn.Domain.Enums;
 using CoLearn.Domain.Interfaces.Repositories;
 using CoLearn.Domain.Models;
 using CoLearn.Infrastructure.Context;
@@ -28,7 +29,7 @@ namespace CoLearn.Infrastructure.Repositories
                 PayerUserId = request.PayerUserId,
                 Amount = request.Amount,
                 MethodId = request.MethodId,
-                StatusId = 1, // pending
+                StatusId = (int)StatusEnum.Pending, // pending
                 CreatedAt = DateTime.UtcNow
             };
             _context.Payments.Add(payment);
@@ -89,8 +90,27 @@ namespace CoLearn.Infrastructure.Repositories
                 .ToListAsync();
         }
 
-        
+        public async Task<Payment> GetByBookingIdAsync(int bookingId)
+        {
+            return await _context.Payments
+                .Include(p => p.Method)
+                .Include(p => p.Status)
+                .FirstOrDefaultAsync(p => p.BookingId == bookingId && !p.IsDeleted);
+        }
 
+        public async Task<Payment> GetByEnrollmentIdAsync(int enrollmentId)
+        {
+            return await _context.Payments
+                .Include(p => p.Method)
+                .Include(p => p.Status)
+                .FirstOrDefaultAsync(p => p.EnrollmentId == enrollmentId && !p.IsDeleted);
+        }
 
+        public async Task<int> CreatePaymentAsync(Payment payment)
+        {
+            _context.Payments.Add(payment);
+            return await _context.SaveChangesAsync();
+            
+        }
     }
 }

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Threading.Tasks;
 
 namespace CoLearn.Domain.Interfaces.Repositories
@@ -28,5 +29,6 @@ namespace CoLearn.Domain.Interfaces.Repositories
         void Remove(T entity);                 // Chỉ xóa state
         Task<int> RemoveAndSaveAsync(T entity);     // Xóa và commit ngay
         #endregion
+        Task<T?> FindAsync(Expression<Func<T, bool>> predicate);
     }
 }

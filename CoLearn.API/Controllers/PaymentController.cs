@@ -1,4 +1,5 @@
 ﻿using CoLearn.Domain.DTOs;
+using CoLearn.Domain.Interfaces;
 using CoLearn.Domain.Interfaces.Services;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -10,9 +11,12 @@ namespace CoLearn.API.Controllers
     public class PaymentController : ControllerBase
     {
         private readonly IPaymentService _paymentService;
-        public PaymentController(IPaymentService paymentService)
+        private readonly IPayOSService _payOSService;
+        public PaymentController(IPaymentService paymentService, IPayOSService payOSService)
         {
             _paymentService = paymentService;
+            _payOSService = payOSService;
+
         }
 
         [HttpPost]
@@ -42,6 +46,27 @@ namespace CoLearn.API.Controllers
         {
             var result = await _paymentService.GetByIdAsync(id);
             return StatusCode(result.StatusCode, result);
+        }
+
+        [HttpPost("payos/booking/{bookingId}/user/{userId}")]
+        public async Task<IActionResult> CreateBookingPayment(int bookingId, int userId)
+        {
+            var url = await _payOSService.CreateBookingPaymentAsync(bookingId, userId);
+            return Ok(new { checkoutUrl = url });
+        }
+
+        [HttpPost("payos/course/{courseId}/student/{studentId}/user/{userId}")]
+        public async Task<IActionResult> CreateCoursePayment(int courseId, int studentId, int userId)
+        {
+            var url = await _payOSService.CreateCoursePaymentAsync(courseId, studentId, userId);
+            return Ok(new { checkoutUrl = url });
+        }
+
+        [HttpPost("payos/webhook")]
+        public async Task<IActionResult> Webhook([FromBody] PayOSWebhookPayload payload)
+        {
+            await _payOSService.HandleWebhookAsync(payload);
+            return Ok(new { message = "Webhook processed successfully" });
         }
     }
 }

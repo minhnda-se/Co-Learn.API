@@ -11,6 +11,7 @@ using CoLearn.Infrastructure.Notifications;
 using Hangfire;
 using Hangfire.SqlServer;
 using CoLearn.Infrastructure.Services.BackgroundJobs;
+using CoLearn.Infrastructure.Services.Payments;
 
 namespace CoLearn.Infrastructure
 {
@@ -54,6 +55,8 @@ namespace CoLearn.Infrastructure
             // ✅ Background job service
             services.AddScoped<IBackgroundJobService, HangfireBackgroundJobService>();
 
+            // ✅ Payment services
+            services.AddScoped<IPayOSService, PayOSService>();
 
             return services;
         }
