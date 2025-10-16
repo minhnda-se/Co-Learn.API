@@ -66,8 +66,8 @@ namespace CoLearn.Infrastructure.Services.Payments
             await _unitOfWork.CommitAsync();
 
             long orderCode = payment.PaymentId;
-            var returnUrl = _config["PayOS:ReturnUrl"];
-            var cancelUrl = _config["PayOS:CancelUrl"];
+            var returnUrl = $"{_config["PayOS:ReturnUrl"]}?orderCode={orderCode}";
+            var cancelUrl = $"{_config["PayOS:CancelUrl"]}?orderCode={orderCode}";
 
             // BƯỚC 2: Tạo signature CHỈ từ 5 trường theo đúng tài liệu
             var signature = GenerateSignature(orderCode, (int)amount, description, returnUrl, cancelUrl);
