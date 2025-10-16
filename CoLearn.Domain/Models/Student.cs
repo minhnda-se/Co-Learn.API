@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace CoLearn.Infrastructure.Models;
+namespace CoLearn.Domain.Models;
 
 public partial class Student
 {
@@ -24,6 +24,8 @@ public partial class Student
     public virtual ICollection<Enrollment> Enrollments { get; set; } = new List<Enrollment>();
 
     public virtual Parent? Parent { get; set; }
+
+    public virtual ICollection<Schedule> Schedules { get; set; } = new List<Schedule>();
 
     public virtual ICollection<Submission> Submissions { get; set; } = new List<Submission>();
 

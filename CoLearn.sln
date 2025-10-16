@@ -3,13 +3,13 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.11.35222.181
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CoLearn.API", "CoLearn.API\CoLearn.API.csproj", "{07A300F9-99DD-4538-AEC8-33824508CBD5}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CoLearn.API", "CoLearn.API\CoLearn.API.csproj", "{07A300F9-99DD-4538-AEC8-33824508CBD5}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CoLearn.Domain", "CoLearn.Domain\CoLearn.Domain.csproj", "{78782C55-D266-4BF8-96C8-CB1D1B430DA4}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CoLearn.Domain", "CoLearn.Domain\CoLearn.Domain.csproj", "{78782C55-D266-4BF8-96C8-CB1D1B430DA4}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CoLearn.Infrastructure", "CoLearn.Infrastructure\CoLearn.Infrastructure.csproj", "{C64099AE-B2D7-408A-8FC9-3B9E0072DB42}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CoLearn.Infrastructure", "CoLearn.Infrastructure\CoLearn.Infrastructure.csproj", "{C64099AE-B2D7-408A-8FC9-3B9E0072DB42}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CoLearn.Services", "CoLearn.Services\CoLearn.Services.csproj", "{164EFF90-9287-4F04-88AF-0F5BD4329F80}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CoLearn.Services", "CoLearn.Services\CoLearn.Services.csproj", "{164EFF90-9287-4F04-88AF-0F5BD4329F80}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
