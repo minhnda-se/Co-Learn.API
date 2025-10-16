@@ -23,7 +23,6 @@ jobs:
         aws-region: ${{ secrets.AWS_REGION }}
 
     - name: Login to ECR
-      id: login-ecr
       uses: aws-actions/amazon-ecr-login@v2
 
     - name: Build and push Docker image
@@ -42,26 +41,40 @@ jobs:
       id: get-task-def
       run: |
         aws ecs describe-task-definition --task-definition CoLearnTask > taskdef.json
-        cat taskdef.json
 
     - name: Register new task definition with new image
       id: register-task-def
       run: |
         IMAGE_URI=${{ steps.build-image.outputs.IMAGE_URI }}
-        # build new task def JSON: replace container image, remove runtime fields
-        jq --arg IMAGE "$IMAGE_URI" \
-           '.taskDefinition
-             | .containerDefinitions[0].image = $IMAGE
-             | del(.taskDefinitionArn, .revision, .status, .registeredAt, .registeredBy)' taskdef.json > new-task-def.json
-        cat new-task-def.json
+        # Replace all container images and remove runtime fields
+        jq --arg IMAGE "$IMAGE_URI" '
+          .taskDefinition
+          | .containerDefinitions |= map(.image = $IMAGE)
+          | del(
+              .taskDefinitionArn,
+              .revision,
+              .status,
+              .registeredAt,
+              .registeredBy,
+              .compatibilities,
+              .requiresAttributes
+            )
+        ' taskdef.json > new-task-def.json
         aws ecs register-task-definition --cli-input-json file://new-task-def.json > register-output.json
-        echo "::set-output name=taskdef_arn::$(jq -r .taskDefinition.taskDefinitionArn register-output.json)"
+        TASKDEF_ARN=$(jq -r .taskDefinition.taskDefinitionArn register-output.json)
+        echo "TASKDEF_ARN=$TASKDEF_ARN" >> $GITHUB_OUTPUT
 
     - name: Deploy new task definition to service
       run: |
-        TASKDEF_ARN=$(jq -r .taskDefinition.taskDefinitionArn register-output.json)
-        aws ecs update-service --cluster ${{ secrets.ECS_CLUSTER }} --service ${{ secrets.ECS_SERVICE }} --task-definition $TASKDEF_ARN --force-new-deployment
+        TASKDEF_ARN=${{ steps.register-task-def.outputs.TASKDEF_ARN }}
+        aws ecs update-service \
+          --cluster ${{ secrets.ECS_CLUSTER }} \
+          --service ${{ secrets.ECS_SERVICE }} \
+          --task-definition $TASKDEF_ARN \
+          --force-new-deployment
 
     - name: Wait for service stability
       run: |
-        aws ecs wait services-stable --cluster ${{ secrets.ECS_CLUSTER }} --services ${{ secrets.ECS_SERVICE }}
+        aws ecs wait services-stable \
+          --cluster ${{ secrets.ECS_CLUSTER }} \
+          --services ${{ secrets.ECS_SERVICE }}
