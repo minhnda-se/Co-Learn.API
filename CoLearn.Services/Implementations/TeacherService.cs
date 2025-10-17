@@ -114,14 +114,12 @@ public class TeacherService : ITeacherService
     public async Task<int> DeleteTeacherAsync(int teacherId)
     {
         var profile = await _unitOfWork.TeacherRepository.GetTeacherByIdAsync(teacherId);
-        var user = await _unitOfWork.UserRepository.GetByIdAsync(profile.UserId);
-        if (profile == null || user == null) return 0;
-        user.IsDeleted = true;
-        user.DeletedAt = DateTime.UtcNow;
+
+        if (profile == null) return 0;
         profile.IsDeleted = true;
         profile.DeletedAt = DateTime.UtcNow;
 
-        await _unitOfWork.UserRepository.UpdateAsync(user);
+        await _unitOfWork.UserRepository.DeleteAsync(profile.UserId);
         _unitOfWork.TeacherRepository.Update(profile);
 
         return await _unitOfWork.CommitAsync();

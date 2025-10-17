@@ -142,7 +142,7 @@ namespace CoLearn.API
             return Ok(teachers);
         }
 
-        [Authorize]
+        [AllowAnonymous]
         [HttpGet("teacher/{userId}")]
         public async Task<IActionResult> GetTeacherProfileByUserId(int userId)
         {

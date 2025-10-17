@@ -232,6 +232,8 @@ namespace CoLearn.Services.Implementations
             student.IsDeleted = true;
             student.DeletedAt = DateTime.UtcNow;
 
+
+            await _unitOfWork.UserRepository.DeleteAsync(student.UserId);
             return await _unitOfWork.StudentRepository.UpdateAndSaveAsync(student);
         }
 
