@@ -107,6 +107,7 @@ public class TeacherService : ITeacherService
         // Update Teacher
         teacher.Qualification = $"{dto.Degree}|{dto.Cv}";
         teacher.Bio = dto.Description;
+        teacher.HourlyRate = dto.HourlyRate;
 
         await _unitOfWork.CommitAsync();
         return 1;
