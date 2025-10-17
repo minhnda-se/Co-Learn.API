@@ -175,7 +175,7 @@ namespace CoLearn.Services.Implementations
             entity.IsDeleted = false;
             entity.BookingStatusId = 1; // Pending
             entity.IsPaid = false;      // mặc định chưa thanh toán
-            entity.TotalAmount = dto.DurationMinutes * teacher!.HourlyRate;
+            entity.TotalAmount = dto.DurationMinutes * teacher!.HourlyRate / 60; // Tính tổng tiền
 
             // ✅ Check conflict
             bool hasConflict = await _unitOfWork.BookingRepository
