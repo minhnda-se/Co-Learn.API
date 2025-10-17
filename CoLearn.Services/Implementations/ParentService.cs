@@ -108,6 +108,7 @@ namespace CoLearn.Services.Implementations
             parent.IsDeleted = true;
             parent.DeletedAt = DateTime.UtcNow;
 
+            await _unitOfWork.UserRepository.DeleteAsync(parent.UserId);
             return await _unitOfWork.ParentRepository.UpdateAndSaveAsync(parent);
         }
 
