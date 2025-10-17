@@ -21,6 +21,9 @@ logs/
 appsettings.Development.json
 appsettings.Local.json
 
+# Environment files
+.env*
+
 # NuGet packages
 *.nupkg
 *.snupkg

@@ -1,6 +1,8 @@
 ﻿using CoLearn.Domain.DTOs;
+using CoLearn.Domain.Enums;
 using CoLearn.Domain.Interfaces;
 using CoLearn.Domain.Interfaces.Services;
+using CoLearn.Infrastructure;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -11,11 +13,13 @@ namespace CoLearn.API.Controllers
     public class PaymentController : ControllerBase
     {
         private readonly IPaymentService _paymentService;
+        private readonly IUnitOfWork _unitOfWork;
         private readonly IPayOSService _payOSService;
-        public PaymentController(IPaymentService paymentService, IPayOSService payOSService)
+        public PaymentController(IPaymentService paymentService, IPayOSService payOSService, IUnitOfWork unitOfWork)
         {
             _paymentService = paymentService;
             _payOSService = payOSService;
+            _unitOfWork = unitOfWork;
 
         }
 
@@ -68,5 +72,29 @@ namespace CoLearn.API.Controllers
             await _payOSService.HandleWebhookAsync(payload);
             return Ok(new { message = "Webhook processed successfully" });
         }
+
+        [HttpGet("payos/cancel")]
+        public async Task<IActionResult> CancelPayment([FromQuery] long orderCode)
+        {
+            var payment = await _unitOfWork.PaymentRepository.GetByIdAsync((int)orderCode);
+            if (payment != null && payment.StatusId == (int)StatusEnum.Pending)
+            {
+                payment.StatusId = (int)StatusEnum.Cancelled;
+                payment.UpdatedAt = DateTime.UtcNow;
+                await _unitOfWork.CommitAsync();
+            }
+            if (payment != null && payment.EnrollmentId.HasValue)
+            {
+                var enrollment = await _unitOfWork.EnrollmentRepository.GetByIdAsync(payment.EnrollmentId.Value);
+                if (enrollment != null && enrollment.Status.Equals(StatusEnum.OnHold.ToString()))
+                {
+                    enrollment.Status = StatusEnum.Cancelled.ToString();
+                    enrollment.DeletedAt = DateTime.UtcNow; // Xoá enrollment nếu thanh toán thất bại
+                    enrollment.IsDeleted = true;
+                }
+            }
+            return Ok(new { message = "Payment cancelled successfully", payment});
+        }
+
     }
 }
