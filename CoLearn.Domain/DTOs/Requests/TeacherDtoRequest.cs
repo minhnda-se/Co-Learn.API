@@ -17,6 +17,8 @@ namespace CoLearn.Domain.DTOs.Requests
 
         // Hồ sơ chuyên môn
         public string Degree { get; set; }
+        public decimal? HourlyRate { get; set; }
+
         public string Cv { get; set; }
         public string Photo { get; set; }
 

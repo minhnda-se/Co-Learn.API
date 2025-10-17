@@ -27,7 +27,9 @@ namespace CoLearn.Services.Mappings
                  .ForMember(dest => dest.Qualification,
                             opt => opt.MapFrom(src => $"{src.Degree}|{src.Cv}")) // gộp Degree + Cv vào Qualification
                  .ForMember(dest => dest.Bio,
-                            opt => opt.MapFrom(src => src.Description));
+                            opt => opt.MapFrom(src => src.Description))
+                 .ForMember(dest => dest.HourlyRate,
+                            opt => opt.MapFrom(src => src.HourlyRate));
 
             // Entity → Response
             CreateMap<Teacher, TeacherDtoResponse>()
