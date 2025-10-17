@@ -213,7 +213,7 @@ namespace CoLearn.Services.Implementations
                             CreatedAt = DateTime.UtcNow,
                             IsDeleted = false
                         };
-                        await _unitOfWork.ParentRepository.AddAndSaveAsync(teacher);
+                        await _unitOfWork.TeacherRepository.AddAndSaveAsync(teacher);
                         break;
                 }
             }
