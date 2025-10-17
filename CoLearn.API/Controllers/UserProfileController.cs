@@ -80,7 +80,7 @@ namespace CoLearn.API
         #endregion
 
         #region Student Profile
-        [Authorize(Roles = "4")]
+        [Authorize]
         [HttpGet("student")]
         public async Task<IActionResult> GetAllStudentProfiles()
         {
@@ -88,7 +88,7 @@ namespace CoLearn.API
             return Ok(students);
         }
 
-        [Authorize(Roles = "1,2,4")] // Student tự xem, Parent xem con, Admin xem tất cả
+        [Authorize] 
         [HttpGet("student/{userId}")]
         public async Task<IActionResult> GetStudentProfileByUserId(int userId)
         {
@@ -97,7 +97,7 @@ namespace CoLearn.API
             return Ok(student);
         }
 
-        [Authorize(Roles = "2,4")] // Parent hoặc Admin xem danh sách học sinh của parent
+        [Authorize] 
         [HttpGet("students/{parentId}")]
         public async Task<IActionResult> GetStudentsProfileByParnetId(int parentId)
         {
@@ -134,7 +134,7 @@ namespace CoLearn.API
         #endregion
 
         #region Teacher Profile
-        [Authorize(Roles = "4")]
+        [AllowAnonymous]
         [HttpGet("teacher")]
         public async Task<IActionResult> GetAllTeacherProfiles()
         {
@@ -142,7 +142,7 @@ namespace CoLearn.API
             return Ok(teachers);
         }
 
-        [Authorize(Roles = "3,4")]
+        [Authorize]
         [HttpGet("teacher/{userId}")]
         public async Task<IActionResult> GetTeacherProfileByUserId(int userId)
         {
@@ -181,7 +181,7 @@ namespace CoLearn.API
         #endregion
 
         #region Parent Profile
-        [Authorize(Roles = "4")]
+        [Authorize]
         [HttpGet("parent")]
         public async Task<IActionResult> GetAllParentProfiles()
         {
@@ -189,7 +189,7 @@ namespace CoLearn.API
             return Ok(parents);
         }
 
-        [Authorize(Roles = "2,4")]
+        [Authorize]
         [HttpGet("parent/{userId}")]
         public async Task<IActionResult> GetParentProfileByUserId(int userId)
         {
