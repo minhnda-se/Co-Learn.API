@@ -108,7 +108,8 @@ public class TeacherService : ITeacherService
         teacher.Qualification = $"{dto.Degree}|{dto.Cv}";
         teacher.Bio = dto.Description;
 
-        return await _unitOfWork.CommitAsync();
+        await _unitOfWork.CommitAsync();
+        return 1;
     }
 
     public async Task<int> DeleteTeacherAsync(int teacherId)
