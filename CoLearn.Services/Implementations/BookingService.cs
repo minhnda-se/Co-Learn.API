@@ -169,11 +169,13 @@ namespace CoLearn.Services.Implementations
 
         public async Task<int> CreateAsync(BookingRequestDto dto)
         {
+            var teacher = await _unitOfWork.TeacherRepository.GetByIdAsync(dto.TeacherId);
             var entity = _mapper.Map<Booking>(dto);
             entity.CreatedAt = DateTime.UtcNow;
             entity.IsDeleted = false;
             entity.BookingStatusId = 1; // Pending
             entity.IsPaid = false;      // mặc định chưa thanh toán
+            entity.TotalAmount = dto.DurationMinutes * teacher!.HourlyRate;
 
             // ✅ Check conflict
             bool hasConflict = await _unitOfWork.BookingRepository
