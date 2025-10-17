@@ -106,7 +106,7 @@ namespace CoLearn.API
             return Ok(student);
         }
 
-        [Authorize(Roles = "4")] // Chỉ admin tạo mới
+        [Authorize(Roles = "2,4")]
         [HttpPost("student")]
         public async Task<IActionResult> CreateStudentProfile([FromBody] StudentDtoRequest dto)
         {
@@ -114,7 +114,7 @@ namespace CoLearn.API
             return result.StatusCode == 200 ? Ok(result) : BadRequest(result);
         }
 
-        [Authorize(Roles = "1,4")] // Student cập nhật profile của mình hoặc admin
+        [Authorize(Roles = "1,2,4")] 
         [HttpPut("student/{id}")]
         public async Task<IActionResult> UpdateStudentProfile(int id, [FromBody] StudentDtoRequest dto)
         {
