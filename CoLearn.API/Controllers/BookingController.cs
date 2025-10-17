@@ -44,7 +44,7 @@ namespace CoLearn.API.Controllers
 
         // ✅ Student xem booking của chính mình
         [HttpGet("student/{studentId}")]
-        [Authorize(Roles = "1")]
+        [Authorize(Roles = "1,2 ")]
         public async Task<IActionResult> GetByStudentId(int studentId, [FromQuery] int pageIndex = 1, [FromQuery] int pageSize = 10)
         {
             var result = await _bookingService.GetByStudentIdAsync(studentId, pageIndex, pageSize);
@@ -78,7 +78,7 @@ namespace CoLearn.API.Controllers
         }
 
         [HttpGet("status/{statusId}")]
-        [Authorize(Roles = "3,4")]
+        [Authorize]
         public async Task<IActionResult> GetByStatusId(int statusId, [FromQuery] int pageIndex = 1, [FromQuery] int pageSize = 10)
         {
             var result = await _bookingService.GetByStatusIdAsync(statusId, pageIndex, pageSize);
