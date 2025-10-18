@@ -110,7 +110,7 @@ namespace CoLearn.Infrastructure.Services.Payments
         {
             var booking = await _unitOfWork.BookingRepository.GetByIdAsync(bookingId);
             if (booking == null)
-                throw new Exception("Booking không tồn tại");
+                return "Booking không tồn tại";
             string description = $"Thanh toán lịch học #{bookingId}";
             string itemName = $"Lịch học #{bookingId}";
 
@@ -121,10 +121,10 @@ namespace CoLearn.Infrastructure.Services.Payments
         public async Task<string> CreateCoursePaymentAsync(int courseId, int studentId, int userId)
         {
             var course = await _unitOfWork.CourseRepository.GetByIdAsync(courseId);
-            if (course == null) throw new Exception("Course không tồn tại");
+            if (course == null) return "Course không tồn tại";
 
             var enrollment = await _unitOfWork.EnrollmentRepository.FindAsync(e => e.CourseId == courseId && e.StudentId == studentId);
-            if (enrollment != null) throw new Exception("Course này đã được thanh toán!");
+            if (enrollment != null) return "Course này đã được thanh toán!";
 
             enrollment = new Enrollment
             {
