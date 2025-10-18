@@ -8,6 +8,7 @@ using CoLearn.Domain.Interfaces.Services;
 using CoLearn.Domain.Models;
 using CoLearn.Services.Handler;
 using Microsoft.AspNetCore.Http.HttpResults;
+using Microsoft.Extensions.Configuration;
 
 namespace CoLearn.Services.Implementations
 {
@@ -15,15 +16,17 @@ namespace CoLearn.Services.Implementations
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
+        private readonly IConfiguration _config;
         private readonly INotificationService _notificationService;
         private readonly IBackgroundJobService _backgroundJobService;
 
-        public StudentService(IUnitOfWork unitOfWork, IMapper mapper, INotificationService notificationService, IBackgroundJobService backgroundJobService)
+        public StudentService(IUnitOfWork unitOfWork, IMapper mapper, INotificationService notificationService, IBackgroundJobService backgroundJobService, IConfiguration config)
         {
             _unitOfWork = unitOfWork;
             _mapper = mapper;
             _notificationService = notificationService;
             _backgroundJobService = backgroundJobService;
+            _config = config;
         }
 
         public async Task<Result<string>> CreateStudentAsync(StudentDtoRequest dto)
@@ -51,7 +54,7 @@ namespace CoLearn.Services.Implementations
             await _unitOfWork.UserRepository.CreateAsync(user);
             await _unitOfWork.CommitAsync(); // Để có userId
             // Gửi email xác minh
-            var verifyLink = $"https://localhost:7142/api/auth/verify?type={(int)VerifyTypeEnum.StudentCreate}&token={token}";
+            var verifyLink = $"{_config["AppSettings:ApiUrl"]}/api/auth/verify?type={(int)VerifyTypeEnum.StudentCreate}&token={token}";
             string emailBody = $@"<html>
 <head>
   <meta charset=""UTF-8"">
