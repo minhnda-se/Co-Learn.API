@@ -10,6 +10,7 @@ using System.Text;
 using System.Threading.Tasks;
 using CoLearn.Services.Handler;
 using CoLearn.Domain.DTOs.Request;
+using Microsoft.Extensions.Configuration;
 
 namespace CoLearn.Services.Implementations
 {
@@ -18,15 +19,18 @@ namespace CoLearn.Services.Implementations
         private readonly IUnitOfWork _unitOfWork;
         private readonly INotificationService _notificationService;
         private readonly IBackgroundJobService _backgroundJobService;
+        private readonly IConfiguration _config;
 
         public AuthService(
             IUnitOfWork unitOfWork,
             INotificationService notificationService,
-            IBackgroundJobService backgroundJobService)
+            IBackgroundJobService backgroundJobService,
+            IConfiguration config)
         {
             _unitOfWork = unitOfWork;
             _notificationService = notificationService;
             _backgroundJobService = backgroundJobService;
+            _config = config;
         }
 
         public async Task<Result<string>> RegisterAsync(UserRequest.CreateUserModel dto)
@@ -57,7 +61,7 @@ namespace CoLearn.Services.Implementations
             await _unitOfWork.CommitAsync();
 
             // Gửi email xác minh
-            var verifyLink = $"https://localhost:7142/api/auth/verify?type={(int)VerifyTypeEnum.Register}&token={token}";
+            var verifyLink = $"{_config["AppSettings:ApiUrl"]}/api/auth/verify?type={(int)VerifyTypeEnum.Register}&token={token}";
             string emailBody = $@"<html>
 <head>
   <meta charset=""UTF-8"">
