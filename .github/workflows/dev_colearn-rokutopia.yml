@@ -1,0 +1,63 @@
+# Docs for the Azure Web Apps Deploy action: https://github.com/Azure/webapps-deploy
+# More GitHub Actions for Azure: https://github.com/Azure/actions
+
+name: Build and deploy container app to Azure Web App - colearn-rokutopia
+
+on:
+  push:
+    branches:
+      - dev
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read #This is required for actions/checkout
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+
+      - name: Log in to container registry
+        uses: docker/login-action@v2
+        with:
+          registry: colearnacr.azurecr.io/
+          username: ${{ secrets.AZUREAPPSERVICE_CONTAINERUSERNAME_03BD0283242E4781A3599DF91523761D }}
+          password: ${{ secrets.AZUREAPPSERVICE_CONTAINERPASSWORD_27878ED3A28D407DAAE684D73860E5A0 }}
+
+      - name: Build and push container image to registry
+        uses: docker/build-push-action@v3
+        with:
+          context: .
+          push: true
+          tags: colearnacr.azurecr.io/${{ secrets.AZUREAPPSERVICE_CONTAINERUSERNAME_03BD0283242E4781A3599DF91523761D }}/colearn-api:${{ github.sha }}
+          file: ./Dockerfile
+
+  deploy:
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write #This is required for requesting the JWT
+      contents: read #This is required for actions/checkout
+
+    needs: build
+    
+    steps:
+      
+      - name: Login to Azure
+        uses: azure/login@v2
+        with:
+          client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID_813CFB1536C14EBA88823B09484B94C6 }}
+          tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_7BEE1571B8EA4D8381D10F972347DE94 }}
+          subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_51BFDD695DA540A998001F1C209948BA }}
+
+      - name: Deploy to Azure Web App
+        id: deploy-to-webapp
+        uses: azure/webapps-deploy@v2
+        with:
+          app-name: 'colearn-rokutopia'
+          slot-name: 'Production'
+          images: 'colearnacr.azurecr.io/${{ secrets.AZUREAPPSERVICE_CONTAINERUSERNAME_03BD0283242E4781A3599DF91523761D }}/colearn-api:${{ github.sha }}'
+          
