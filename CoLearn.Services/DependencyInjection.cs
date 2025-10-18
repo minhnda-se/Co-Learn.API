@@ -32,7 +32,7 @@ namespace CoLearn.Services
             services.AddScoped<ISubmissionService, SubmissionService>();
             services.AddScoped<IBookingService, BookingService>();
             services.AddScoped<IAuthService, AuthService>();
-
+            services.AddScoped<IScheduleService, ScheduleService>();
             services.AddScoped<BookingJobHandler>();
             services.AddScoped<IPaymentService, PaymentService>();
             // JWT Auth

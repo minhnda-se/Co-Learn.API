@@ -111,6 +111,8 @@ namespace CoLearn.Infrastructure.Services.Payments
             var booking = await _unitOfWork.BookingRepository.GetByIdAsync(bookingId);
             if (booking == null)
                 return "Booking không tồn tại";
+            if (booking.IsPaid)
+                return "Booking này đã được thanh toán!";
             string description = $"Thanh toán lịch học #{bookingId}";
             string itemName = $"Lịch học #{bookingId}";
 
@@ -234,8 +236,10 @@ namespace CoLearn.Infrastructure.Services.Payments
                 {
                     // THANH TOÁN THÀNH CÔNG -> TẠO LỊCH HỌC (SCHEDULE)
                     var booking = await _unitOfWork.BookingRepository.GetByIdAsync(payment.BookingId.Value);
+                    
                     if (booking != null)
                     {
+                        booking.IsPaid = true;
                         var newSchedule = new Schedule
                         {
                             BookingId = booking.BookingId,

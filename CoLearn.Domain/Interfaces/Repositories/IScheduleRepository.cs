@@ -12,6 +12,8 @@ namespace CoLearn.Domain.Interfaces.Repositories
     {
         Task<Schedule> CreateAsync(Schedule schedule);
         Task<List<Schedule>> GetByTeacherIdAsync(int teacherId);
+        Task<List<Schedule>> GetByStudentIdAsync(int studentId);
+
         Task<Schedule?> GetByIdAsync(int id);
         Task<Schedule?> UpdateAsync(Schedule schedule);
         Task<bool> DeleteAsync(int id);
