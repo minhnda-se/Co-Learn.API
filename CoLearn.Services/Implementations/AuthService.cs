@@ -35,6 +35,9 @@ namespace CoLearn.Services.Implementations
 
         public async Task<Result<string>> RegisterAsync(UserRequest.CreateUserModel dto)
         {
+            if (dto == null) return Result<string>.Failure("Invalid data", 400);
+            if (dto.PrimaryRoleId == 4) return Result<string>.Failure("Can not execute the request", 403);
+
             var existing = await _unitOfWork.UserRepository.GetByEmailAsync(dto.Email);
             if (existing != null)
                 return Result<string>.Failure("Email already exists");

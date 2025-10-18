@@ -9,7 +9,19 @@ using Hangfire;
 using Microsoft.Data.SqlClient;
 using Microsoft.OpenApi.Models;
 
-var builder = WebApplication.CreateBuilder(args);
+var builder = WebApplication.CreateBuilder(new WebApplicationOptions
+{
+    Args = args,
+    ContentRootPath = Directory.GetCurrentDirectory()
+});
+
+// ✅ Bổ sung dòng này để đọc biến môi trường (Azure App Settings, Docker env, v.v.)
+builder.Configuration
+    .SetBasePath(Directory.GetCurrentDirectory())
+    .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
+    .AddJsonFile($"appsettings.{builder.Environment.EnvironmentName}.json", optional: true, reloadOnChange: true)
+    .AddEnvironmentVariables(); // 👈 Dòng quan trọng
+
 
 // 1. Add services to the container
 builder.Services.AddControllers()
