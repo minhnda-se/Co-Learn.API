@@ -12,6 +12,10 @@ namespace CoLearn.Domain.Interfaces.Services
     {
         Task<Result<ScheduleResponseDto>> CreateAsync(ScheduleRequestDto dto);
         Task<Result<List<ScheduleResponseDto>>> GetByTeacherIdAsync(int teacherId);
+        Task<Result<List<ScheduleResponseDto>>> GetByStudentIdAsync(int stundentId);
+        Task<Result<ScheduleResponseDto>> GetByIdAsync(int id);
+
+        Task<Result> UpdateMeetingLink(int scheduleId, string meetingLink);
         Task<Result<ScheduleResponseDto?>> UpdateAsync(int id, ScheduleRequestDto request);
         Task<Result> DeleteAsync(int id);
     }

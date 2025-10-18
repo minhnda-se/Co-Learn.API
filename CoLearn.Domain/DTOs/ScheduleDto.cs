@@ -15,6 +15,7 @@ namespace CoLearn.Domain.DTOs
         public byte MaxStudents { get; set; }
         public bool IsRecurring { get; set; }
         public string? RecurrenceRule { get; set; }
+        public string? MeetingLink { get; set; } = string.Empty;
     }
 
     public class ScheduleResponseDto
@@ -22,11 +23,13 @@ namespace CoLearn.Domain.DTOs
         public int ScheduleId { get; set; }
         public int CourseId { get; set; }
         public int TeacherId { get; set; }
+        public int StudentId { get; set; } 
         public DateTime StartTime { get; set; }
         public DateTime EndTime { get; set; }
         public byte MaxStudents { get; set; }
         public byte CurrentStudents { get; set; }
-        public int ScheduleStatusId { get; set; }
+        public string? MeetingLink { get; set; }
+        public string Status { get; set; }
         public bool IsRecurring { get; set; }
         public string? RecurrenceRule { get; set; }
         public DateTime CreatedAt { get; set; }
@@ -34,5 +37,6 @@ namespace CoLearn.Domain.DTOs
         // Thông tin bổ sung
         public string? CourseTitle { get; set; }
         public string? TeacherName { get; set; }
+        public string? StudentName { get; set; }
     }
 }

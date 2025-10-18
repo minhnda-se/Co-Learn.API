@@ -26,6 +26,7 @@ namespace CoLearn.Services.Implementations
                 TeacherId = dto.TeacherId,
                 IsRecurring = dto.IsRecurring,
                 RecurrenceRule = dto.RecurrenceRule,
+                MeetingLink = dto.MeetingLink,
                 CreatedAt = DateTime.UtcNow,
                 CurrentStudents = 0,
                 ScheduleStatusId = 1, // default "Active"
@@ -72,6 +73,7 @@ namespace CoLearn.Services.Implementations
             schedule.CourseId = dto.CourseId;
             schedule.IsRecurring = dto.IsRecurring;
             schedule.RecurrenceRule = dto.RecurrenceRule;
+            schedule.MeetingLink = dto.MeetingLink;
 
             var updated = await _unitOfWork.ScheduleRepository.UpdateAsync(schedule);
             await _unitOfWork.CommitAsync();
@@ -87,17 +89,52 @@ namespace CoLearn.Services.Implementations
                 ScheduleId = s.ScheduleId,
                 CourseId = s.CourseId ?? 0,
                 TeacherId = s.TeacherId,
+                StudentId = s.StudentId ?? 0,
                 StartTime = s.StartTime,
                 EndTime = s.EndTime,
                 MaxStudents = s.MaxStudents,
                 CurrentStudents = s.CurrentStudents,
-                ScheduleStatusId = s.ScheduleStatusId,
+                Status = s.ScheduleStatus.StatusName,
                 IsRecurring = s.IsRecurring,
                 RecurrenceRule = s.RecurrenceRule,
                 CreatedAt = s.CreatedAt,
                 CourseTitle = s.Course?.Title,
-                TeacherName = s.Teacher?.User.FullName
+                TeacherName = s.Teacher?.User.FullName,
+                StudentName = s.Student?.User.FullName,
+                MeetingLink = s.MeetingLink
             };
+        }
+
+        public async Task<Result> UpdateMeetingLink(int scheduleId, string meetingLink)
+        {
+            var schedule = await _unitOfWork.ScheduleRepository.GetByIdAsync(scheduleId);
+            if (schedule == null)
+            {
+                return Result<ScheduleResponseDto>.Failure("Không tồn tại lịch!!", 400);
+            }
+            schedule.MeetingLink = meetingLink;
+            await _unitOfWork.CommitAsync();
+            return Result.Success("Cập nhật meeting link thành công!");
+        }
+
+        public async Task<Result<List<ScheduleResponseDto>>> GetByStudentIdAsync(int stundentId)
+        {
+            var schedules = await _unitOfWork.ScheduleRepository.GetByStudentIdAsync(stundentId);
+            if (!schedules.Any())
+                return Result<List<ScheduleResponseDto>>.Failure("No schedules found", 400);
+
+            var mapped = schedules.Select(MapToResponse).ToList();
+            return Result<List<ScheduleResponseDto>>.Success(mapped);
+        }
+
+        public async Task<Result<ScheduleResponseDto>> GetByIdAsync(int id)
+        {
+            var schedule = await _unitOfWork.ScheduleRepository.GetByIdAsync(id);
+            if (schedule == null)
+                return Result<ScheduleResponseDto>.Failure("No schedules found", 400);
+
+            var mapped = MapToResponse(schedule);
+            return Result<ScheduleResponseDto>.Success(mapped);
         }
     }
 }
