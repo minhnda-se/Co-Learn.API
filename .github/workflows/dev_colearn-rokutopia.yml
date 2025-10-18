@@ -34,7 +34,7 @@ jobs:
           context: .
           push: true
           tags: colearnacr.azurecr.io/${{ secrets.AZUREAPPSERVICE_CONTAINERUSERNAME_03BD0283242E4781A3599DF91523761D }}/colearn-api:${{ github.sha }}
-          file: ./Dockerfile
+          file: ./CoLearn.API/Dockerfile
 
   deploy:
     runs-on: ubuntu-latest
