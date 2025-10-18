@@ -9,8 +9,12 @@ namespace CoLearn.Domain.Interfaces.Repositories
         Task<Booking?> GetByIdAsync(int id);
         Task<List<Booking>> GetAllBookingsAsync();
         Task<List<Booking>> GetByStudentIdAsync(int studentId);
-        Task<List<Booking>> GetByScheduleIdAsync(int scheduleId);
+        Task<List<Booking>> GetByParentIdAsync(int parentId);
         Task<List<Booking>> GetByTeacherIdAsync(int teacherId);
         Task<List<Booking>> GetByStatusIdAsync(int statusId);
+        Task<bool> CheckBookingConflictWithPaidAsync(int teacherId, DateTime start, DateTime end);
+        Task<bool> CheckBookingConflictWithConfirmedAsync(int teacherId, DateTime start, DateTime end, int? excludeBookingId = null);
+        Task<List<(DateTime Start, DateTime End)>> GetOccupiedSlotsAsync(int teacherId, DateOnly date);
+
     }
 }

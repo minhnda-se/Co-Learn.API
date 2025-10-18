@@ -5,6 +5,7 @@ using CoLearn.Infrastructure;
 using CoLearn.Infrastructure.Context;
 using CoLearn.Infrastructure.Services;
 using CoLearn.Services;
+using Hangfire;
 using Microsoft.Data.SqlClient;
 using Microsoft.OpenApi.Models;
 
@@ -75,11 +76,16 @@ var app = builder.Build();
 app.UseMiddleware<ExceptionMiddleware>();
 
 // 6. Configure the HTTP request pipeline
-if (app.Environment.IsDevelopment())
+if (builder.Configuration.GetValue<bool>("Swagger:Enable"))
 {
     app.UseSwagger();
-    app.UseSwaggerUI();
+    app.UseSwaggerUI(c =>
+    {
+        c.SwaggerEndpoint("/swagger/v1/swagger.json", "CoLearn API v1");
+        c.RoutePrefix = "swagger"; // truy cập qua /swagger
+    });
 }
+
 
 app.UseHttpsRedirection();
 
@@ -88,6 +94,11 @@ app.UseCors("AllowAll");
 
 app.UseAuthentication();
 app.UseAuthorization();
+
+app.UseHangfireDashboard("/hangfire", new DashboardOptions
+{
+    Authorization = [] // nếu muốn public cho dev
+});
 
 app.MapControllers();
 

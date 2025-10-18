@@ -20,32 +20,36 @@ namespace CoLearn.Infrastructure.Repositories
             return await _context.Parents
                 .Include(p => p.User)
                     .ThenInclude(u => u.UserProfile)
-                .Include(p => p.Students) 
-                    .ThenInclude(s => s.User) 
+                .Include(p => p.Students
+                    .Where(s => !s.IsDeleted && s.User != null && !s.User.IsDeleted))
+                    .ThenInclude(s => s.User)
                         .ThenInclude(u => u.UserProfile)
                 .ToListAsync();
         }
 
-        public async Task<Parent> GetByUserIdAsync(int userId)
-        {
-            return await _context.Parents
-               .Include(p => p.User)
-                   .ThenInclude(u => u.UserProfile)
-               .Include(p => p.Students)
-                   .ThenInclude(s => s.User)
-                       .ThenInclude(u => u.UserProfile)
-               .FirstOrDefaultAsync(p => p.UserId == userId);
-        }
-
-        public async Task<Parent> GetParentByIdAsync(int parentId)
+        public async Task<Parent> GetByUserIdAsync(int? userId)
         {
             return await _context.Parents
                 .Include(p => p.User)
                     .ThenInclude(u => u.UserProfile)
-                .Include(p => p.Students)
+                .Include(p => p.Students
+                    .Where(s => !s.IsDeleted && s.User != null && !s.User.IsDeleted))
                     .ThenInclude(s => s.User)
                         .ThenInclude(u => u.UserProfile)
-                .FirstOrDefaultAsync(p => p.ParentId == parentId);
+               .FirstOrDefaultAsync(p => p.UserId == userId);
         }
+
+        public async Task<Parent> GetParentByIdAsync(int? parentId)
+        {
+            return await _context.Parents
+                .Include(p => p.User)
+                    .ThenInclude(u => u.UserProfile)
+                .Include(p => p.Students
+                    .Where(s => !s.IsDeleted && s.User != null && !s.User.IsDeleted))
+                    .ThenInclude(s => s.User)
+                        .ThenInclude(u => u.UserProfile)
+                .FirstOrDefaultAsync(p => p.ParentId == parentId && !p.IsDeleted);
+        }
+
     }
 }

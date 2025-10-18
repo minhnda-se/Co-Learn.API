@@ -24,11 +24,13 @@ namespace CoLearn.API.Middlewares
             {
                 await _next(context);
             }
+            
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Unhandled exception occurred.");
                 await HandleExceptionAsync(context, ex);
             }
+
         }
 
         private static Task HandleExceptionAsync(HttpContext context, Exception ex)
@@ -50,13 +52,43 @@ namespace CoLearn.API.Middlewares
                     status = HttpStatusCode.Conflict;
                     message = "Database update failed.";
                     break;
+                case BusinessException be:
+                    status = (HttpStatusCode)be.StatusCode;
+                    message = be.Message;
+                    break;
+                case BookingConflictException bce:
+                    {
+                        status = (HttpStatusCode)bce.StatusCode;
+                        message = bce.Message;
+
+                        // Lấy danh sách occupiedSlots nếu có
+                        var occupiedSlots = bce.Data["occupiedSlots"] as List<(DateTime Start, DateTime End)>;
+
+                        var responseObj = new
+                        {
+                            success = false,
+                            error = message,
+                            statusCode = (int)status,
+                            occupiedSlots = occupiedSlots?.Select(s => new
+                            {
+                                start = s.Start,
+                                end = s.End
+                            })
+                        };
+
+                        context.Response.ContentType = "application/json";
+                        context.Response.StatusCode = (int)status;
+                        return context.Response.WriteAsync(JsonSerializer.Serialize(responseObj));
+                    }
+
             }
 
             var response = new
             {
                 success = false,
                 error = message,
-                statusCode = (int)status
+                statusCode = (int)status,
+                traceId = context.TraceIdentifier
             };
 
             context.Response.ContentType = "application/json";

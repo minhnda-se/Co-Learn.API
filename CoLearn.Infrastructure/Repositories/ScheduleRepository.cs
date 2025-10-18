@@ -2,9 +2,11 @@
 using CoLearn.Domain.Models;
 using CoLearn.Infrastructure.Context;
 using Microsoft.EntityFrameworkCore;
+using Org.BouncyCastle.Asn1;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -61,6 +63,10 @@ namespace CoLearn.Infrastructure.Repositories
             _context.Entry(existingSchedule).CurrentValues.SetValues(schedule);
             await _context.SaveChangesAsync();
             return existingSchedule;
+        }
+        public async Task<Schedule> FindAsync(Expression<Func<Schedule, bool>> predicate)
+        {
+            return await _context.Schedules.FirstOrDefaultAsync(predicate);
         }
     }
 }

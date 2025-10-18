@@ -91,39 +91,37 @@ public class TeacherService : ITeacherService
         {
             user.FullName = dto.FullName;
             user.Phone = dto.Phone;
+            user.DateOfBirth = dto.Born;
             user.Gender = dto.Gender;
             user.UpdatedAt = DateTime.UtcNow;
             await _unitOfWork.UserRepository.UpdateAsync(user);
         }
 
         // Update UserProfile
-        var profile = await _unitOfWork.UserProfileRepository.GetByIdAsync(dto.UserId);
+        var profile = await _unitOfWork.UserProfileRepository.GetUserProfileAsync(dto.UserId);
         if (profile != null)
         {
             profile.AvatarUrl = dto.Photo;
-            _unitOfWork.UserProfileRepository.Update(profile);
         }
 
         // Update Teacher
         teacher.Qualification = $"{dto.Degree}|{dto.Cv}";
         teacher.Bio = dto.Description;
+        teacher.HourlyRate = dto.HourlyRate;
 
-        _unitOfWork.TeacherRepository.Update(teacher);
-
-        return await _unitOfWork.CommitAsync();
+        await _unitOfWork.CommitAsync();
+        return 1;
     }
 
     public async Task<int> DeleteTeacherAsync(int teacherId)
     {
         var profile = await _unitOfWork.TeacherRepository.GetTeacherByIdAsync(teacherId);
-        var user = await _unitOfWork.UserRepository.GetByIdAsync(profile.UserId);
-        if (profile == null || user == null) return 0;
-        user.IsDeleted = true;
-        user.DeletedAt = DateTime.UtcNow;
+
+        if (profile == null) return 0;
         profile.IsDeleted = true;
         profile.DeletedAt = DateTime.UtcNow;
 
-        await _unitOfWork.UserRepository.UpdateAsync(user);
+        await _unitOfWork.UserRepository.DeleteAsync(profile.UserId);
         _unitOfWork.TeacherRepository.Update(profile);
 
         return await _unitOfWork.CommitAsync();

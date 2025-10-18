@@ -23,11 +23,12 @@ namespace CoLearn.Infrastructure
         private ICourseMaterialRepository _courseMaterialRepository;
         private IEnrollmentRepository _enrollmentRepository;
         private IBookingRepository _bookingRepository;
-
+        private IPaymentRepository _paymentRepository;
         private ISubmissionRepository _submissionRepository;
         private IScheduleRepository _scheduleRepository;
         private IUserRepository _userRepository;
         private IGenericRepository<User> _userGenericRepository;
+        private ITransactionRepository _transactionRepository;
         public UnitOfWork(AppDbContext context)
         {
             _context = context;
@@ -65,11 +66,15 @@ namespace CoLearn.Infrastructure
 
         public IScheduleRepository ScheduleRepository 
             => _scheduleRepository ??= new ScheduleRepository(_context);
+
+        public IPaymentRepository PaymentRepository
+            => _paymentRepository ??= new PaymentRepository(_context);
+        public ITransactionRepository TransactionRepository
+            => _transactionRepository ??= new TransactionRepository(_context);
         // Generic repository
 
         public IGenericRepository<User> UserGenericRepository
             => _userGenericRepository ??= new GenericRepository<User>(_context);
-
 
         // Commit tất cả thay đổi
         public async Task<int> CommitAsync()
