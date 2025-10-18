@@ -32,6 +32,7 @@ namespace CoLearn.API.Controllers
             return result.StatusCode == 200 ? Ok("Your email has been successfully verified 🎉. You can login now!!") : BadRequest(result.Value);
         }
 
+        [Authorize]
         [HttpPost("change-password")]
         public async Task<IActionResult> ChangePassword([FromBody] ChangePasswordRequestDto dto)
         {
