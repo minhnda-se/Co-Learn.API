@@ -41,8 +41,11 @@ namespace CoLearn.Infrastructure.Repositories
         public async Task<Schedule?> GetByIdAsync(int id)
         {
             return await _context.Schedules
-                .Include(s => s.Course)
-                .Include(s => s.Teacher)
+                 .Include(s => s.Course)
+        .Include(s => s.Teacher)
+            .ThenInclude(t => t.User)
+        .Include(s => s.ScheduleStatus)
+        .Include(s => s.Student).ThenInclude(st => st.User)
                 .FirstOrDefaultAsync(s => s.ScheduleId == id);
         }
 
@@ -50,7 +53,11 @@ namespace CoLearn.Infrastructure.Repositories
         {
             return await _context.Schedules
                 .Where(s => s.TeacherId == teacherId && !s.IsDeleted)
-                .Include(s => s.Course)
+                 .Include(s => s.Course)
+        .Include(s => s.Teacher)
+            .ThenInclude(t => t.User)
+        .Include(s => s.ScheduleStatus)
+        .Include(s => s.Student).ThenInclude(st => st.User)
                 .ToListAsync();
         }
 
@@ -67,6 +74,17 @@ namespace CoLearn.Infrastructure.Repositories
         public async Task<Schedule> FindAsync(Expression<Func<Schedule, bool>> predicate)
         {
             return await _context.Schedules.FirstOrDefaultAsync(predicate);
+        }
+
+        public async Task<List<Schedule>> GetByStudentIdAsync(int studentId)
+        {
+            return await _context.Schedules
+               .Where(s => s.StudentId == studentId && !s.IsDeleted)
+               .Include(s => s.Course)
+               .Include(s => s.Teacher).ThenInclude(t => t.User)
+               .Include(s => s.Student).ThenInclude(st => st.User)
+               .Include(s => s.ScheduleStatus)
+               .ToListAsync();
         }
     }
 }

@@ -40,6 +40,28 @@ namespace CoLearn.API.Controllers
         }
 
         /// <summary>
+        /// Xem lịch của student  (Student, Teacher, Admin)
+        /// </summary>
+        [HttpGet("student/{studentId}")]
+        [Authorize(Roles = "1,3,4")] // Student, Teacher, Admin
+        public async Task<IActionResult> GetByStudent(int studentId)
+        {
+            var result = await _service.GetByStudentIdAsync(studentId);
+            return StatusCode(result.StatusCode, result);
+        }
+
+        /// <summary>
+        /// Xem lịch của theo id (Student, Teacher, Admin)
+        /// </summary>
+        [HttpGet("{id}")]
+        [Authorize(Roles = "1,3,4")] // Student, Teacher, Admin
+        public async Task<IActionResult> GetById(int id)
+        {
+            var result = await _service.GetByIdAsync(id);
+            return StatusCode(result.StatusCode, result);
+        }
+
+        /// <summary>
         /// Chỉnh sửa buổi học (Teacher)
         /// </summary>
         [HttpPut("{id}")]
@@ -60,5 +82,17 @@ namespace CoLearn.API.Controllers
             var result = await _service.DeleteAsync(id);
             return StatusCode(result.StatusCode, result);
         }
+
+        /// <summary>
+        /// Cập nhật meeting link cho buổi học (Teacher/Admin)
+        /// </summary>
+        [HttpPut("meeting/{id}")]
+        [Authorize(Roles = "3,4")] // Teacher, Admin
+        public async Task<IActionResult> UpdateMeetingLink(int id, [FromBody] string meetingLink)
+        {
+            var result = await _service.UpdateMeetingLink(id, meetingLink);
+            return StatusCode(result.StatusCode, result);
+        }
+
     }
 }
