@@ -65,9 +65,9 @@ namespace CoLearn.Infrastructure.Services.Payments
             await _unitOfWork.PaymentRepository.CreatePaymentAsync(payment);
             await _unitOfWork.CommitAsync();
 
-            long orderCode = payment.PaymentId;
-            var returnUrl = $"{_config["PayOS:ReturnUrl"]}?orderCode={orderCode}";
-            var cancelUrl = $"{_config["PayOS:CancelUrl"]}?orderCode={orderCode}";
+            long orderCode = long.Parse($"{payment.PaymentId}{DateTimeOffset.UtcNow.ToUnixTimeSeconds()}");
+            var returnUrl = $"{_config["PayOS:ReturnUrl"]}?payment={payment.PaymentId}";
+            var cancelUrl = $"{_config["PayOS:CancelUrl"]}?payment={payment.PaymentId}";
 
             // BƯỚC 2: Tạo signature CHỈ từ 5 trường theo đúng tài liệu
             var signature = GenerateSignature(orderCode, (int)amount, description, returnUrl, cancelUrl);
@@ -126,13 +126,14 @@ namespace CoLearn.Infrastructure.Services.Payments
             if (course == null) return "Course không tồn tại";
 
             var enrollment = await _unitOfWork.EnrollmentRepository.FindAsync(e => e.CourseId == courseId && e.StudentId == studentId);
-            if (enrollment != null) return "Course này đã được thanh toán!";
+            if (enrollment != null && enrollment.Status == StatusEnum.Success.ToString()) return "Course này đã được thanh toán!";
 
             enrollment = new Enrollment
             {
                 CourseId = courseId,
                 StudentId = studentId,
                 Status = StatusEnum.OnHold.ToString(),
+                IsDeleted = true,
                 UpdatedAt = DateTime.UtcNow
             };
             await _unitOfWork.EnrollmentRepository.AddAndSaveAsync(enrollment);
