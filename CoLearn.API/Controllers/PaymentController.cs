@@ -105,7 +105,7 @@ namespace CoLearn.API.Controllers
             return Ok(new
             {
                 message = "Payment cancelled successfully",
-                paymentId = paymentEntity.PaymentId,
+                payment = paymentEntity,
                 status = Enum.GetName(typeof(StatusEnum), paymentEntity.StatusId)
             });
         }

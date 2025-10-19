@@ -141,9 +141,12 @@ namespace CoLearn.Infrastructure.Services.Payments
                     return "Khóa học này đã được thanh toán thành công!";
 
                 // Nếu đang chờ thanh toán → không cho tạo lại
-                if (enrollment.Status == StatusEnum.OnHold.ToString() ||
+                if (enrollment.Status == StatusEnum.Pending.ToString() ||
+                    enrollment.Status == StatusEnum.OnHold.ToString() ||
                     enrollment.Status == StatusEnum.InProgress.ToString())
-                    return "Khóa học này đang trong quá trình thanh toán!";
+                {
+                    return "Bạn đã có một giao dịch đang xử lý. Vui lòng hoàn tất hoặc đợi hết hạn.";
+                }
 
                 // 🔹 Nếu là Failed, Cancelled, Expired → cho phép thanh toán lại
                 enrollment.Status = StatusEnum.OnHold.ToString();
@@ -242,9 +245,9 @@ namespace CoLearn.Infrastructure.Services.Payments
             }
 
             var orderStr = data.OrderCode.ToString();
-            
-                int paymentId = int.Parse(orderStr.Substring(10));
-                var payosStatus = data.Code?.ToUpperInvariant(); // Dùng "code" từ data
+
+            int paymentId = int.Parse(orderStr.Substring(10));
+            var payosStatus = data.Code?.ToUpperInvariant(); // Dùng "code" từ data
 
             // BƯỚC 1: Dùng orderCode để tìm lại bản ghi Payment
             var payment = await _unitOfWork.PaymentRepository.GetByIdAsync((int)paymentId);
@@ -275,7 +278,7 @@ namespace CoLearn.Infrastructure.Services.Payments
                 {
                     // THANH TOÁN THÀNH CÔNG -> TẠO LỊCH HỌC (SCHEDULE)
                     var booking = await _unitOfWork.BookingRepository.GetByIdAsync(payment.BookingId.Value);
-                    
+
                     if (booking != null)
                     {
                         booking.IsPaid = true;
