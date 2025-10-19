@@ -108,7 +108,7 @@ public class TeacherService : ITeacherService
         teacher.Qualification = $"{dto.Degree}|{dto.Cv}";
         teacher.Bio = dto.Description;
         teacher.HourlyRate = dto.HourlyRate;
-
+        teacher.VerificationStatus = dto.VerificationStatus;
         await _unitOfWork.CommitAsync();
         return 1;
     }
