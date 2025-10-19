@@ -50,7 +50,39 @@ namespace CoLearn.Infrastructure.Services.Payments
         // ============================================================
         public async Task<string> CreatePaymentUrlAsync(int userId, int orderId, decimal amount, string description, string itemName, int type)
         {
-            // BƯỚC 1: Tạo một bản ghi Payment trong DB để lấy PaymentID làm orderCode
+            // 🔹 1. Kiểm tra Payment đang tồn tại và còn trong 15 phút (CreatedAt)
+            var existingPayment = await _unitOfWork.PaymentRepository.FindAsync(
+                p =>
+                    !p.IsDeleted &&
+                    (
+                        p.StatusId == (int)StatusEnum.Pending ||
+                        p.StatusId == (int)StatusEnum.OnHold ||
+                        p.StatusId == (int)StatusEnum.InProgress
+                    ) &&
+                    (
+                        (type == 1 && p.BookingId == orderId) ||
+                        (type == 2 && p.EnrollmentId == orderId)
+                    )
+            );
+
+            if (existingPayment != null)
+            {
+                // Nếu chưa quá 15 phút kể từ khi tạo => chặn spam
+                if ((DateTime.UtcNow - existingPayment.CreatedAt).TotalMinutes < 15)
+                {
+                    Console.WriteLine($"⚠️ Existing payment within 15 minutes for order {orderId}, rejecting new request.");
+                    return "Bạn đã có một giao dịch đang chờ xử lý. Vui lòng hoàn tất hoặc thử lại sau 15 phút.";
+                }
+                else
+                {
+                    // Quá hạn 15 phút → đánh dấu Expired
+                    existingPayment.StatusId = (int)StatusEnum.Expired;
+                    existingPayment.UpdatedAt = DateTime.UtcNow;
+                    await _unitOfWork.PaymentRepository.UpdateAndSaveAsync(existingPayment);
+                }
+            }
+
+            // 🔹 2. Tạo Payment mới
             var payment = new Payment
             {
                 Amount = amount,
@@ -65,16 +97,13 @@ namespace CoLearn.Infrastructure.Services.Payments
             await _unitOfWork.PaymentRepository.CreatePaymentAsync(payment);
             await _unitOfWork.CommitAsync();
 
+            // 🔹 3. Gọi PayOS
             long orderCode = long.Parse($"{DateTimeOffset.UtcNow.ToUnixTimeSeconds()}{payment.PaymentId}");
-
             var returnUrl = $"{_config["PayOS:ReturnUrl"]}?payment={payment.PaymentId}";
             var cancelUrl = $"{_config["PayOS:CancelUrl"]}?payment={payment.PaymentId}";
-
-            // BƯỚC 2: Tạo signature CHỈ từ 5 trường theo đúng tài liệu
             var signature = GenerateSignature(orderCode, (int)amount, description, returnUrl, cancelUrl);
 
-            // BƯỚC 3: Tạo payload đầy đủ để gửi đi (có cả items và signature)
-            var finalPayload = new
+            var payload = new
             {
                 orderCode,
                 amount = (int)amount,
@@ -85,27 +114,25 @@ namespace CoLearn.Infrastructure.Services.Payments
                 {
             new { name = itemName, quantity = 1, price = (int)amount }
         },
-                signature // Chữ ký đã được tạo đúng từ 5 trường
+                signature
             };
 
-            Console.WriteLine("--- PAYOS REQUEST BODY ---");
-            Console.WriteLine(System.Text.Json.JsonSerializer.Serialize(finalPayload));
-            Console.WriteLine("---------------------------");
-
-            var response = await _httpClient.PostAsJsonAsync("v2/payment-requests", finalPayload);
+            var response = await _httpClient.PostAsJsonAsync("v2/payment-requests", payload);
             var responseBody = await response.Content.ReadAsStringAsync();
-
-            Console.WriteLine("--- PAYOS API RESPONSE ---");
-            Console.WriteLine($"Status Code: {response.StatusCode}");
-            Console.WriteLine($"Body: {responseBody}");
-            Console.WriteLine("--------------------------");
 
             if (!response.IsSuccessStatusCode)
                 throw new HttpRequestException($"PayOS returned {response.StatusCode}: {responseBody}");
 
-            var data = System.Text.Json.JsonSerializer.Deserialize<PayOSCreateResponse>(responseBody, new System.Text.Json.JsonSerializerOptions { PropertyNameCaseInsensitive = true });
-            return data?.Data?.CheckoutUrl ?? "";
+            var data = System.Text.Json.JsonSerializer.Deserialize<PayOSCreateResponse>(
+                responseBody,
+                new System.Text.Json.JsonSerializerOptions { PropertyNameCaseInsensitive = true }
+            );
+
+            var checkoutUrl = data?.Data?.CheckoutUrl ?? "";
+            Console.WriteLine($"✅ Created PayOS link for order {orderId}: {checkoutUrl}");
+            return checkoutUrl;
         }
+
 
         public async Task<string> CreateBookingPaymentAsync(int bookingId, int userId)
         {
@@ -305,14 +332,13 @@ namespace CoLearn.Infrastructure.Services.Payments
                 {
                     if (isSuccess)
                     {
-                        enrollment.Status = isSuccess ? StatusEnum.Success.ToString() : StatusEnum.Failed.ToString();
+                        enrollment.Status = StatusEnum.Success.ToString();
                         enrollment.UpdatedAt = DateTime.UtcNow;
                     }
                     else
                     {
                         enrollment.Status = StatusEnum.Failed.ToString();
-                        enrollment.UpdatedAt = DateTime.UtcNow;
-                        enrollment.DeletedAt = DateTime.UtcNow; // Xoá enrollment nếu thanh toán thất bại
+                        enrollment.DeletedAt = DateTime.UtcNow;
                         enrollment.IsDeleted = true;
                     }
                 }
