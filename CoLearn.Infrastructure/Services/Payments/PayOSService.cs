@@ -65,7 +65,8 @@ namespace CoLearn.Infrastructure.Services.Payments
             await _unitOfWork.PaymentRepository.CreatePaymentAsync(payment);
             await _unitOfWork.CommitAsync();
 
-            long orderCode = long.Parse($"{payment.PaymentId}{DateTimeOffset.UtcNow.ToUnixTimeSeconds()}");
+            long orderCode = long.Parse($"{DateTimeOffset.UtcNow.ToUnixTimeSeconds()}{payment.PaymentId}");
+
             var returnUrl = $"{_config["PayOS:ReturnUrl"]}?payment={payment.PaymentId}";
             var cancelUrl = $"{_config["PayOS:CancelUrl"]}?payment={payment.PaymentId}";
 
@@ -240,21 +241,23 @@ namespace CoLearn.Infrastructure.Services.Payments
                 return; // Dừng lại nếu không có data
             }
 
-            long orderCode = data.OrderCode; // Đây chính là PaymentId của bạn
-            var payosStatus = data.Code?.ToUpperInvariant(); // Dùng "code" từ data
+            var orderStr = data.OrderCode.ToString();
+            
+                int paymentId = int.Parse(orderStr.Substring(10));
+                var payosStatus = data.Code?.ToUpperInvariant(); // Dùng "code" từ data
 
             // BƯỚC 1: Dùng orderCode để tìm lại bản ghi Payment
-            var payment = await _unitOfWork.PaymentRepository.GetByIdAsync((int)orderCode);
+            var payment = await _unitOfWork.PaymentRepository.GetByIdAsync((int)paymentId);
             if (payment == null)
             {
-                Console.WriteLine($"⚠️ Payment with OrderCode (PaymentId) {orderCode} not found.");
+                Console.WriteLine($"⚠️ Payment with OrderCode (PaymentId) {paymentId} not found.");
                 return;
             }
 
             // Nếu giao dịch đã xử lý rồi thì bỏ qua
             if (payment.StatusId != (int)StatusEnum.Pending)
             {
-                Console.WriteLine($"ℹ️ Payment {orderCode} has already been processed.");
+                Console.WriteLine($"ℹ️ Payment {paymentId} has already been processed.");
                 return;
             }
 
@@ -326,7 +329,7 @@ namespace CoLearn.Infrastructure.Services.Payments
             // ======================================================================
 
             await _unitOfWork.CommitAsync();
-            Console.WriteLine($"✅ Webhook processed successfully for PaymentId {orderCode}. New status: {payment.StatusId}. Transaction created.");
+            Console.WriteLine($"✅ Webhook processed successfully for PaymentId {paymentId}. New status: {payment.StatusId}. Transaction created.");
         }
     }
 }
