@@ -74,7 +74,7 @@ namespace CoLearn.API.Controllers
         }
 
         [HttpGet("payos/cancel")]
-        public async Task<IActionResult> CancelPayment([FromQuery] int payment)
+        public async Task<IActionResult> CancelPayment([FromQuery] long payment)
         {
             // 🔍 Tìm payment theo PaymentId
             var paymentEntity = await _unitOfWork.PaymentRepository.GetByIdAsync(payment);
@@ -102,12 +102,8 @@ namespace CoLearn.API.Controllers
 
             await _unitOfWork.CommitAsync(); // 🔥 commit tất cả thay đổi
 
-            return Ok(new
-            {
-                message = "Payment cancelled successfully",
-                payment = paymentEntity,
-                status = Enum.GetName(typeof(StatusEnum), paymentEntity.StatusId)
-            });
+            var result = await _paymentService.GetByIdAsync(payment);
+            return StatusCode(result.StatusCode, result);
         }
 
 
