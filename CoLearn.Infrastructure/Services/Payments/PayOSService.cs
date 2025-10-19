@@ -54,8 +54,11 @@ namespace CoLearn.Infrastructure.Services.Payments
             var existingPayment = await _unitOfWork.PaymentRepository.FindAsync(
                 p =>
                     !p.IsDeleted &&
-                    p.StatusId != (int)StatusEnum.Success &&
-                    p.StatusId != (int)StatusEnum.Failed &&
+                    (
+                        p.StatusId == (int)StatusEnum.Pending ||
+                        p.StatusId == (int)StatusEnum.OnHold ||
+                        p.StatusId == (int)StatusEnum.InProgress
+                    ) &&
                     (
                         (type == 1 && p.BookingId == orderId) ||
                         (type == 2 && p.EnrollmentId == orderId)
