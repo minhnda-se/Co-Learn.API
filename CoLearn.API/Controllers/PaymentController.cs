@@ -74,27 +74,42 @@ namespace CoLearn.API.Controllers
         }
 
         [HttpGet("payos/cancel")]
-        public async Task<IActionResult> CancelPayment([FromQuery] long orderCode)
+        public async Task<IActionResult> CancelPayment([FromQuery] int payment)
         {
-            var payment = await _unitOfWork.PaymentRepository.GetByIdAsync((int)orderCode);
-            if (payment != null && payment.StatusId == (int)StatusEnum.Pending)
+            // 🔍 Tìm payment theo PaymentId
+            var paymentEntity = await _unitOfWork.PaymentRepository.GetByIdAsync(payment);
+            if (paymentEntity == null)
+                return NotFound(new { message = "Payment not found" });
+
+            // 🟡 Nếu payment đang chờ => đổi trạng thái sang Cancelled
+            if (paymentEntity.StatusId == (int)StatusEnum.Pending)
             {
-                payment.StatusId = (int)StatusEnum.Cancelled;
-                payment.UpdatedAt = DateTime.UtcNow;
-                await _unitOfWork.CommitAsync();
+                paymentEntity.StatusId = (int)StatusEnum.Cancelled;
+                paymentEntity.UpdatedAt = DateTime.UtcNow;
             }
-            if (payment != null && payment.EnrollmentId.HasValue)
+
+            // 🧩 Nếu là Enrollment Payment => cập nhật Enrollment tương ứng
+            if (paymentEntity.EnrollmentId.HasValue)
             {
-                var enrollment = await _unitOfWork.EnrollmentRepository.GetByIdAsync(payment.EnrollmentId.Value);
-                if (enrollment != null && enrollment.Status.Equals(StatusEnum.OnHold.ToString()))
+                var enrollment = await _unitOfWork.EnrollmentRepository.GetByIdAsync(paymentEntity.EnrollmentId.Value);
+                if (enrollment != null && enrollment.Status == StatusEnum.OnHold.ToString())
                 {
                     enrollment.Status = StatusEnum.Cancelled.ToString();
-                    enrollment.DeletedAt = DateTime.UtcNow; // Xoá enrollment nếu thanh toán thất bại
+                    enrollment.DeletedAt = DateTime.UtcNow;
                     enrollment.IsDeleted = true;
                 }
             }
-            return Ok(new { message = "Payment cancelled successfully", payment});
+
+            await _unitOfWork.CommitAsync(); // 🔥 commit tất cả thay đổi
+
+            return Ok(new
+            {
+                message = "Payment cancelled successfully",
+                paymentId = paymentEntity.PaymentId,
+                status = Enum.GetName(typeof(StatusEnum), paymentEntity.StatusId)
+            });
         }
+
 
     }
 }
