@@ -122,28 +122,63 @@ namespace CoLearn.Infrastructure.Services.Payments
 
         public async Task<string> CreateCoursePaymentAsync(int courseId, int studentId, int userId)
         {
+            // 🔹 1. Kiểm tra khóa học tồn tại
             var course = await _unitOfWork.CourseRepository.GetByIdAsync(courseId);
-            if (course == null) return "Course không tồn tại";
+            if (course == null)
+                return "Khóa học không tồn tại.";
 
-            var enrollment = await _unitOfWork.EnrollmentRepository.FindAsync(e => e.CourseId == courseId && e.StudentId == studentId);
-            if (enrollment != null && enrollment.Status == StatusEnum.Success.ToString()) return "Course này đã được thanh toán!";
+            // 🔹 2. Tìm Enrollment hiện có của học viên cho khóa học này
+            var enrollment = await _unitOfWork.EnrollmentRepository.FindAsync(
+                e => e.CourseId == courseId && e.StudentId == studentId
+            );
 
-            enrollment = new Enrollment
+            // 🔹 3. Nếu đã có Enrollment
+            if (enrollment != null)
             {
-                CourseId = courseId,
-                StudentId = studentId,
-                Status = StatusEnum.OnHold.ToString(),
-                IsDeleted = true,
-                UpdatedAt = DateTime.UtcNow
-            };
-            await _unitOfWork.EnrollmentRepository.AddAndSaveAsync(enrollment);
+                // Nếu đã thanh toán thành công → không cho tạo lại
+                if (enrollment.Status == StatusEnum.Completed.ToString() || enrollment.Status == StatusEnum.Success.ToString())
+                    return "Khóa học này đã được thanh toán thành công!";
 
+                // Nếu đang chờ thanh toán → không cho tạo lại
+                if (enrollment.Status == StatusEnum.OnHold.ToString() ||
+                    enrollment.Status == StatusEnum.InProgress.ToString())
+                    return "Khóa học này đang trong quá trình thanh toán!";
+
+                // 🔹 Nếu là Failed, Cancelled, Expired → cho phép thanh toán lại
+                enrollment.Status = StatusEnum.OnHold.ToString();
+                enrollment.IsDeleted = false;
+                enrollment.UpdatedAt = DateTime.UtcNow;
+                await _unitOfWork.EnrollmentRepository.UpdateAndSaveAsync(enrollment);
+            }
+            else
+            {
+                // 🔹 4. Nếu chưa có Enrollment → tạo mới
+                enrollment = new Enrollment
+                {
+                    CourseId = courseId,
+                    StudentId = studentId,
+                    Status = StatusEnum.OnHold.ToString(),
+                    IsDeleted = false,
+                    UpdatedAt = DateTime.UtcNow
+                };
+                await _unitOfWork.EnrollmentRepository.AddAndSaveAsync(enrollment);
+            }
+
+            // 🔹 5. Tạo mô tả & thông tin thanh toán
             string description = $"Thanh toán khóa học #{courseId}";
-            string itemName = course.Title; // Thêm itemName
+            string itemName = course.Title;
 
-            // SỬA LẠI DÒNG NÀY: Cần cung cấp đủ 6 tham số
-            return await CreatePaymentUrlAsync(userId, enrollment.EnrollmentId, course.PricePerSession ?? 0, description, itemName, 2);
+            // 🔹 6. Gọi service tạo link thanh toán PayOS
+            return await CreatePaymentUrlAsync(
+                userId,
+                enrollment.EnrollmentId,
+                course.PricePerSession ?? 0,
+                description,
+                itemName,
+                2 // 2 = loại thanh toán khóa học (ví dụ bạn dùng enum PaymentType)
+            );
         }
+
 
 
         // ============================================================
