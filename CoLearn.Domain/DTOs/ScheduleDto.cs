@@ -8,7 +8,8 @@ namespace CoLearn.Domain.DTOs
 {
     public class ScheduleRequestDto
     {
-        public int CourseId { get; set; }
+        public int? CourseId { get; set; }
+        public int? BookingId { get; set; }
         public int TeacherId { get; set; }
         public DateTime StartTime { get; set; }
         public DateTime EndTime { get; set; }
@@ -21,6 +22,7 @@ namespace CoLearn.Domain.DTOs
     public class ScheduleResponseDto
     {
         public int ScheduleId { get; set; }
+        public int BookingId { get; set; }
         public int CourseId { get; set; }
         public int TeacherId { get; set; }
         public int StudentId { get; set; } 
@@ -38,5 +40,6 @@ namespace CoLearn.Domain.DTOs
         public string? CourseTitle { get; set; }
         public string? TeacherName { get; set; }
         public string? StudentName { get; set; }
+        public BookingDtos.BookingResponseDto? BookingDetails { get; set; }
     }
 }
