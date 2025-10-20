@@ -22,6 +22,7 @@
         // Dữ liệu hệ thống (nếu cần)
         public decimal? HourlyRate { get; set; }
         public decimal? AvgRating { get; set; }
+        public string? VerificationStatus { get; set; } = null;
         public bool IsActive { get; set; } = true;
         public DateTime CreatedAt { get; set; }
         public DateTime? UpdatedAt { get; set; }

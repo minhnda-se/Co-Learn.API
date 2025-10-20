@@ -24,5 +24,6 @@ namespace CoLearn.Domain.DTOs.Requests
 
         // Giới thiệu
         public string Description { get; set; }
+        public string? VerificationStatus { get; set; }
     }
 }
