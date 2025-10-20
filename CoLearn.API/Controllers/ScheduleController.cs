@@ -11,10 +11,12 @@ namespace CoLearn.API.Controllers
     public class ScheduleController : ControllerBase
     {
         private readonly IScheduleService _service;
+        private readonly IBookingService bookingService;
 
-        public ScheduleController(IScheduleService service)
+        public ScheduleController(IScheduleService service, IBookingService bookingService)
         {
             _service = service;
+            this.bookingService = bookingService;
         }
 
         /// <summary>

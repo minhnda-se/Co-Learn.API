@@ -1,17 +1,22 @@
-﻿using CoLearn.Domain.Common;
+﻿using AutoMapper;
+using CoLearn.Domain.Common;
 using CoLearn.Domain.DTOs;
 using CoLearn.Domain.Interfaces;
 using CoLearn.Domain.Interfaces.Services;
 using CoLearn.Domain.Models;
+using static CoLearn.Domain.DTOs.BookingDtos;
 
 namespace CoLearn.Services.Implementations
 {
     public class ScheduleService : IScheduleService
     {
         private readonly IUnitOfWork _unitOfWork;
-        public ScheduleService(IUnitOfWork unitOfWork)
+        private readonly IMapper _mapper;
+
+        public ScheduleService(IUnitOfWork unitOfWork, IMapper mapper)
         {
             _unitOfWork = unitOfWork;
+            _mapper = mapper;
         }
 
         // POST /api/schedules (Teacher)
@@ -36,14 +41,16 @@ namespace CoLearn.Services.Implementations
             var created = await _unitOfWork.ScheduleRepository.CreateAsync(schedule);
             await _unitOfWork.CommitAsync();
 
-            return Result<ScheduleResponseDto>.Success(MapToResponse(created), "Schedule created successfully");
+            var mapped = await MapToResponse(created);
+            return Result<ScheduleResponseDto>.Success(mapped, "Schedule created successfully");
         }
 
         // DELETE /api/schedules/{id} (Teacher/Admin)
         public async Task<Result> DeleteAsync(int id)
         {
             var result = await _unitOfWork.ScheduleRepository.DeleteAsync(id);
-            if (!result) return Result.Failure("Schedule not found");
+            if (!result)
+                return Result.Failure("Schedule not found");
 
             await _unitOfWork.CommitAsync();
             return Result.Success("Schedule deleted successfully");
@@ -56,7 +63,12 @@ namespace CoLearn.Services.Implementations
             if (!schedules.Any())
                 return Result<List<ScheduleResponseDto>>.Failure("No schedules found");
 
-            var mapped = schedules.Select(MapToResponse).ToList();
+            var mapped = new List<ScheduleResponseDto>();
+            foreach (var s in schedules)
+            {
+                mapped.Add(await MapToResponse(s));
+            }
+
             return Result<List<ScheduleResponseDto>>.Success(mapped);
         }
 
@@ -64,9 +76,9 @@ namespace CoLearn.Services.Implementations
         public async Task<Result<ScheduleResponseDto?>> UpdateAsync(int id, ScheduleRequestDto dto)
         {
             var schedule = await _unitOfWork.ScheduleRepository.GetByIdAsync(id);
-            if (schedule == null) return Result<ScheduleResponseDto>.Failure("Schedule not found");
+            if (schedule == null)
+                return Result<ScheduleResponseDto>.Failure("Schedule not found");
 
-            // update fields (overwrite từ dto)
             schedule.StartTime = dto.StartTime;
             schedule.EndTime = dto.EndTime;
             schedule.MaxStudents = dto.MaxStudents;
@@ -78,30 +90,42 @@ namespace CoLearn.Services.Implementations
             var updated = await _unitOfWork.ScheduleRepository.UpdateAsync(schedule);
             await _unitOfWork.CommitAsync();
 
-            return Result<ScheduleResponseDto>.Success(MapToResponse(updated), "Schedule updated successfully");
+            var mapped = await MapToResponse(updated);
+            return Result<ScheduleResponseDto>.Success(mapped, "Schedule updated successfully");
         }
 
         // Mapping entity → DTO
-        private static ScheduleResponseDto MapToResponse(Schedule s)
+        private async Task<ScheduleResponseDto> MapToResponse(Schedule s)
         {
+            BookingResponseDto? bookingDto = null;
+
+            if (s.BookingId.HasValue)
+            {
+                var booking = await _unitOfWork.BookingRepository.GetByIdAsync(s.BookingId.Value);
+                if (booking != null)
+                    bookingDto = _mapper.Map<BookingResponseDto>(booking);
+            }
+
             return new ScheduleResponseDto
             {
                 ScheduleId = s.ScheduleId,
                 CourseId = s.CourseId ?? 0,
+                BookingId = s.BookingId ?? 0,
                 TeacherId = s.TeacherId,
                 StudentId = s.StudentId ?? 0,
                 StartTime = s.StartTime,
                 EndTime = s.EndTime,
                 MaxStudents = s.MaxStudents,
                 CurrentStudents = s.CurrentStudents,
-                Status = s.ScheduleStatus.StatusName,
+                Status = s.ScheduleStatus?.StatusName,
                 IsRecurring = s.IsRecurring,
                 RecurrenceRule = s.RecurrenceRule,
                 CreatedAt = s.CreatedAt,
                 CourseTitle = s.Course?.Title,
-                TeacherName = s.Teacher?.User.FullName,
-                StudentName = s.Student?.User.FullName,
-                MeetingLink = s.MeetingLink
+                TeacherName = s.Teacher?.User?.FullName,
+                StudentName = s.Student?.User?.FullName,
+                MeetingLink = s.MeetingLink,
+                BookingDetails = bookingDto
             };
         }
 
@@ -109,21 +133,25 @@ namespace CoLearn.Services.Implementations
         {
             var schedule = await _unitOfWork.ScheduleRepository.GetByIdAsync(scheduleId);
             if (schedule == null)
-            {
-                return Result<ScheduleResponseDto>.Failure("Không tồn tại lịch!!", 400);
-            }
+                return Result.Failure("Không tồn tại lịch!!", 400);
+
             schedule.MeetingLink = meetingLink;
             await _unitOfWork.CommitAsync();
             return Result.Success("Cập nhật meeting link thành công!");
         }
 
-        public async Task<Result<List<ScheduleResponseDto>>> GetByStudentIdAsync(int stundentId)
+        public async Task<Result<List<ScheduleResponseDto>>> GetByStudentIdAsync(int studentId)
         {
-            var schedules = await _unitOfWork.ScheduleRepository.GetByStudentIdAsync(stundentId);
+            var schedules = await _unitOfWork.ScheduleRepository.GetByStudentIdAsync(studentId);
             if (!schedules.Any())
                 return Result<List<ScheduleResponseDto>>.Failure("No schedules found", 400);
 
-            var mapped = schedules.Select(MapToResponse).ToList();
+            var mapped = new List<ScheduleResponseDto>();
+            foreach (var s in schedules)
+            {
+                mapped.Add(await MapToResponse(s));
+            }
+
             return Result<List<ScheduleResponseDto>>.Success(mapped);
         }
 
@@ -133,7 +161,7 @@ namespace CoLearn.Services.Implementations
             if (schedule == null)
                 return Result<ScheduleResponseDto>.Failure("No schedules found", 400);
 
-            var mapped = MapToResponse(schedule);
+            var mapped = await MapToResponse(schedule);
             return Result<ScheduleResponseDto>.Success(mapped);
         }
     }
