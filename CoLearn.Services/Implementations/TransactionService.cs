@@ -1,4 +1,7 @@
-﻿using CoLearn.Domain.Interfaces;
+﻿using AutoMapper;
+using CoLearn.Domain.DTOs;
+using CoLearn.Domain.DTOs.Responses;
+using CoLearn.Domain.Interfaces;
 using CoLearn.Domain.Interfaces.Repositories;
 using CoLearn.Domain.Interfaces.Services;
 using CoLearn.Domain.Models;
@@ -13,32 +16,49 @@ namespace CoLearn.Services.Implementations
     public class TransactionService : ITransactionService
     {
         private readonly IUnitOfWork _unitOfWork;
+        private readonly IMapper _mapper;
 
-        public TransactionService(IUnitOfWork unitOfWork)
+        public TransactionService(IUnitOfWork unitOfWork, IMapper mapper)
         {
             _unitOfWork = unitOfWork;
+            _mapper = mapper;
         }
 
-        public async Task<List<Transaction>> GetAllTransactionsAsync()
+        public async Task<List<TransactionResponse>> GetAllTransactionsAsync()
         {
-            return await _unitOfWork.TransactionRepository.GetAllAsync();
+            var transactions = await _unitOfWork.TransactionRepository.GetAllAsync();
+            return _mapper.Map<List<TransactionResponse>>(transactions);
+
         }
 
-        public async Task<List<Transaction>> GetByPaymentIdAsync(long paymentId)
+        public async Task<List<TransactionResponse>> GetByPaymentIdAsync(long paymentId)
         {
-            return await _unitOfWork.TransactionRepository.GetByPaymentIdAsync(paymentId);
+            var transactions = await _unitOfWork.TransactionRepository.GetByPaymentIdAsync(paymentId);
+            return _mapper.Map<List<TransactionResponse>>(transactions);
         }
 
-        public async Task<Transaction?> GetByGatewayCodeAsync(string gatewayCode)
+        public async Task<List<TransactionResponse>> GetByUserIdAsync(int userId)
         {
-            return await _unitOfWork.TransactionRepository.GetByGatewayCodeAsync(gatewayCode);
+            var transactions = await _unitOfWork.TransactionRepository.GetByUserIdAsync(userId);
+            return _mapper.Map<List<TransactionResponse>>(transactions);
         }
 
-        public async Task<Transaction> CreateTransactionAsync(Transaction transaction)
+        public async Task<TransactionResponse?> GetByGatewayCodeAsync(string gatewayCode)
         {
-            await _unitOfWork.TransactionRepository.AddAsync(transaction);
+            var transaction =  await _unitOfWork.TransactionRepository.GetByGatewayCodeAsync(gatewayCode);
+            return _mapper?.Map<TransactionResponse>(transaction);
+        }
+
+        public async Task<long> CreateTransactionAsync(TransactionRequest transaction)
+        {
+            if (transaction == null)
+            {
+                return 0;
+            }
+            var entity = _mapper.Map<Transaction>(transaction);
+            await _unitOfWork.TransactionRepository.AddAsync(entity);
             await _unitOfWork.TransactionRepository.SaveChangesAsync();
-            return transaction;
+            return entity.TransactionId;
         }
     }
 }

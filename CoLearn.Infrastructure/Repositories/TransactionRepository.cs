@@ -18,20 +18,34 @@ namespace CoLearn.Infrastructure.Repositories
         public async Task<List<Transaction>> GetAllAsync()
         {
             return await _context.Transactions
-                .Include(t => t.Payment)
+                .Include(t => t.Payment).ThenInclude(p => p.Status)
+                .Include(t => t.Payment).ThenInclude(p => p.Method)
                 .ToListAsync();
         }
 
         public async Task<List<Transaction>> GetByPaymentIdAsync(long paymentId)
         {
             return await _context.Transactions
+                .Include(t => t.Payment).ThenInclude(p => p.Status)
+                .Include(t => t.Payment).ThenInclude(p => p.Method)
                 .Where(t => t.PaymentId == paymentId)
+                .ToListAsync();
+        }
+
+        public async Task<List<Transaction>> GetByUserIdAsync(int userId)
+        {
+            return await _context.Transactions
+                .Include(t => t.Payment).ThenInclude(p => p.Status)
+                .Include(t => t.Payment).ThenInclude(p => p.Method)
+                .Where(t => t.Payment.PayerUserId == userId)
                 .ToListAsync();
         }
 
         public async Task<Transaction?> GetByGatewayCodeAsync(string gatewayCode)
         {
             return await _context.Transactions
+                .Include(t => t.Payment).ThenInclude(p => p.Status)
+                .Include(t => t.Payment).ThenInclude(p => p.Method)
                 .FirstOrDefaultAsync(t => t.GatewayTransactionCode == gatewayCode);
         }
 
