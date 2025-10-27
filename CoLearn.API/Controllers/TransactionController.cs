@@ -1,10 +1,12 @@
 ﻿using CoLearn.Domain.Interfaces.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace CoLearn.API.Controllers
 {
     [Route("api/transaction")]
+    [Authorize]
     [ApiController]
     public class TransactionController : ControllerBase
     {
@@ -14,13 +16,14 @@ namespace CoLearn.API.Controllers
             _transactionService = transactionService;
         }
 
+        [Authorize]
         [HttpGet("payment/{paymentId}")]
         public async Task<IActionResult> GetTransactionByPaymentId(long paymentId)
         {
             var resutl = await _transactionService.GetByPaymentIdAsync(paymentId);
             return Ok(resutl);
         }
-
+        [Authorize]
         [HttpGet("user/{userId}")]
         public async Task<IActionResult> GetTransactionByUserId(int userId)
         {
@@ -28,6 +31,7 @@ namespace CoLearn.API.Controllers
             return Ok(resutl);
         }
 
+        [Authorize(Roles = "4")]
         [HttpGet("get-all")]
         public async Task<IActionResult> GetAllTransactions()
         {
