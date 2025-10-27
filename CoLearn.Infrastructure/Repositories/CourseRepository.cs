@@ -13,7 +13,6 @@ namespace CoLearn.Infrastructure.Repositories
     public class CourseRepository : GenericRepository<Course>, ICourseRepository
     {
         public CourseRepository(AppDbContext context) : base(context) { }
-        // Lấy tất cả Course (chưa bị xóa)
         public async Task<PagedResult<Course>> GetAllCourseAsync(int pageIndex, int pageSize)
         {
             var query = _context.Courses

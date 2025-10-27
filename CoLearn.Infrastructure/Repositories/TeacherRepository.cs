@@ -18,6 +18,7 @@ namespace CoLearn.Infrastructure.Repositories
         public async Task<List<Teacher>> GetAllTeachersAsync()
         {
             return await _context.Teachers
+                .Where(t => !t.IsDeleted)
                 .Include(t => t.User).ThenInclude(t => t.UserProfile)
                 .ToListAsync();
         }

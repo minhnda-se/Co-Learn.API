@@ -28,7 +28,7 @@ namespace CoLearn.Infrastructure.Repositories
 
         public async Task<PagedResult<User>> GetAllAsync(int pageIndex, int pageSize)
         {
-            var query = _context.Users.AsQueryable();
+            var query = _context.Users.Where(u => !u.IsDeleted).AsQueryable();
             var totalCount = await query.CountAsync();
 
             var items = await query
@@ -73,6 +73,18 @@ namespace CoLearn.Infrastructure.Repositories
             await _context.SaveChangesAsync();
             return true;
         }
+        public async Task<User?> UnbanAsync(int id)
+        {
+            var user = await _context.Users.FindAsync(id);
+            if (user == null)
+                return null;
+            user.IsDeleted = false;
+            user.IsActive = true;
+            user.DeletedAt = null;
+            await _context.SaveChangesAsync();
+            return user;
+        }
+
         public async Task<User?> GetByEmailAsync(string email)
         {
             return await _context.Users

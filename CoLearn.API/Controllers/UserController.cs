@@ -45,6 +45,15 @@ namespace CoLearn.API.Controllers
             return StatusCode(created.StatusCode, created);
         }
 
+        [HttpPost("unban/{id}")]
+        [Authorize(Roles = "4")]
+        public async Task<IActionResult> Unban(int id)
+        {
+            var result = await _service.UnbanAsync(id);
+            return StatusCode(result.StatusCode, result);
+        }
+
+
         [HttpPut("{id}")]
         public async Task<IActionResult> Update(int id, [FromBody] UserRequest.UpdateUserModel dto)
         {

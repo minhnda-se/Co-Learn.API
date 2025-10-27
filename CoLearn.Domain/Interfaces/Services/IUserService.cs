@@ -16,6 +16,8 @@ namespace CoLearn.Domain.Interfaces.Services
         Task<Result<UserReponse.GetUserModel>> CreateAsync(UserRequest.CreateUserModel dto);
         Task<Result<UserReponse.GetUserModel?>> UpdateAsync(int id, UserRequest.UpdateUserModel dto);
         Task<Result> DeleteAsync(int id);
+        Task<Result<UserReponse.GetUserModel?>> UnbanAsync(int id);
+
         Task<Result<UserReponse.Login?>> LoginAsync(UserRequest.LoginRequest request);
     }
 }
