@@ -8,6 +8,8 @@ namespace CoLearn.Domain.Interfaces.Repositories
     {
         Task<List<Transaction>> GetAllAsync();
         Task<List<Transaction>> GetByPaymentIdAsync(long paymentId);
+        Task<List<Transaction>> GetByUserIdAsync(int userId);
+
         Task<Transaction?> GetByGatewayCodeAsync(string gatewayCode);
         Task AddAsync(Transaction transaction);
         Task SaveChangesAsync();
