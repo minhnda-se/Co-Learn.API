@@ -28,7 +28,7 @@ namespace CoLearn.Infrastructure.Repositories
 
         public async Task<PagedResult<User>> GetAllAsync(int pageIndex, int pageSize)
         {
-            var query = _context.Users.AsQueryable();
+            var query = _context.Users.Where(u => !u.IsDeleted).AsQueryable();
             var totalCount = await query.CountAsync();
 
             var items = await query
