@@ -17,7 +17,7 @@ namespace CoLearn.Infrastructure.Repositories
         {
             return await _context.CourseMaterials
                 .Include(m => m.Lesson)
-                .Include(m => m.Course)
+                .Include(m => m.Course).Where(d => !d.IsDeleted)
                 .FirstOrDefaultAsync(m => m.MaterialId == id && !m.IsDeleted);
         }
 

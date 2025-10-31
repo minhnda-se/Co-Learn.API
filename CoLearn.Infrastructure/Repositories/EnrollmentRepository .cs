@@ -31,7 +31,7 @@ namespace CoLearn.Infrastructure.Repositories
         public async Task<PagedResult<Enrollment>> GetByStudentIdAsync(int studentId, int pageIndex, int pageSize)
         {
             var query = BuildEnrollmentQuery()
-                .Where(e => e.StudentId == studentId);
+                .Where(e => e.StudentId == studentId && !e.IsDeleted);
 
             var totalCount = await query.CountAsync();
             var items = await query
@@ -45,7 +45,7 @@ namespace CoLearn.Infrastructure.Repositories
         public async Task<PagedResult<Enrollment>> GetByCourseIdAsync(int courseId, int pageIndex, int pageSize)
         {
             var query = BuildEnrollmentQuery()
-                .Where(e => e.CourseId == courseId);
+                .Where(e => e.CourseId == courseId && !e.IsDeleted);
 
             var totalCount = await query.CountAsync();
             var items = await query
@@ -58,7 +58,7 @@ namespace CoLearn.Infrastructure.Repositories
 
         public async Task<PagedResult<Enrollment>> GetAllEnrollmentsAsync(int pageIndex, int pageSize)
         {
-            var query = BuildEnrollmentQuery();
+            var query = BuildEnrollmentQuery().Where(d => !d.IsDeleted);
 
             var totalCount = await query.CountAsync();
             var items = await query
@@ -72,7 +72,7 @@ namespace CoLearn.Infrastructure.Repositories
         public async Task<Enrollment?> GetByIdAsync(int id)
         {
             return await BuildEnrollmentQuery()
-                .FirstOrDefaultAsync(e => e.EnrollmentId == id);
+                .FirstOrDefaultAsync(e => e.EnrollmentId == id && !e.IsDeleted);
         }
     }
 }

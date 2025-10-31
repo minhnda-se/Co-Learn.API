@@ -78,8 +78,18 @@ namespace CoLearn.Infrastructure.Repositories
             var user = await _context.Users.FindAsync(id);
             if (user == null)
                 return null;
-            user.IsDeleted = false;
             user.IsActive = true;
+            user.DeletedAt = null;
+            await _context.SaveChangesAsync();
+            return user;
+        }
+
+        public async Task<User?> BanAsync(int id)
+        {
+            var user = await _context.Users.FindAsync(id);
+            if (user == null)
+                return null;
+            user.IsActive = false;
             user.DeletedAt = null;
             await _context.SaveChangesAsync();
             return user;

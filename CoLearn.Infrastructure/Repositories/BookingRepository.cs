@@ -19,7 +19,7 @@ namespace CoLearn.Infrastructure.Repositories
                 .Include(b => b.Student).ThenInclude(s => s.Parent).ThenInclude(p => p.User)
                 .Include(s => s.Teacher).ThenInclude(t => t.User)
                 .Include(b => b.BookingStatus)
-                .Include(b => b.Payments)
+                .Include(b => b.Payments).Where(d => !d.IsDeleted)
                 .FirstOrDefaultAsync(b => b.BookingId == id && !b.IsDeleted);
         }
 

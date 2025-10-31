@@ -107,10 +107,21 @@ namespace CoLearn.Services.Implementations
             var user = await _unitOfWork.UserRepository.GetByIdAsync(id);
             if (user == null)
                 return Result<UserReponse.GetUserModel?>.Failure("User not found");
-
-            // Đảo ngược trạng thái ban
-            user.IsDeleted = false;
             user.IsActive = true;
+            user.DeletedAt = null;
+
+            var updated = await _unitOfWork.UserRepository.UpdateAsync(user);
+            await _unitOfWork.CommitAsync();
+
+            return Result<UserReponse.GetUserModel?>.Success(MapToResponse(updated), "User has been unbanned");
+        }
+
+        public async Task<Result<UserReponse.GetUserModel?>> BanAsync(int id)
+        {
+            var user = await _unitOfWork.UserRepository.GetByIdAsync(id);
+            if (user == null)
+                return Result<UserReponse.GetUserModel?>.Failure("User not found");
+            user.IsActive = false;
             user.DeletedAt = null;
 
             var updated = await _unitOfWork.UserRepository.UpdateAsync(user);
