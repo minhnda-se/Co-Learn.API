@@ -16,13 +16,13 @@ namespace CoLearn.Infrastructure.Repositories
 
         public async Task<List<UserProfile>> GetAllProfilesAsync()
         {
-            return await _context.UserProfiles.Include(p => p.User).ToListAsync();
+            return await _context.UserProfiles.Include(p => p.User).Where(d => !d.IsDeleted).ToListAsync();
         }
 
         public async Task<UserProfile> GetUserProfileAsync(int userId)
         {
             return await _context.UserProfiles.Include(p => p.User)
-                                 .FirstOrDefaultAsync(p => p.UserId == userId);
+                                 .FirstOrDefaultAsync(p => p.UserId == userId && !p.IsDeleted);
         }
     }
 }

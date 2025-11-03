@@ -4,6 +4,7 @@ using CoLearn.Infrastructure.Context;
 using CoLearn.Domain.Models;
 using CoLearn.Infrastructure.Repositories;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
 
 namespace CoLearn.Infrastructure
 {
@@ -29,6 +30,7 @@ namespace CoLearn.Infrastructure
         private IUserRepository _userRepository;
         private IGenericRepository<User> _userGenericRepository;
         private ITransactionRepository _transactionRepository;
+        private IEarningRepository _earningRepository;
         public UnitOfWork(AppDbContext context)
         {
             _context = context;
@@ -71,6 +73,9 @@ namespace CoLearn.Infrastructure
             => _paymentRepository ??= new PaymentRepository(_context);
         public ITransactionRepository TransactionRepository
             => _transactionRepository ??= new TransactionRepository(_context);
+
+        public IEarningRepository EarningRepository
+            => _earningRepository ??= new EarningRepository(_context);
         // Generic repository
 
         public IGenericRepository<User> UserGenericRepository

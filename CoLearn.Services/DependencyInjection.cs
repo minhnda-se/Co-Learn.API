@@ -36,6 +36,7 @@ namespace CoLearn.Services
             services.AddScoped<BookingJobHandler>();
             services.AddScoped<IPaymentService, PaymentService>();
             services.AddScoped<ITransactionService, TransactionService>();
+            services.AddScoped<IEarningService, EarningsSerivce>();
             // JWT Auth
             var jwtSettings = configuration.GetSection("Jwt");
             var key = Encoding.UTF8.GetBytes(jwtSettings["Key"]);

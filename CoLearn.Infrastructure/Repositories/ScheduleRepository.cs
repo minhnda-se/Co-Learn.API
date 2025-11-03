@@ -46,7 +46,7 @@ namespace CoLearn.Infrastructure.Repositories
             .ThenInclude(t => t.User)
         .Include(s => s.ScheduleStatus)
         .Include(s => s.Student).ThenInclude(st => st.User)
-                .FirstOrDefaultAsync(s => s.ScheduleId == id);
+                .FirstOrDefaultAsync(s => s.ScheduleId == id && !s.IsDeleted);
         }
 
         public async Task<List<Schedule>> GetByTeacherIdAsync(int teacherId)

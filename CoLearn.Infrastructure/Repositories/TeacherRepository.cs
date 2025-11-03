@@ -27,14 +27,14 @@ namespace CoLearn.Infrastructure.Repositories
         {
             return await _context.Teachers
                .Include(t => t.User).ThenInclude(t => t.UserProfile)
-               .FirstOrDefaultAsync(t => t.UserId == userId);
+               .FirstOrDefaultAsync(t => t.UserId == userId && !t.IsDeleted);
         }
 
         public async Task<Teacher> GetTeacherByIdAsync(int teacherId)
         {
             return await _context.Teachers
                 .Include(t => t.User).ThenInclude(t => t.UserProfile)
-                .FirstOrDefaultAsync(t => t.TeacherId == teacherId);
+                .FirstOrDefaultAsync(t => t.TeacherId == teacherId && !t.IsDeleted);
         }
     }
 }

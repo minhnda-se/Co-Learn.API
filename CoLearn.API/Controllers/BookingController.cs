@@ -44,7 +44,7 @@ namespace CoLearn.API.Controllers
 
         // ✅ Student xem booking của chính mình
         [HttpGet("student/{studentId}")]
-        [Authorize(Roles = "1,2 ")]
+        [Authorize(Roles = "1,2,4 ")]
         public async Task<IActionResult> GetByStudentId(int studentId, [FromQuery] int pageIndex = 1, [FromQuery] int pageSize = 10)
         {
             var result = await _bookingService.GetByStudentIdAsync(studentId, pageIndex, pageSize);
@@ -53,7 +53,7 @@ namespace CoLearn.API.Controllers
 
         // ✅ Parent xem booking của con mình
         [HttpGet("parent/{parentId}")]
-        [Authorize(Roles = "2")]
+        [Authorize(Roles = "2,4")]
         public async Task<IActionResult> GetByParentId(int parentId, [FromQuery] int pageIndex = 1, [FromQuery] int pageSize = 10)
         {
             var result = await _bookingService.GetByParentIdAsync(parentId, pageIndex, pageSize);
@@ -89,7 +89,7 @@ namespace CoLearn.API.Controllers
 
         // ✅ Student hoặc Parent có thể tạo booking mới
         [HttpPost]
-        [Authorize(Roles = "1,2")]
+        [Authorize(Roles = "1,2,4")]
         public async Task<IActionResult> Create([FromBody] BookingRequestDto dto)
         {
             if (dto == null) return BadRequest("Request body is null");

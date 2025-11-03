@@ -16,6 +16,7 @@ namespace CoLearn.Domain.Interfaces.Repositories
         Task<User?> UpdateAsync(User user);
         Task<bool> DeleteAsync(int id);
         Task<User?> UnbanAsync(int id);
+        Task<User?> BanAsync(int id);
         Task<User?> GetByEmailAsync(string email);
         Task<User?> GetByVerificationTokenAsync(string token);
         Task<User?> GetActiveUserByIdAsync(int userId);

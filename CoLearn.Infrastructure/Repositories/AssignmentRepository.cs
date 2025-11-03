@@ -33,7 +33,7 @@ namespace CoLearn.Infrastructure.Repositories
         }
         public async Task<Assignment?> GetByIdAsync(int id)
         {
-            return await _context.Assignments
+            return await _context.Assignments.Where(d => !d.IsDeleted)
                 .Include(a => a.Lesson)
                 .Include(a => a.Submissions)
                 .FirstOrDefaultAsync(a => a.AssignmentId == id && !a.IsDeleted);
