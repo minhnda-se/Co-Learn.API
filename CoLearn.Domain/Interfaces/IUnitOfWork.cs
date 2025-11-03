@@ -25,6 +25,8 @@ namespace CoLearn.Domain.Interfaces
         IBookingRepository BookingRepository { get; }
         IPaymentRepository PaymentRepository { get; }
         ITransactionRepository TransactionRepository { get; }
+
+        IEarningRepository EarningRepository { get; }
         // Generic Repositories
 
         IGenericRepository<User> UserGenericRepository { get; }
@@ -35,5 +37,6 @@ namespace CoLearn.Domain.Interfaces
 
         // Commit tất cả thay đổi
         Task<int> CommitAsync();
+
     }
 }
