@@ -35,5 +35,11 @@ namespace CoLearn.Domain.DTOs
         public DateTime CreatedAt { get; set; }
 
         public Detail PaymentDetail { get; set; }
+
+        public string FullName { get; set; } = null!;
+
+        public string Email { get; set; } = null!;
+
+        public string? Phone { get; set; }
     }
 }
