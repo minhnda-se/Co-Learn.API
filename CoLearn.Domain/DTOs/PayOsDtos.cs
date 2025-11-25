@@ -44,7 +44,7 @@ namespace CoLearn.Domain.DTOs
 
         // PayOS trả expiredAt = UNIX timestamp (số giây kể từ 1970)
         [JsonPropertyName("expiredAt")]
-        public long ExpiredAt { get; set; }
+        public long? ExpiredAt { get; set; }
 
         // Danh sách sản phẩm / dịch vụ (nếu có)
         [JsonPropertyName("items")]
