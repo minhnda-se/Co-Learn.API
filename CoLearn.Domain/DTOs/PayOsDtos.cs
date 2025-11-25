@@ -68,6 +68,16 @@ namespace CoLearn.Domain.DTOs
         [JsonPropertyName("returnUrl")]
         public string ReturnUrl { get; set; }
 
+        [JsonPropertyName("buyerName")]
+        public string BuyerName { get; set; }
+
+        [JsonPropertyName("buyerEmail")]
+        public string BuyerEmail { get; set; }
+
+        [JsonPropertyName("buyerPhone")]
+        public string BuyerPhone { get; set; }
+
+
         [JsonPropertyName("cancelUrl")]
         public string CancelUrl { get; set; }
 

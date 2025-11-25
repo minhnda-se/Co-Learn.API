@@ -103,6 +103,7 @@ namespace CoLearn.Infrastructure.Services.Payments
             var cancelUrl = $"{_config["PayOS:CancelUrl"]}?payment={payment.PaymentId}";
             var signature = GenerateSignature(orderCode, (int)amount, description, returnUrl, cancelUrl);
 
+            var user = await _unitOfWork.UserRepository.GetByIdAsync(userId);
             var payload = new
             {
                 orderCode,
@@ -110,6 +111,9 @@ namespace CoLearn.Infrastructure.Services.Payments
                 description,
                 cancelUrl,
                 returnUrl,
+                buyerName = user?.FullName ?? "Khách hàng",
+                buyerEmail = user?.Email ?? "",
+                buyerPhone = user?.Phone ?? "",
                 items = new[]
                 {
             new { name = itemName, quantity = 1, price = (int)amount }
