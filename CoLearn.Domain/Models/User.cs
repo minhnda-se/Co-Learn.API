@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace CoLearn.Infrastructure.Models;
+namespace CoLearn.Domain.Models;
 
 public partial class User
 {
@@ -11,11 +11,11 @@ public partial class User
 
     public string Email { get; set; } = null!;
 
-    public byte[]? PasswordHash { get; set; }
+    public string PasswordHash { get; set; } = null!;
 
     public string? Phone { get; set; }
 
-    public DateOnly? DateOfBirth { get; set; }
+    public DateTime? DateOfBirth { get; set; }
 
     public string? Gender { get; set; }
 
@@ -26,6 +26,10 @@ public partial class User
     public bool IsDeleted { get; set; }
 
     public DateTime? DeletedAt { get; set; }
+
+    public string? VerificationToken { get; set; }
+
+    public DateTime? VerificationTokenExpiry { get; set; }
 
     public DateTime CreatedAt { get; set; }
 

@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace CoLearn.Infrastructure.Models;
+namespace CoLearn.Domain.Models;
 
 public partial class Teacher
 {
@@ -26,6 +26,8 @@ public partial class Teacher
     public DateTime? DeletedAt { get; set; }
 
     public DateTime CreatedAt { get; set; }
+
+    public virtual ICollection<Booking> Bookings { get; set; } = new List<Booking>();
 
     public virtual ICollection<Course> Courses { get; set; } = new List<Course>();
 

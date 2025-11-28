@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace CoLearn.Infrastructure.Models;
+namespace CoLearn.Domain.Models;
 
 public partial class Submission
 {
@@ -16,6 +16,8 @@ public partial class Submission
     public decimal? Grade { get; set; }
 
     public string? Feedback { get; set; }
+
+    public string? FilePath { get; set; }
 
     public bool IsDeleted { get; set; }
 

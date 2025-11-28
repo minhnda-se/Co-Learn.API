@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace CoLearn.Infrastructure.Models;
+namespace CoLearn.Domain.Models;
 
 public partial class Lesson
 {
@@ -16,6 +16,8 @@ public partial class Lesson
     public byte? OrderNumber { get; set; }
 
     public short? DurationMinutes { get; set; }
+
+    public string? VideoUrl { get; set; }
 
     public bool IsDeleted { get; set; }
 

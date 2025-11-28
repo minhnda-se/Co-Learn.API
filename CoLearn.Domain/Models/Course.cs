@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace CoLearn.Infrastructure.Models;
+namespace CoLearn.Domain.Models;
 
 public partial class Course
 {
@@ -22,6 +22,8 @@ public partial class Course
     public decimal? PricePerSession { get; set; }
 
     public short? DurationMinutes { get; set; }
+
+    public string? ImageUrl { get; set; }
 
     public bool IsActive { get; set; }
 

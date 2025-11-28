@@ -4,9 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace CoLearn.Services.Implementations
+namespace CoLearn.Services.Mappings
 {
-    internal class Class1
+    internal class VnpayMapping
     {
     }
 }

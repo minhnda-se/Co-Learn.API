@@ -1,0 +1,23 @@
+﻿using CoLearn.Domain.Common;
+using CoLearn.Domain.DTOs.Requests;
+using CoLearn.Domain.DTOs.Responses;
+using CoLearn.Domain.Models;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace CoLearn.Domain.Interfaces.Services
+{
+    public interface IStudentService
+    {
+        Task<StudentDtoResponse?> GetStudentByIdAsync(int studentId);
+        Task<StudentDtoResponse?> GetStudentByUserIdAsync(int userId);
+        Task<List<StudentDtoResponse>> GetStudentsByParentIdAsync(int parentId);
+        Task<List<StudentDtoResponse>> GetAllStudentsAsync();
+        Task<Result<string>> CreateStudentAsync(StudentDtoRequest dto);
+        Task<int> UpdateStudentAsync(int userId, StudentDtoRequest dto);
+        Task<int> DeleteStudentAsync(int studentId);
+    }
+}
