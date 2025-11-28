@@ -27,7 +27,7 @@ namespace CoLearn.Services.Implementations
         {
             var course = _mapper.Map<Course>(dto);
             course.CreatedAt = DateTime.UtcNow;
-            course.IsActive = false;
+            course.IsActive = true;
             course.IsDeleted = false;
 
             // Nếu FE gửi ImageUrl từ temp/, chuyển sang private/
